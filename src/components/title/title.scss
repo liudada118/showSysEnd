@@ -1,0 +1,80 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.title {
+    box-sizing: border-box;
+    h2{
+        color: #fff;
+    }
+    display: flex;
+    background-color: #191932;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 5px 3%;
+    .titleItems {
+        // display: inline-block;
+        // width: 50%;
+        display: flex;
+        align-items: center;
+    }
+
+    .titleSelect {
+        margin-right: 30px;
+    }
+
+    .menu {
+        flex: 1;
+    }
+
+    .optionImg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-overflow-item {
+        color: #5A5A89;
+    }
+
+    .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item-selected {
+        color: #fff;
+    }
+
+    .ant-menu {
+        background-color: unset;
+    }
+
+    .ant-menu-horizontal {
+        border: 0;
+    }
+
+    .el-input__inner{
+        background-color: #000;
+        border-color: #000;
+        color: #fff;
+    }
+
+    .el-select:hover{
+        border-color: #5A5A89;
+    }
+
+    .slideContent{
+        
+    }
+
+    .aniButton{
+       padding: 5px 10px; 
+    }
+
+}
+
+.selectBox {
+    border: 1px solid #55aaff;
+    background-color: rgba(75, 160, 255, 0.3);
+    position: fixed;
+}
