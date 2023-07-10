@@ -1,5 +1,5 @@
 import React from 'react'
-import {  Menu,   Slider, Button, Select } from 'antd';
+import { Menu, Slider, Button, Select } from 'antd';
 import exchange from '../../assets/images/exchange.png'
 import option from '../../assets/images/Option.png'
 import './title.scss'
@@ -49,7 +49,8 @@ class Title extends React.Component {
       current: 'now',
       carCurrent: 'all',
       show: false,
-      num : 0
+      num: 0,
+      dataTime : ''
     }
   }
 
@@ -63,7 +64,7 @@ class Title extends React.Component {
       this.props.changeLocal(false)
     } else {
       this.props.changeLocal(true)
-      this.props.changeStateData({index : 0})
+      this.props.changeStateData({ index: 0 })
     }
     this.setState({
       current: e.key
@@ -92,7 +93,7 @@ class Title extends React.Component {
 
   changeNum = (num) => {
     this.setState({
-      num : num
+      num: num
     })
   }
 
@@ -128,7 +129,7 @@ class Title extends React.Component {
 
             console.log(e);
             this.props.wsSendObj({ sitPort: e })
-            this.props.changeStateData({portname : e})
+            this.props.changeStateData({ portname: e })
 
           }}
           options={this.props.port}
@@ -137,9 +138,9 @@ class Title extends React.Component {
 
           <img src={exchange} onClick={() => {
             if (this.props.portname && this.props.portnameBack) {
-              this.props.changeStateData({portname : this.props.portnameBack})
-              this.props.changeStateData({portnameBack : this.props.portname})
-              
+              this.props.changeStateData({ portname: this.props.portnameBack })
+              this.props.changeStateData({ portnameBack: this.props.portname })
+
               this.props.wsSendObj({ exchange: true })
             }
           }} style={{ height: "30px", marginRight: 20 }} alt="" />
@@ -153,7 +154,7 @@ class Title extends React.Component {
               console.log(e);
               this.props.wsSendObj({ backPort: e })
               // this.props.setPortnameBack(e)
-              this.props.changeStateData({portnameBack : e})
+              this.props.changeStateData({ portnameBack: e })
               // if (ws && ws.readyState === 1)
               //   ws.send(JSON.stringify({ sitPort: e }));
             }}
@@ -167,6 +168,7 @@ class Title extends React.Component {
           onChange={(e) => {
             // this.props.handleChangeCom(e);
             console.log(e);
+            this.setState({dataTime : e})
             this.props.wsSendObj({ getTime: e, index: 0 })
             // this.props.wsSendObj({port : e})
             // if (ws && ws.readyState === 1)
@@ -194,29 +196,39 @@ class Title extends React.Component {
           // </div> 
           <Menu className='menu' onClick={this.onCarClick} selectedKeys={[this.state.carCurrent]} mode="horizontal" items={carItems} />
           : null}
-        <Button onClick={() => {
-          const flag = this.props.colFlag
-          const date = new Date(Date.now());
-          const formattedDate = date.toLocaleString();
-          if (flag) {
-            this.props.wsSendObj({ flag: true, time: formattedDate })
-          } else {
-            this.props.wsSendObj({ flag: flag })
-          }
-          console.log(flag)
-          // this.props.setColFlag(!flag)
-          this.props.changeStateData({colFlag : !flag})
-          this.props.setColValueFlag(flag)
-        }}>{this.props.colFlag ? '采集' : '停止'}{this.state.num ? this.state.num : null}</Button>
+        {!this.props.local ?
+        <>
+          <Button onClick={() => {
+            const flag = this.props.colFlag
+            const date = new Date(Date.now());
+            const formattedDate = date.toLocaleString();
+            if (flag) {
+              this.props.wsSendObj({ flag: true, time: formattedDate })
+            } else {
+              this.props.wsSendObj({ flag: flag })
+            }
+            // console.log(flag)
+            // this.props.setColFlag(!flag)
+            this.props.changeStateData({ colFlag: !flag })
+            this.props.setColValueFlag(flag)
+          }}>{this.props.colFlag ? '采集' : '停止'}{this.state.num ? this.state.num : null}
+          </Button>
+          
+          </>
+          : <Button
+          onClick={() => {
+            this.props.wsSendObj({ download: this.state.dataTime })
+          }}
+        >{'下载'}</Button>}
       </div>
       <div style={{ position: 'relative' }}>
-        <img onClick={() => { 
+        <img onClick={() => {
           const show = this.state.show
           this.setState({
-            show : !show
+            show: !show
           })
           // setShow(!show) 
-          }} className='optionImg' src={option} alt="" />
+        }} className='optionImg' src={option} alt="" />
         {
           this.state.show ? <div className='slideContent' style={{ position: 'absolute', width: '300px', padding: '20px', backgroundColor: 'rgba(21,18,42,0.8)', borderRadius: '20px', right: 0, zIndex: 100 }}>
             <div
@@ -250,7 +262,7 @@ class Title extends React.Component {
                   onChange={(value) => {
                     localStorage.setItem("carValueg", value);
                     // this.props.setValueg1(value);
-                    this.props.changeStateData({valueg1 : value})
+                    this.props.changeStateData({ valueg1: value })
                     this.props.com.current?.sitValue({
                       valueg: value,
                     });
@@ -291,7 +303,7 @@ class Title extends React.Component {
                   onChange={(value) => {
                     localStorage.setItem("carValuej", value);
                     // this.props.setValuej1(value);
-                    this.props.changeStateData({valuej1 : value})
+                    this.props.changeStateData({ valuej1: value })
                     this.props.com.current?.sitValue({
                       valuej: value,
                     });
@@ -328,7 +340,7 @@ class Title extends React.Component {
                   onChange={(value) => {
                     localStorage.setItem("carValuef", value);
                     // this.props.setValuef1(value);
-                    this.props.changeStateData({valuef1 : value})
+                    this.props.changeStateData({ valuef1: value })
                     this.props.com.current?.sitValue({
                       valuef: value,
                     });
@@ -366,7 +378,7 @@ class Title extends React.Component {
                   onChange={(value) => {
                     localStorage.setItem("carValue", value);
                     // this.props.setValue1(value);
-                    this.props.changeStateData({value1 : value})
+                    this.props.changeStateData({ value1: value })
                     this.props.com.current?.sitValue({
                       value: value,
                     });
@@ -403,7 +415,7 @@ class Title extends React.Component {
                   onChange={(value) => {
                     localStorage.setItem("carValuel", value);
                     // this.props.setValuel1(value);
-                    this.props.changeStateData({valuel1 : value})
+                    this.props.changeStateData({ valuel1: value })
                     this.props.com.current?.sitValue({
                       valuel: value,
                     });
@@ -441,7 +453,7 @@ class Title extends React.Component {
                   onChange={(value) => {
                     localStorage.setItem("carValueInit", value);
                     // this.props.setValuelInit1(value);
-                    this.props.changeStateData({valuelInit1 : value})
+                    this.props.changeStateData({ valuelInit1: value })
                     this.props.com.current?.sitValue({
                       valuelInit: value,
                     });

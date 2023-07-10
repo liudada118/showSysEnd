@@ -396,7 +396,12 @@ const Canvas = React.forwardRef((props, refs) => {
 
   function animate() {
     animationRequestId = requestAnimationFrame(animate);
-    render();
+    // if(dataFlag){
+    //   console.log(111)
+      render();
+      // dataFlag = false
+    // }
+   
   }
 
   function move(position, time, particles) {
@@ -588,7 +593,7 @@ const Canvas = React.forwardRef((props, refs) => {
     interp(ndata, bigArr1, backnum1, backInterp);
     //高斯滤波
 
-    let bigarr1 = [];
+    let bigarr1 = [];              
 
     bigarr1 = addSide(
       bigArr1,

@@ -89,7 +89,7 @@ let totalArr = [], totalPointArr = [], wsMatrixName = 'foot'
 // }
 
 
-let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0
+let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0,sitDataFlag = false
 
 const text = '旋转'
 const text2 = '框选'
@@ -142,8 +142,8 @@ class Home extends React.Component {
 
   componentDidMount() {
     
-    ws = new WebSocket(" ws://192.168.31.114:19999");
-    // ws = new WebSocket(" ws://127.0.0.1:19999");
+    // ws = new WebSocket(" ws://192.168.31.114:19999");
+    ws = new WebSocket(" ws://127.0.0.1:19999");
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -152,9 +152,10 @@ class Home extends React.Component {
       sitPress = 0
       let jsonObject = JSON.parse(e.data);
       //处理空数组
-
+      sitDataFlag = false
       if (jsonObject.sitData != null) {
-
+        // sitDataFlag = true
+        // this.com?.current.changeDataFlag()
         if (colValueFlag) {
           num++
 
@@ -166,10 +167,6 @@ class Home extends React.Component {
 
         let selectArr
         let wsPointData = jsonObject.sitData;
-        // console.log(wsPointData)
-        if (!Array.isArray(wsPointData)) {
-          wsPointData = JSON.parse(wsPointData);
-        }
 
         if (this.state.matrixName == 'foot') {
           const { sitData, backData } = footLine(wsPointData)
@@ -196,12 +193,10 @@ class Home extends React.Component {
 
           for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
             for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
-              // sitPress += wsPointData[i*32 + j]
+              
               selectArr.push(wsPointData[i * 32 + j])
             }
           }
-
-          // this.com.current?.sitRenew(wsPointData);
         }
 
         let DataArr
@@ -235,6 +230,15 @@ class Home extends React.Component {
       }
 
       if (jsonObject.backData != null) {
+        if(!sitDataFlag){
+          // this.com?.current.changeDataFlag()
+          if (colValueFlag) {
+            num++
+            this.title.current?.changeNum(num)
+          } else {
+            num = 0
+          }
+        }
         backPress = 0
         let wsPointData = jsonObject.backData;
         // console.log(wsPointData)
@@ -480,21 +484,21 @@ class Home extends React.Component {
     wsMatrixName = e
   }
 
-  changeDateArr = (matrixName) => {
-    if (matrixName == 'foot') {
-      const dataArr = localStorage.getItem('dataArr')
-      const arr = dataArr ? JSON.parse(dataArr) : []
-      this.setState({ dataArr: arr })
-    } else if (matrixName == 'hand') {
-      const dataArr = localStorage.getItem('handArr')
-      const arr = dataArr ? JSON.parse(dataArr) : []
-      this.setState({ dataArr: arr })
-    } else if (matrixName == 'car') {
-      const dataArr = localStorage.getItem('carArr')
-      const arr = dataArr ? JSON.parse(dataArr) : []
-      this.setState({ dataArr: arr })
-    }
-  }
+  // changeDateArr = (matrixName) => {
+  //   if (matrixName == 'foot') {
+  //     const dataArr = localStorage.getItem('dataArr')
+  //     const arr = dataArr ? JSON.parse(dataArr) : []
+  //     this.setState({ dataArr: arr })
+  //   } else if (matrixName == 'hand') {
+  //     const dataArr = localStorage.getItem('handArr')
+  //     const arr = dataArr ? JSON.parse(dataArr) : []
+  //     this.setState({ dataArr: arr })
+  //   } else if (matrixName == 'car') {
+  //     const dataArr = localStorage.getItem('carArr')
+  //     const arr = dataArr ? JSON.parse(dataArr) : []
+  //     this.setState({ dataArr: arr })
+  //   }
+  // }
 
   changeLocal = (value) => {
 
@@ -511,10 +515,10 @@ class Home extends React.Component {
     }
   }
 
-  formatter = (value) => {
+  // formatter = (value) => {
 
-    return `${value}%`
-  };
+  //   return `${value}%`
+  // };
 
   changeValue = (value) => {
     return value < 8 ? 0 : value > 68 ? 31 : Math.round((value - 8) / 2)
