@@ -16,7 +16,7 @@ import { handLine, footLine, carSitLine, carBackLine } from '../../assets/util/l
 import { Select, Slider, Popover } from 'antd'
 import { SelectOutlined } from '@ant-design/icons'
 
-let ws, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0;
+let ws,ws1, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0;
 let backTotal = 0, backMean = 0, backMax = 0, backMin = 0, backPoint = 0, backArea = 0, sitTotal = 0, sitMean = 0, sitMax = 0, sitMin = 0, sitPoint = 0, sitArea = 0
 
 class Com extends React.Component {
@@ -154,8 +154,7 @@ class Home extends React.Component {
       //处理空数组
       sitDataFlag = false
       if (jsonObject.sitData != null) {
-        // sitDataFlag = true
-        // this.com?.current.changeDataFlag()
+        
         if (colValueFlag) {
           num++
 
@@ -165,8 +164,13 @@ class Home extends React.Component {
         }
         // console.log(num)
 
+        
+
         let selectArr
         let wsPointData = jsonObject.sitData;
+        if(!Array.isArray(wsPointData)){
+          wsPointData = JSON.parse(wsPointData)
+        }
 
         if (this.state.matrixName == 'foot') {
           const { sitData, backData } = footLine(wsPointData)
@@ -229,32 +233,88 @@ class Home extends React.Component {
         // data.current?.initCharts2(totalArr)
       }
 
-      if (jsonObject.backData != null) {
-        if(!sitDataFlag){
-          // this.com?.current.changeDataFlag()
-          if (colValueFlag) {
-            num++
-            this.title.current?.changeNum(num)
-          } else {
-            num = 0
-          }
+     
+      if (jsonObject.port != null) {
+        // console.log(jsonObject.port)
+        const port = []
+        jsonObject.port.forEach((a, index) => {
+          port.push({
+            value: a.path,
+            label: a.path
+          })
+        })
+
+        this.setState({
+          port: port
+        })
+      }
+      if (jsonObject.length != null) {
+
+        this.setState({
+          length: jsonObject.length
+        })
+      }
+      if (jsonObject.time != null) {
+
+        this.setState({
+          time: jsonObject.time
+        })
+      }
+      if (jsonObject.timeArr != null) {
+        // const arr = []
+        const arr = jsonObject.timeArr.map((a, index) => a.date)
+        // console.log(arr)
+        let obj = []
+        arr.forEach((a, index) => {
+          obj.push({
+            value: a,
+            label: a
+          })
+        })
+        this.setState({ dataArr: obj })
+      }
+      // console.log(jsonObject)
+      if (jsonObject.index != null) {
+        // console.log(index , length)
+        if (jsonObject.index <= this.state.length) {
+
+          this.setState({
+            index: jsonObject.index
+          })
         }
+
+      }
+
+    };
+    ws.onerror = (e) => {
+      // an error occurred
+    };
+    ws.onclose = (e) => {
+      // connection closed
+    };
+
+
+    ws1 = new WebSocket(" ws://127.0.0.1:19998");
+    ws1.onopen = () => {
+      // connection opened
+      console.info("connect success");
+    };
+    ws1.onmessage = (e) => {
+      let jsonObject = JSON.parse(e.data);
+    
+      if (jsonObject.backData != null) {
+       
         backPress = 0
         let wsPointData = jsonObject.backData;
-        // console.log(wsPointData)
-        // if (!Array.isArray(wsPointData)) {
-        //   wsPointData = JSON.parse(wsPointData);
-        // }
-        // const date = Date.now()
-        // wsPointData = carBackLine(wsPointData)
-        // console.log(wsPointData)
-        // wsPointData = new Array(1024).fill(0)
-        // wsPointData[1023] = 100
-        // const nowDate = Date.now() - date
-        // console.log(nowDate)
+
+        if(!Array.isArray(wsPointData)){
+          wsPointData = JSON.parse(wsPointData)
+        }
+       
         this.com.current?.backData({
           wsPointData: wsPointData,
         });
+
 
 
         const selectArr = []
@@ -264,7 +324,7 @@ class Home extends React.Component {
           }
         }
 
-        // const SelectTotalPress = backPress + sitPress
+      
 
         let DataArr
         if (sitIndexArr.every((a) => a == 0) && backIndexArr.every((a) => a == 0)) {
@@ -273,7 +333,6 @@ class Home extends React.Component {
           DataArr = [...selectArr]
         }
 
-        // console.log(DataArr)
         backTotal = DataArr.reduce((a, b) => a + b, 0)
         backPoint = DataArr.filter((a) => a > 10).length
         backMean = parseInt(backTotal / (backPoint ? backPoint : 1))
@@ -340,62 +399,11 @@ class Home extends React.Component {
 
       }
 
-      if (jsonObject.port != null) {
-        // console.log(jsonObject.port)
-        const port = []
-        jsonObject.port.forEach((a, index) => {
-          port.push({
-            value: a.path,
-            label: a.path
-          })
-        })
-
-        this.setState({
-          port: port
-        })
-      }
-      if (jsonObject.length != null) {
-
-        this.setState({
-          length: jsonObject.length
-        })
-      }
-      if (jsonObject.time != null) {
-
-        this.setState({
-          time: jsonObject.time
-        })
-      }
-      if (jsonObject.timeArr != null) {
-        // const arr = []
-        const arr = jsonObject.timeArr.map((a, index) => a.date)
-        // console.log(arr)
-        let obj = []
-        arr.forEach((a, index) => {
-          obj.push({
-            value: a,
-            label: a
-          })
-        })
-        this.setState({ dataArr: obj })
-      }
-      // console.log(jsonObject)
-      if (jsonObject.index != null) {
-        // console.log(index , length)
-        if (jsonObject.index <= this.state.length) {
-
-          this.setState({
-            index: jsonObject.index
-          })
-        }
-
-      }
-
     };
-    ws.onerror = (e) => {
+    ws1.onerror = (e) => {
       // an error occurred
     };
-    ws.onclose = (e) => {
+    ws1.onclose = (e) => {
       // connection closed
     };
   }
