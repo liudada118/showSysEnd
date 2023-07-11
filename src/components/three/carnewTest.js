@@ -50,7 +50,10 @@ const Canvas = React.forwardRef((props, refs) => {
     sitGeometry
   let cube, chair, mixer, clips;
   let camera, scene, renderer;
-  var ndata1 = new Array(sitnum1 * sitnum2).fill(0), ndata = new Array(backnum1 * backnum2).fill(0), newData1 = new Array(sitnum1 * sitnum2).fill(0), newData = new Array(backnum1 * backnum2).fill(0);
+  var ndata1 = new Array((sitnum1 * sitInterp + sitOrder * 2) * (sitnum2 * sitInterp + sitOrder * 2)).fill(1), ndata = new Array(
+    (backnum1 * backInterp + 2 * backOrder) *
+    (backnum2 * backInterp + 2 * backOrder)
+  ).fill(1), newData1 = new Array(sitnum1 * sitnum2).fill(0), newData = new Array(backnum1 * backnum2).fill(0);
   let dataFlag = false;
   const changeDataFlag = () => {
     dataFlag = true;
@@ -393,16 +396,23 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   //模型动画
-
-  function animate() {
-    animationRequestId = requestAnimationFrame(animate);
+  let lastRender = 0
+  function animate(timestamp) {
+    // console.log(timestamp)
+    const delta = timestamp - lastRender;
+   
+    if (delta >= 1000 / 30) {
+      // console.log(delta)
     // if(dataFlag){
     //   console.log(111)
       render();
       // dataFlag = false
     // }
-   
+    lastRender = timestamp;
   }
+  animationRequestId = requestAnimationFrame(animate);
+  }
+
 
   function move(position, time, particles) {
     const p1 = {
@@ -586,30 +596,14 @@ const Canvas = React.forwardRef((props, refs) => {
     ndata = [...newData].map((a, index) => (a - valuef2 < 0 ? 0 : a));
     ndataNum = ndata.reduce((a, b) => a + b, 0);
     if (ndataNum < valuelInit2) {
-      ndata = new Array(backnum1 * backnum2).fill(1);
+      ndata = new Array(
+        (backnum1 * backInterp + 2 * backOrder) *
+        (backnum2 * backInterp + 2 * backOrder)
+      ).fill(1);
     } else {
       ndata = [...newData]
     }
-    interp(ndata, bigArr1, backnum1, backInterp);
-    //高斯滤波
-
-    let bigarr1 = [];              
-
-    bigarr1 = addSide(
-      bigArr1,
-      backnum2 * backInterp,
-      backnum1 * backInterp,
-      backOrder,
-      backOrder
-    );
-
-    gaussBlur_1(
-      bigarr1,
-      bigArrg1,
-      backnum2 * backInterp + 2 * backOrder,
-      backnum1 * backInterp + 2 * backOrder,
-      valueg2
-    );
+   
     // console.log(backGeometry,scales1)
     // const nowDate = Date.now() - date
     // console.log(nowDate)
@@ -618,7 +612,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
     for (let ix = 0; ix < AMOUNTX1; ix++) {
       for (let iy = 0; iy < AMOUNTY1; iy++) {
-        const value = bigArrg1[l] * 10;
+        const value = ndata[l] * 10;
 
         //柔化处理smooth
         smoothBig1[l] = smoothBig1[l] + (value - smoothBig1[l] + 0.5) / valuel2;
@@ -669,36 +663,18 @@ const Canvas = React.forwardRef((props, refs) => {
 
     ndata1Num = ndata1.reduce((a, b) => a + b, 0);
     if (ndata1Num < valuelInit1) {
-      ndata1 = new Array(sitnum1 * sitnum2).fill(1);
+      ndata1 = new Array((sitnum1 * sitInterp + sitOrder * 2) * (sitnum2 * sitInterp + sitOrder * 2)).fill(1);
     } else {
       ndata1 = [...newData1]
     }
 
-
-    interp(ndata1, bigArr, sitnum1, sitInterp);
-    // console.log(bigArr.filter((a) => a > 1).length)
-    let bigArrs = addSide(
-      bigArr,
-      sitnum2 * sitInterp,
-      sitnum1 * sitInterp,
-      sitOrder,
-      sitOrder
-    );
-
-    gaussBlur_1(
-      bigArrs,
-      bigArrg,
-      sitnum2 * sitInterp + sitOrder * 2,
-      sitnum1 * sitInterp + sitOrder * 2,
-      valueg1
-    );
     // console.log(big  Arrg)
     let k = 0,
       l = 0;
 
     for (let ix = 0; ix < AMOUNTX; ix++) {
       for (let iy = 0; iy < AMOUNTY; iy++) {
-        const value = bigArrg[l] * 10;
+        const value = ndata1[l] * 10;
 
         //柔化处理smooth
         smoothBig[l] = smoothBig[l] + (value - smoothBig[l] + 0.5) / valuel1;

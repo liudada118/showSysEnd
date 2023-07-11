@@ -1,7 +1,9 @@
 import React from 'react'
 import Title from '../../components/title/Title'
 import './index.scss'
+// import './aside.scss'
 import CanvasCar from '../../components/three/carnewTest'
+import * as echarts from "echarts";
 import Aside from '../../components/aside/Aside'
 import plus from '../../assets/images/Plus.png'
 import minus from '../../assets/images/Minus.png'
@@ -15,8 +17,39 @@ import { rainbowTextColors } from "../../assets/util/color";
 import { handLine, footLine, carSitLine, carBackLine } from '../../assets/util/line';
 import { Select, Slider, Popover } from 'antd'
 import { SelectOutlined } from '@ant-design/icons'
+const dataArr = [{
+  color: '#FFA63F',
+  data: '点数',
+  eng: 'Points'
+},
+{
+  color: '#2A99FF',
+  data: '面积',
+  eng: 'Area'
+},]
 
-let ws, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0;
+const dataArr1 = [
+  {
+    color: '#2A99FF',
+    data: '平均压力',
+    eng: 'Mean Pres'
+  }, {
+    color: '#FF2A2A',
+    data: '最大压力',
+    eng: 'Max Pres'
+  },
+  {
+    color: '#FF2A2A',
+    data: '压力总和',
+    eng: 'Pressure'
+  }, {
+    color: '#FFA63F',
+    data: '压力标准差',
+    eng: 'Pres Standard'
+  }
+]
+
+let ws, ws1, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0, myChart1, myChart2;
 let backTotal = 0, backMean = 0, backMax = 0, backMin = 0, backPoint = 0, backArea = 0, sitTotal = 0, sitMean = 0, sitMax = 0, sitMin = 0, sitPoint = 0, sitArea = 0
 
 class Com extends React.Component {
@@ -89,7 +122,7 @@ let totalArr = [], totalPointArr = [], wsMatrixName = 'foot'
 // }
 
 
-let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0,sitDataFlag = false
+let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0, sitDataFlag = false
 
 const text = '旋转'
 const text2 = '框选'
@@ -112,6 +145,8 @@ const content2 = (
   </div>
 );
 
+
+
 class Home extends React.Component {
   constructor() {
     super()
@@ -133,15 +168,18 @@ class Home extends React.Component {
       playflag: false,
       selectFlag: false,
       colFlag: true,
-      colNum: 0
+      colNum: 0,
+      meanPres: '', maxPres: '', point: '', area: '', totalPres: '', pressure: ''
     }
     this.com = React.createRef()
     this.data = React.createRef()
     this.title = React.createRef()
   }
 
+
   componentDidMount() {
-    
+    myChart1 = echarts.init(document.getElementById(`myChart1`));
+    myChart2 = echarts.init(document.getElementById(`myChart2`));
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     ws = new WebSocket(" ws://127.0.0.1:19999");
     ws.onopen = () => {
@@ -185,7 +223,6 @@ class Home extends React.Component {
           });
 
         } else if (this.state.matrixName == 'car') {
-          wsPointData = carSitLine(wsPointData)
           this.com.current?.sitData({
             wsPointData: wsPointData,
           });
@@ -193,7 +230,7 @@ class Home extends React.Component {
 
           for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
             for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
-              
+
               selectArr.push(wsPointData[i * 32 + j])
             }
           }
@@ -229,8 +266,174 @@ class Home extends React.Component {
         // data.current?.initCharts2(totalArr)
       }
 
+      // if (jsonObject.backData != null) {
+      //   if (!sitDataFlag) {
+      //     // this.com?.current.changeDataFlag()
+      //     if (colValueFlag) {
+      //       num++
+      //       this.title.current?.changeNum(num)
+      //     } else {
+      //       num = 0
+      //     }
+      //   }
+      //   backPress = 0
+      //   let wsPointData = jsonObject.backData;
+      //   this.com.current?.backData({
+      //     wsPointData: wsPointData,
+      //   });
+
+
+      //   const selectArr = []
+      //   for (let i = 31 - backIndexArr[0]; i > 31 - backIndexArr[1]; i--) {
+      //     for (let j = backIndexArr[2]; j < backIndexArr[3]; j++) {
+      //       selectArr.push(wsPointData[i * 32 + j])
+      //     }
+      //   }
+
+      //   // const SelectTotalPress = backPress + sitPress
+
+      //   let DataArr
+      //   if (sitIndexArr.every((a) => a == 0) && backIndexArr.every((a) => a == 0)) {
+      //     DataArr = [...wsPointData]
+      //   } else {
+      //     DataArr = [...selectArr]
+      //   }
+
+      //   // console.log(DataArr)
+      //   backTotal = DataArr.reduce((a, b) => a + b, 0)
+      //   backPoint = DataArr.filter((a) => a > 10).length
+      //   backMean = parseInt(backTotal / (backPoint ? backPoint : 1))
+      //   backMax = findMax(DataArr)
+      //   backMin = findMin(DataArr.filter((a) => a > 10))
+      //   backArea = backPoint * 4
+      //   if (backPoint < 80) {
+      //     backMean = 0
+      //     backMax = 0
+      //     backTotal = 0
+      //     backPoint = 0
+      //     backArea = 0
+      //   }
+
+
+
+      //   const totalPress = backTotal + sitTotal
+      //   let totalMean = ((backMean + sitMean) / 2).toFixed(0)
+      //   if (backMean == 0) {
+      //     totalMean = sitMean
+      //   }
+      //   if (sitMean == 0) {
+      //     totalMean = backMean
+      //   }
+      //   const totalMax = Math.max(backMax, sitMax)
+      //   const totalPoint = backPoint + sitPoint
+      //   const totalArea = backArea + sitArea
+      //   const totalMin = Math.min(backMin, sitMin)
+      //   const sitPressure = sitMax * 1000 / (sitArea ? sitArea : 1)
+      //   // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
+      //   meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+      //   maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+      //   pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+      //   areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+      //   pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+      //   pressureSmooth = parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
+      //   if (sitPoint < 100) {
+      //     pressureSmooth = 0
+      //   }
+
+      //   this.data.current?.changeData({ meanPres: meanSmooth, maxPres: maxSmooth, point: pointSmooth, area: areaSmooth, totalPres: pressSmooth, pressure: pressureSmooth })
+
+
+
+      //   if (totalArr.length < 20) {
+      //     totalArr.push(totalPress)
+      //   } else {
+      //     totalArr.shift()
+      //     totalArr.push(totalPress)
+      //   }
+      //   // console.log(totalArr.length)
+      //   const max = findMax(totalArr)
+      //   this.data.current?.handleCharts(totalArr, returnChartMax(max))
+
+      //   if (totalPointArr.length < 20) {
+      //     totalPointArr.push(totalPoint)
+      //   } else {
+      //     totalPointArr.shift()
+      //     totalPointArr.push(totalPoint)
+      //   }
+
+      //   const max1 = findMax(totalPointArr)
+      //   this.data.current?.handleChartsArea(totalPointArr, returnChartMax(max1))
+
+      // }
+
+      if (jsonObject.port != null) {
+        // console.log(jsonObject.port)
+        const port = []
+        jsonObject.port.forEach((a, index) => {
+          port.push({
+            value: a.path,
+            label: a.path
+          })
+        })
+
+        this.setState({
+          port: port
+        })
+      }
+      if (jsonObject.length != null) {
+
+        this.setState({
+          length: jsonObject.length
+        })
+      }
+      if (jsonObject.time != null) {
+
+        this.setState({
+          time: jsonObject.time
+        })
+      }
+      if (jsonObject.timeArr != null) {
+        // const arr = []
+        const arr = jsonObject.timeArr.map((a, index) => a.date)
+        // console.log(arr)
+        let obj = []
+        arr.forEach((a, index) => {
+          obj.push({
+            value: a,
+            label: a
+          })
+        })
+        this.setState({ dataArr: obj })
+      }
+      // console.log(jsonObject)
+      if (jsonObject.index != null) {
+        // console.log(index , length)
+        if (jsonObject.index <= this.state.length) {
+
+          this.setState({
+            index: jsonObject.index
+          })
+        }
+
+      }
+
+    };
+    ws.onerror = (e) => {
+      // an error occurred
+    };
+    ws.onclose = (e) => {
+      // connection closed
+    };
+
+    ws1 = new WebSocket(" ws://127.0.0.1:19998");
+    ws1.onopen = () => {
+      // connection opened
+      console.info("connect success");
+    };
+    ws1.onmessage = (e) => {
+      let jsonObject = JSON.parse(e.data);
       if (jsonObject.backData != null) {
-        if(!sitDataFlag){
+        if (!sitDataFlag) {
           // this.com?.current.changeDataFlag()
           if (colValueFlag) {
             num++
@@ -241,17 +444,6 @@ class Home extends React.Component {
         }
         backPress = 0
         let wsPointData = jsonObject.backData;
-        // console.log(wsPointData)
-        if (!Array.isArray(wsPointData)) {
-          wsPointData = JSON.parse(wsPointData);
-        }
-        // const date = Date.now()
-        wsPointData = carBackLine(wsPointData)
-        // console.log(wsPointData)
-        // wsPointData = new Array(1024).fill(0)
-        // wsPointData[1023] = 100
-        // const nowDate = Date.now() - date
-        // console.log(nowDate)
         this.com.current?.backData({
           wsPointData: wsPointData,
         });
@@ -316,7 +508,7 @@ class Home extends React.Component {
 
         this.data.current?.changeData({ meanPres: meanSmooth, maxPres: maxSmooth, point: pointSmooth, area: areaSmooth, totalPres: pressSmooth, pressure: pressureSmooth })
 
-
+        // this.setState({ meanPres: meanSmooth, maxPres: maxSmooth, point: pointSmooth, area: areaSmooth, totalPres: pressSmooth, pressure: pressureSmooth })
 
         if (totalArr.length < 20) {
           totalArr.push(totalPress)
@@ -324,9 +516,17 @@ class Home extends React.Component {
           totalArr.shift()
           totalArr.push(totalPress)
         }
-        // console.log(totalArr.length)
         const max = findMax(totalArr)
-        this.data.current?.handleCharts(totalArr, returnChartMax(max))
+        this.data.current?.initCharts2({
+          yData: totalArr,
+          xData: [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20,
+          ],
+          index: 0 ,
+          name: "中风",
+          yMax: returnChartMax(max)
+        })
 
         if (totalPointArr.length < 20) {
           totalPointArr.push(totalPoint)
@@ -336,135 +536,33 @@ class Home extends React.Component {
         }
 
         const max1 = findMax(totalPointArr)
-        this.data.current?.handleChartsArea(totalPointArr, returnChartMax(max1))
-
-      }
-
-      if (jsonObject.port != null) {
-        // console.log(jsonObject.port)
-        const port = []
-        jsonObject.port.forEach((a, index) => {
-          port.push({
-            value: a.path,
-            label: a.path
-          })
+        this.data.current?.initCharts1({
+          yData: totalPointArr,
+          xData: [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20,
+          ],
+          index: 0 + 1,
+          name: "中风",
+          yMax: returnChartMax(max1)
         })
 
-        this.setState({
-          port: port
-        })
-      }
-      if (jsonObject.length != null) {
-
-        this.setState({
-          length: jsonObject.length
-        })
-      }
-      if (jsonObject.time != null) {
-
-        this.setState({
-          time: jsonObject.time
-        })
-      }
-      if (jsonObject.timeArr != null) {
-        // const arr = []
-        const arr = jsonObject.timeArr.map((a, index) => a.date)
-        // console.log(arr)
-        let obj = []
-        arr.forEach((a, index) => {
-          obj.push({
-            value: a,
-            label: a
-          })
-        })
-        this.setState({ dataArr: obj })
-      }
-      // console.log(jsonObject)
-      if (jsonObject.index != null) {
-        // console.log(index , length)
-        if (jsonObject.index <= this.state.length) {
-
-          this.setState({
-            index: jsonObject.index
-          })
-        }
+       
 
       }
-
-    };
-    ws.onerror = (e) => {
-      // an error occurred
-    };
-    ws.onclose = (e) => {
-      // connection closed
-    };
+    }
   }
 
   wsSendObj = (obj) => {
     if (ws && ws.readyState === 1) {
       ws.send(JSON.stringify(obj));
     }
-    // if (obj.file) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ file: obj.file }));
-    //   }
-    // }
+  }
 
-    // if (obj.sitPort) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ sitPort: obj.sitPort }));
-    //   }
-    // }
-
-    // if (obj.backPort) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ backPort: obj.backPort }));
-    //   }
-    // }
-
-    // if (obj.flag != null) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ flag: obj.flag }));
-    //   }
-    // }
-
-    // if (obj.getTime) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ getTime: obj.getTime }));
-    //   }
-    // }
-
-    // if (obj.local) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ local: obj.local }));
-    //   }
-    // }
-
-    // if (obj.time) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ time: obj.time }));
-    //   }
-    // }
-
-    // if (obj.speed) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ speed: obj.speed }));
-    //   }
-    // }
-
-    // if (obj.index != null) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ index: obj.index }));
-    //   }
-    // }
-
-    // if (obj.exchange != null) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ exchange: obj.exchange }));
-    //   }
-    // }
-
-
+  wsSendObj1 = (obj) => {
+    if (ws1 && ws1.readyState === 1) {
+      ws1.send(JSON.stringify(obj));
+    }
   }
 
   playData = (value) => {
@@ -549,6 +647,8 @@ class Home extends React.Component {
 
   render() {
     // console.log('home')
+    const arr = ['meanPres', 'maxPres', 'totalPres', 'presStan']
+    const arrArea = ['point', 'area',]
     return (
       <div className='home'>
         <div className="setIcons">
@@ -693,37 +793,7 @@ class Home extends React.Component {
             );
           })}
         </div>
-        {/* <Com valueg1={valueg1}
-        value1={value1}
-        valuef1={valuef1}
-        valuel1={valuel1}
-        valuej1={valuej1}
-        valuelInit1={valuelInit1}
-        port={port}
-        portname={portname}
-        portnameBack={portnameBack}
-        local={local}
-        dataArr={dataArr}
-      > */}
-      {/* <TitleCom
-        valueg1={this.state.valueg1}
-        value1={this.state.value1}
-        valuef1={this.state.valuef1}
-        valuel1={this.state.valuel1}
-        valuej1={this.state.valuej1}
-        valuelInit1={this.state.valuelInit1}
        
-        port={this.state.port}
-        portname={this.state.portname}
-        portnameBack={this.state.portnameBack}
-        local={this.state.local}
-        dataArr={this.state.dataArr}
-        matrixName={this.state.matrixName}
-
-        
-        colFlag={this.state.colFlag}
-       
-      > */}
         <Title
           valueg1={this.state.valueg1}
           value1={this.state.value1}
@@ -741,6 +811,7 @@ class Home extends React.Component {
           matrixName={this.state.matrixName}
 
           wsSendObj={this.wsSendObj}
+          wsSendObj1={this.wsSendObj1}
           changeMatrix={this.changeMatrix}
           changeLocal={this.changeLocal}
           colFlag={this.state.colFlag}
@@ -755,6 +826,54 @@ class Home extends React.Component {
           <Aside ref={this.data} />
 
         </Com>
+
+{/* <Com>
+        <div className='aside'>
+          <div className="asideContent firstAside">
+            <h2 className="asideTitle">Pressure Area</h2>
+            <div id="myChart1" style={{ height: '150px' }}></div>
+            {
+              dataArr.map((a, index) => {
+                return (
+                  <div className='dataItem' key={a.eng}>
+                    <div className='dataItemCircle'>
+                      <div className='circleItem' style={{ backgroundColor: a.color }}></div>
+                      <div>{a.data}</div>
+                    </div>
+                    <div className='dataIteminfo'>
+                      <div className='standardColor'>{a.eng}</div>
+                      <div>{this.state[arrArea[index]]}</div>
+                    </div>
+                  </div>
+
+                )
+              })
+            }
+          </div>
+          <div className="asideContent">
+            <h2 className="asideTitle">Pressure Data</h2>
+            <h1 className='pressData'>{0}</h1>
+            <div className='pressTitle standardColor'>总体压力 Total Pres</div>
+            <div id="myChart2" style={{ height: '150px' }}></div>
+            {
+              dataArr1.map((a, index) => {
+                return (
+                  <div className='dataItem' key={a.eng}>
+                    <div className='dataItemCircle'>
+                      <div className='circleItem' style={{ backgroundColor: a.color }}></div>
+                      <div>{a.data}</div>
+                    </div>
+                    <div className='dataIteminfo'>
+                      <div className='standardColor'>{a.eng}</div>
+                      <div>{this.state[arr[index]]}</div>
+                    </div>
+                  </div>
+                )
+              })
+            }
+          </div>
+        </div>
+        </Com> */}
 
 
         {/* {matrixName == 'foot' ? <Canvas ref={this.com} /> : matrixName == 'hand' ? <CanvasHand ref={this.com} /> : 

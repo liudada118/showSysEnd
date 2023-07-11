@@ -177,43 +177,105 @@ const Aside = React.forwardRef((props, refs) => {
                
             ],
         };
-        option && props.myChart.setOption(option);
+
+        if(myChart1){
+            option && props.myChart.setOption(option);
+        }
+        
         
     };
 
-    const handleCharts = (arr , value) => {
-       
-        if (myChart2) {
-            initCharts1({
-                yData: arr,
-                xData: [
-                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                    20,
-                ],
-                index: 0 + 1,
-                name: "中风",
-                myChart: myChart2,
-                yMax : value
-            });
-        }
-    }
+    const initCharts2 = (props) => {
+        let option = {
+            animation: false,
+            // tooltip: {
+            //   trigger: "axis",
+            //   show: "true",
+            // },
+            grid: {
+                x: 10,
+                x2: 10,
+                y: 10,
+                y2: 10,
+            },
+            xAxis: {
+                type: "category",
+                show: false,
+                splitLine: {
+                    show: false,
 
-    const handleChartsArea = (arr ,value) => {
-       
-        if (myChart1) {
-            initCharts1({
-                yData: arr,
-                xData: [
-                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                    20,
-                ],
-                index: 0 + 1,
-                name: "中风",
-                myChart: myChart1,
-                yMax : value
-            });
+                },
+                data: props.xData,
+                axisLabel: {
+                    show: false,
+                   
+                },
+            },
+
+            yAxis: {
+                type: "value",
+                show: false,
+                splitLine: {
+                    show: false,
+                },
+                max: props.yMax,
+                axisLabel: {
+                    show: false,
+
+                },
+            },
+            series: [
+                {
+                    symbol: "none",
+                    data: props.yData,
+                    type: "line",
+                    smooth: true,
+                    color: "#E93CA7",
+                
+                },
+               
+            ],
+        };
+
+        if(myChart2){
+            option && myChart2.setOption(option);
         }
-    }
+       
+        
+    };
+    // const handleCharts = (arr , value) => {
+       
+    //     if (myChart2) {
+    //         initCharts1({
+    //             yData: arr,
+    //             xData: [
+    //                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    //                 20,
+    //             ],
+    //             index: 0 + 1,
+    //             name: "中风",
+    //             myChart: myChart2,
+    //             yMax : value
+    //         });
+    //     }
+    // }
+
+    // const handleChartsArea = (arr ,value) => {
+       
+    //     if (myChart1) {
+    //         initCharts1({
+    //             yData: arr,
+    //             xData: [
+    //                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    //                 20,
+    //             ],
+    //             index: 0 + 1,
+    //             name: "中风",
+    //             myChart: myChart1,
+    //             yMax : value
+    //         });
+    //     }
+    // }
 
     const [totalPres, setTotalPres] = useState(0)
     const [meanPres, setMeanPres] = useState(0)
@@ -235,8 +297,10 @@ const Aside = React.forwardRef((props, refs) => {
         setPressure,
         setPresStan,
         setTotalPres,
-        handleCharts,
-        handleChartsArea,
+        // handleCharts,
+        // handleChartsArea,
+        initCharts1,
+        initCharts2,
         setObj
     }));
 

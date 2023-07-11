@@ -263,12 +263,14 @@ class Title extends React.Component {
                     localStorage.setItem("carValueg", value);
                     // this.props.setValueg1(value);
                     this.props.changeStateData({ valueg1: value })
-                    this.props.com.current?.sitValue({
-                      valueg: value,
-                    });
-                    this.props.com.current?.backValue({
-                      valueg: value,
-                    });
+                    // this.props.com.current?.sitValue({
+                    //   valueg: value,
+                    // });
+                    // this.props.com.current?.backValue({
+                    //   valueg: value,
+                    // });
+                    this.props.wsSendObj({gauss : value})
+
                   }}
                   value={this.props.valueg1}
                   step={0.1}
