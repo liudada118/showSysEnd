@@ -242,11 +242,11 @@ class Home extends React.Component {
         backPress = 0
         let wsPointData = jsonObject.backData;
         // console.log(wsPointData)
-        if (!Array.isArray(wsPointData)) {
-          wsPointData = JSON.parse(wsPointData);
-        }
+        // if (!Array.isArray(wsPointData)) {
+        //   wsPointData = JSON.parse(wsPointData);
+        // }
         // const date = Date.now()
-        wsPointData = carBackLine(wsPointData)
+        // wsPointData = carBackLine(wsPointData)
         // console.log(wsPointData)
         // wsPointData = new Array(1024).fill(0)
         // wsPointData[1023] = 100
