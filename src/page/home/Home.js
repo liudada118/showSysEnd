@@ -135,7 +135,8 @@ class Home extends React.Component {
       playflag: false,
       selectFlag: false,
       colFlag: true,
-      colNum: 0
+      colNum: 0,
+      history : 'now'
     }
     this.com = React.createRef()
     this.data = React.createRef()
@@ -180,7 +181,7 @@ class Home extends React.Component {
         }
 
         if (this.state.matrixName == 'foot') {
-          const { sitData, backData, arr,realData } = footLine(wsPointData)
+          const { sitData, backData, arr, realData } = footLine(wsPointData)
 
           ctx.lineTo(arr[0] * 300 / 32, arr[1] * 300 / 32);
           ctx.stroke();
@@ -222,32 +223,32 @@ class Home extends React.Component {
           pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
           areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
           pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
-          
+
           pressureSmooth = parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
 
           this.data.current?.changeData({ meanPres: meanSmooth, maxPres: maxSmooth, point: pointSmooth, area: areaSmooth, totalPres: pressSmooth, pressure: pressureSmooth })
 
 
 
-          // if (totalArr.length < 20) {
-          //   totalArr.push(totalPress)
-          // } else {
-          //   totalArr.shift()
-          //   totalArr.push(totalPress)
-          // }
-          // // console.log(totalArr.length)
-          // const max = findMax(totalArr)
-          // this.data.current?.handleCharts(totalArr, returnChartMax(max))
+          if (totalArr.length < 20) {
+            totalArr.push(totalPress)
+          } else {
+            totalArr.shift()
+            totalArr.push(totalPress)
+          }
+          // console.log(totalArr.length)
+          const max = findMax(totalArr)
+          this.data.current?.handleCharts(totalArr, max + 1000)
 
-          // if (totalPointArr.length < 20) {
-          //   totalPointArr.push(totalPoint)
-          // } else {
-          //   totalPointArr.shift()
-          //   totalPointArr.push(totalPoint)
-          // }
+          if (totalPointArr.length < 20) {
+            totalPointArr.push(totalPoint)
+          } else {
+            totalPointArr.shift()
+            totalPointArr.push(totalPoint)
+          }
 
-          // const max1 = findMax(totalPointArr)
-          // this.data.current?.handleChartsArea(totalPointArr, returnChartMax(max1))
+          const max1 = findMax(totalPointArr)
+          this.data.current?.handleChartsArea(totalPointArr, max1 + 1000)
 
 
 
@@ -482,67 +483,7 @@ class Home extends React.Component {
     if (ws && ws.readyState === 1) {
       ws.send(JSON.stringify(obj));
     }
-    // if (obj.file) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ file: obj.file }));
-    //   }
-    // }
-
-    // if (obj.sitPort) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ sitPort: obj.sitPort }));
-    //   }
-    // }
-
-    // if (obj.backPort) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ backPort: obj.backPort }));
-    //   }
-    // }
-
-    // if (obj.flag != null) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ flag: obj.flag }));
-    //   }
-    // }
-
-    // if (obj.getTime) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ getTime: obj.getTime }));
-    //   }
-    // }
-
-    // if (obj.local) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ local: obj.local }));
-    //   }
-    // }
-
-    // if (obj.time) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ time: obj.time }));
-    //   }
-    // }
-
-    // if (obj.speed) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ speed: obj.speed }));
-    //   }
-    // }
-
-    // if (obj.index != null) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ index: obj.index }));
-    //   }
-    // }
-
-    // if (obj.exchange != null) {
-    //   if (ws && ws.readyState === 1) {
-    //     ws.send(JSON.stringify({ exchange: obj.exchange }));
-    //   }
-    // }
-
-
+    
   }
 
   playData = (value) => {
@@ -817,7 +758,7 @@ class Home extends React.Component {
           local={this.state.local}
           dataArr={this.state.dataArr}
           matrixName={this.state.matrixName}
-
+          history={this.state.history}
           wsSendObj={this.wsSendObj}
           changeMatrix={this.changeMatrix}
           changeLocal={this.changeLocal}
@@ -835,9 +776,9 @@ class Home extends React.Component {
         </Com>
 
 
-        {this.state.matrixName == 'foot' ? <Com> <Canvas ref={this.com} changeSelect={this.changeSelect} /> </Com> : this.state.matrixName == 'hand' ? <CanvasHand ref={this.com} /> :
+        {this.state.matrixName == 'foot' ? <Com> <Canvas ref={this.com} changeSelect={this.changeSelect} /> </Com> : this.state.matrixName == 'hand' ? <Com><CanvasHand ref={this.com} /></Com> :
 
-          null
+          <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
 
         }
         {/* <Com>

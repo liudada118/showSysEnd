@@ -7,18 +7,18 @@ import { TrackballControls } from "three/examples/jsm/controls/TrackballControls
 // import { SelectionHelper } from 'three/addons/interactive/SelectionHelper.js';
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { TextureLoader } from "three";
-import { SelectionBox } from './SelectionBox.js';
+import { checkRectIndex, checkRectangleIntersection, getPointCoordinate, getPointCoordinateback } from "./threeUtil1";
 import { SelectionHelper } from './SelectionHelper.js';
 import {
   addSide,
   gaussBlur_1,
   interp1016,
   jet,
+  jetWhite2,
+  jetgGrey,
 } from "../../assets/util/util";
-// import { withData } from "./WithData";
 import './index.scss'
-import { obj } from "../../assets/util/config";
-import { getPointCoordinate } from "./threeUtil.js";
+
 const group = new THREE.Group();
 const sitInit = 0;
 const backInit = 0;
@@ -52,6 +52,9 @@ let isShiftPressed = false;
 
 
 const Canvas = React.forwardRef((props, refs) => {
+
+  var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper, cooArr = []
+  let sitIndexArr = [], backIndexArr = []
   let dataFlag = false;
   const changeDataFlag = () => {
     dataFlag = true;
@@ -59,6 +62,7 @@ const Canvas = React.forwardRef((props, refs) => {
   };
   let particles,
     particles1,
+    particlesPoint,
     material,
     backGeometry,
     sitGeometry,
@@ -145,74 +149,11 @@ const Canvas = React.forwardRef((props, refs) => {
 
     // model
     const loader = new GLTFLoader();
-
-    // const selectionBox = new SelectionBox( camera, scene );
-    // const selectHelper = new SelectionHelper( renderer, 'selectBox' );
-
-    // document.addEventListener( 'pointerdown', function ( event ) {
-
-    //   for ( const item of selectionBox.collection ) {
-
-    //     item.material.emissive.set( 0x000000 );
-
-    //   }
-
-    //   selectionBox.startPoint.set(
-    //     ( event.clientX / window.innerWidth ) * 2 - 1,
-    //     - ( event.clientY / window.innerHeight ) * 2 + 1,
-    //     0.5 );
-
-    // } );
-
-
-    // document.addEventListener( 'pointermove', function ( event ) {
-
-    //   if ( selectHelper.isDown ) {
-
-    //     for ( let i = 0; i < selectionBox.collection.length; i ++ ) {
-
-    //       selectionBox.collection[ i ].material.emissive.set( 0x000000 );
-
-    //     }
-
-    //     selectionBox.endPoint.set(
-    //       ( event.clientX / window.innerWidth ) * 2 - 1,
-    //       - ( event.clientY / window.innerHeight ) * 2 + 1,
-    //       0.5 );
-
-    //     const allSelected = selectionBox.select();
-
-    //     for ( let i = 0; i < allSelected.length; i ++ ) {
-
-    //       allSelected[ i ].material.emissive.set( 0xffffff );
-
-    //     }
-
-    //   }
-
-    // } );
-
-    // document.addEventListener( 'pointerup', function ( event ) {
-
-    //   selectionBox.endPoint.set(
-    //     ( event.clientX / window.innerWidth ) * 2 - 1,
-    //     - ( event.clientY / window.innerHeight ) * 2 + 1,
-    //     0.5 );
-
-    //   const allSelected = selectionBox.select();
-
-    //   for ( let i = 0; i < allSelected.length; i ++ ) {
-
-    //     allSelected[ i ].material.emissive.set( 0xffffff );
-
-    //   }
-
-    // } );
-
     // points  座椅
 
     initSet();
     initBack();
+    initPoint();
     // scene.add(group);
     group.rotation.x = Math.PI / 3
     group.position.x = -15
@@ -276,92 +217,75 @@ const Canvas = React.forwardRef((props, refs) => {
       false
     );
 
-    const selectionBox = new SelectionBox(camera, scene);
-    const selectHelper = new SelectionHelper(renderer, controls, 'selectBox');
 
-
-
+    selectHelper = new SelectionHelper(renderer, controls, 'selectBox');
 
     document.addEventListener('pointerdown', function (event) {
 
-      console.log(camera.position , camera.rotation)
+      if (selectHelper.isShiftPressed) {
+        sitIndexArr = []
+        backIndexArr = []
+        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        selectStartArr = [(event.clientX), event.clientY]
 
-      for (const item of selectionBox.collection) {
+        sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
+        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
 
-        item.material.emissive?.set(0x000000);
-
+        sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
+        backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
       }
-
-      selectionBox.startPoint.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        - (event.clientY / window.innerHeight) * 2 + 1,
-        0.5);
-
-      let arr = getPointCoordinate({particles, camera})
-
-      newDiv = document.createElement('div');
-
-      newDiv.classList.add('my-class');
-      // 设置 <div> 的属性、内容或样式
-      newDiv.style.backgroundColor = 'lightblue';
-      // newDiv.style.padding = '10px';
-      newDiv.style.width = `${100}px`
-      newDiv.style.height = `${100}px`
-      // newDiv.style.left = `${viewportPosition.x}px`
-      // newDiv.style.top = `${viewportPosition.y}px`
-      // newDiv.style.left = `${vector.x}px`
-      // newDiv.style.top = `${vector.y}px`
-      newDiv.style.left = `${arr[1].x}px`
-      newDiv.style.top = `${arr[1].y}px`
-
-      // 将 <div> 元素添加到页面中的某个元素中
-      document.body?.appendChild(newDiv);
-
     });
 
     document.addEventListener('pointermove', function (event) {
 
-      if (helper.isDown) {
+      if (selectHelper.isShiftPressed) {
 
-        for (let i = 0; i < selectionBox.collection.length; i++) {
 
-          selectionBox.collection[i].material.emissive.set(0x000000);
+        selectEndArr = [(event.clientX), event.clientY,]
 
+
+
+        selectMatrix = [...selectStartArr, ...selectEndArr]
+
+        if (selectStartArr[0] > selectEndArr[0]) {
+          // selectMatrix = [...selectEndArr , ...selectStartArr]
+          selectMatrix[0] = selectEndArr[0]
+          selectMatrix[2] = selectStartArr[0]
+        } else {
+          selectMatrix[0] = selectStartArr[0]
+          selectMatrix[2] = selectEndArr[0]
         }
 
-        selectionBox.endPoint.set(
-          (event.clientX / window.innerWidth) * 2 - 1,
-          - (event.clientY / window.innerHeight) * 2 + 1,
-          0.5);
+        if (selectStartArr[1] > selectEndArr[1]) {
+          selectMatrix[1] = selectEndArr[1]
+          selectMatrix[3] = selectStartArr[1]
+        } else {
+          selectMatrix[1] = selectStartArr[1]
+          selectMatrix[3] = selectEndArr[1]
+        }
 
-        const allSelected = selectionBox.select();
-        console.log(allSelected)
-        for (let i = 0; i < allSelected.length; i++) {
 
-          allSelected[i].material.emissive.set(0xffffff);
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
 
+          if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
         }
 
       }
-
     });
 
     document.addEventListener('pointerup', function (event) {
-
-      selectionBox.endPoint.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        - (event.clientY / window.innerHeight) * 2 + 1,
-        0.5);
-
-      const allSelected = selectionBox.select();
-      console.log(allSelected)
-      for (let i = 0; i < allSelected.length; i++) {
-
-        allSelected[i].material.emissive?.set(0xffffff);
-
+      if (selectHelper.isShiftPressed) {
+        selectStartArr = []
+        selectEndArr = []
       }
-
     });
+
+
 
   }
   //   初始化座椅
@@ -523,6 +447,19 @@ const Canvas = React.forwardRef((props, refs) => {
     // scene.add(particles1);
     group.add(particles1);
   }
+
+  function initPoint() {
+    const geometry = new THREE.PlaneGeometry(1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+    particlesPoint = new THREE.Mesh(geometry, material);
+
+    particlesPoint.rotation.x = Math.PI / 2
+    particlesPoint.position.y = 10
+    particlesPoint.position.x = -9 + 47.5
+    particlesPoint.position.z = -20.5 + 38.5
+    group.add(particlesPoint);
+
+  }
   //
 
   function onWindowResize() {
@@ -582,7 +519,24 @@ const Canvas = React.forwardRef((props, refs) => {
         smoothBig1[l] = smoothBig1[l] + (value - smoothBig1[l] + 0.5) / valuel2;
 
         positions1[k + 1] = smoothBig1[l] / value2; // y
-        const rgb = jet(0, valuej2, smoothBig1[l]);
+
+        let rgb
+
+        if (backIndexArr && !backIndexArr.every((a) => a == 0)) {
+
+          if (ix >= backIndexArr[0] && ix < backIndexArr[1] && iy < AMOUNTY1 - backIndexArr[2] && iy >= AMOUNTY1 - backIndexArr[3]) {
+            // rgb = [255, 0, 0];
+            rgb = jetWhite2(0, valuej2, smoothBig1[l] + 50);
+            scales1[l] = 2;
+            // positions1[k + 1] = smoothBig1[l] / value2 - 1000
+          } else {
+            rgb = jetgGrey(0, valuej2, smoothBig1[l]);
+            scales1[l] = 1;
+          }
+        } else {
+          rgb = jetWhite2(0, valuej2, smoothBig1[l]);
+          scales1[l] = 1;
+        }
 
         colors1[k] = rgb[0] / 255;
         colors1[k + 1] = rgb[1] / 255;
@@ -639,7 +593,23 @@ const Canvas = React.forwardRef((props, refs) => {
         positions[k] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // x
         positions[k + 1] = smoothBig[l] / value1; // y
         positions[k + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2; // z
-        const rgb = jet(0, valuej1, smoothBig[l]);
+        let rgb
+
+        if (backIndexArr && !backIndexArr.every((a) => a == 0)) {
+
+          if (ix >= backIndexArr[0] && ix < backIndexArr[1] && iy < AMOUNTY1 - backIndexArr[2] && iy >= AMOUNTY1 - backIndexArr[3]) {
+            // rgb = [255, 0, 0];
+            rgb = jetWhite2(0, valuej2, smoothBig[l] + 50);
+            scales1[l] = 2;
+            // positions1[k + 1] = smoothBig[l] / value2 - 1000
+          } else {
+            rgb = jetgGrey(0, valuej2, smoothBig[l]);
+            scales1[l] = 1;
+          }
+        } else {
+          rgb = jetWhite2(0, valuej2, smoothBig[l]);
+          scales1[l] = 1;
+        }
 
         colors[k] = rgb[0] / 255;
         colors[k + 1] = rgb[1] / 255;
@@ -662,10 +632,29 @@ const Canvas = React.forwardRef((props, refs) => {
 
   function render() {
 
+    if(particlesPoint){
+      particlesPoint.position.x = -9 + (47.5)* cooArr[0]/32
+      particlesPoint.position.z = -20.5 + (38.5 )* cooArr[1]/32
+    }
+
     backRenew();
     sitRenew();
-    if (enableControls && !isShiftPressed) {
+    if (controlsFlag) {
+      controls.mouseButtons = {
+        LEFT: THREE.MOUSE.PAN, // make pan the default instead of rotate
+        MIDDLE: THREE.MOUSE.ZOOM,
+        RIGHT: THREE.MOUSE.ROTATE,
+      };
+      controls.keys = [
+        ALT_KEY, // orbit
+        CTRL_KEY, // zoom
+        CMD_KEY, // pan
+      ];
       controls.update();
+    } else if (!controlsFlag) {
+      // console.log('111')
+      controls.keys = [];
+      controls.mouseButtons = [];
     }
 
     renderer.render(scene, camera);
@@ -675,30 +664,12 @@ const Canvas = React.forwardRef((props, refs) => {
   function backData(prop) {
     const {
       wsPointData: wsPointData,
-      valuej,
-      valueg,
-      value,
-      valuel,
-      valuef,
-      valuelInit,
     } = prop;
-    // valuej2 = valuej;
-    // valueg2 = valueg;
-    // value2 = value;
-    // valuel2 = valuel;
-    // valuef2 = valuef;
-    // valuelInit2 = valuelInit;
-    //处理空数组
-
     ndata = wsPointData
 
     // 修改线序 坐垫
     ndataNum = ndata.reduce((a, b) => a + b, 0);
     ndata = ndata.map((a, index) => (a - valuef2 < 0 ? 0 : a - valuef2));
-
-    // if (ndataNum < valuelInit) {
-    //   ndata = new Array(120).fill(1);
-    // }
   }
   function backValue(prop) {
     const { valuej, valueg, value, valuel, valuef, valuelInit } = prop;
@@ -735,38 +706,13 @@ const Canvas = React.forwardRef((props, refs) => {
   }
   function sitData(prop) {
 
-    if (i < 50) {
-      i++;
-    } else {
-      i = 0;
-    }
+
     const {
       wsPointData: wsPointData,
-      valuej,
-      valueg,
-      value,
-      valuel,
-      valuef,
-      valuelInit,
+      arr
     } = prop;
-
-    // valuej1 = valuej;
-    // valueg1 = valueg;
-    // value1 = value;
-    // valuel1 = valuel;
-    // valuef1 = valuef;
-    // ndata1 = [];
+    cooArr = arr
     ndata1 = wsPointData;
-
-    // valuelInit1 = valuelInit;
-    // 修改线序 坐垫
-    ndata1 = ndata1.map((a, index) => (a - valuef1 < 0 ? 0 : a - valuef1));
-
-    ndata1Num = ndata1.reduce((a, b) => a + b, 0);
-
-    if (ndata1Num < valuelInit) {
-      ndata1 = new Array(sitnum1 * sitnum2).fill(0);
-    }
 
   }
 
@@ -778,6 +724,12 @@ const Canvas = React.forwardRef((props, refs) => {
     if (typeof obj.y === 'number') {
       group.rotation.y = -(obj.y) * 6 / 12
     }
+  }
+
+
+  function changeSelectFlag(value) {
+    controlsFlag = value
+    selectHelper.isShiftPressed = !value
   }
 
   function reset() {
@@ -820,7 +772,8 @@ const Canvas = React.forwardRef((props, refs) => {
     backRenew,
     sitRenew,
     changeGroupRotate,
-    reset
+    reset,
+    changeSelectFlag
     // actionAll: actionAll,
     // actionSit: actionSit,
     // actionBack: actionBack,
@@ -873,7 +826,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
     return () => {
       cancelAnimationFrame(animationRequestId);
-      document.removeEventListener('pointerdown' , function(){})
+      document.removeEventListener('pointerdown', function () { })
     };
   }, []);
   return (

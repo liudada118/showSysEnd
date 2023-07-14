@@ -1,21 +1,24 @@
 export function footLine(wsPointData, flag) {
     // console.log(wsPointData)
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 32; j++) {
-            [wsPointData[i * 32 + j], wsPointData[(14 - i) * 32 + j]] = [
-                wsPointData[(14 - i) * 32 + j],
-                wsPointData[i * 32 + j],
-            ];
-        }
-    }
-
+    
+    let a = wsPointData.splice(0, 1 * 32)
     let b = wsPointData.splice(0, 15 * 32)
-    wsPointData = wsPointData.concat(b)
+    wsPointData = a.concat(wsPointData,b)
+
+    // for (let i = 0; i < 8; i++) {
+    //     for (let j = 0; j < 32; j++) {
+    //         [wsPointData[i * 32 + j], wsPointData[(14 - i) * 32 + j]] = [
+    //             wsPointData[(14 - i) * 32 + j],
+    //             wsPointData[i * 32 + j],
+    //         ];
+    //     }
+    // }
+
 
     for (let i = 0; i < 32; i++) {
-        for (let j = 0; j < 8; j++) {
-            [wsPointData[i * 32 + j], wsPointData[(i) * 32 + 15 - j]] = [
-                wsPointData[(i) * 32 + 15 - j],
+        for (let j = 1; j < 16; j++) {
+            [wsPointData[i * 32 + j], wsPointData[(i) * 32 + 16 + j]] = [
+                wsPointData[(i) * 32 + 16 + j],
                 wsPointData[i * 32 + j],
             ];
         }
