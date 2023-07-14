@@ -1,6 +1,5 @@
-import React, { useEffect, useImperativeHandle, useState } from 'react'
+import React from 'react'
 import './aside.scss'
-import * as echarts from "echarts";
 
 
 const dataArr = [{
@@ -39,60 +38,7 @@ const dataArr1 = [
 
 let myChart1, myChart2
 
-const initCharts1 = (props) => {
-    let option = {
-        animation: false,
-        // tooltip: {
-        //   trigger: "axis",
-        //   show: "true",
-        // },
-        grid: {
-            x: 10,
-            x2: 10,
-            y: 10,
-            y2: 10,
-        },
-        xAxis: {
-            type: "category",
-            show: false,
-            splitLine: {
-                show: false,
 
-            },
-            data: props.xData,
-            axisLabel: {
-                show: false,
-
-            },
-        },
-
-        yAxis: {
-            type: "value",
-            show: false,
-            splitLine: {
-                show: false,
-            },
-            max: props.yMax,
-            axisLabel: {
-                show: false,
-
-            },
-        },
-        series: [
-            {
-                symbol: "none",
-                data: props.yData,
-                type: "line",
-                smooth: true,
-                color: "#E93CA7",
-
-            },
-
-        ],
-    };
-    option && props.myChart.setOption(option);
-
-};
 
 // const Aside = React.forwardRef((props, refs) => {
 
@@ -272,6 +218,7 @@ const initCharts1 = (props) => {
 // const [obj, setObj] = useState({})
 const arr = ['meanPres', 'maxPres', 'totalPres', 'presStan']
 const arrArea = ['point', 'area',]
+let ctx1, ctx2
 class Aside extends React.Component {
     constructor() {
         super()
@@ -285,148 +232,84 @@ class Aside extends React.Component {
             pressure: 0,
             presStan: 0
         }
-        this.totalPres = React.createRef()
-        this.meanPres = React.createRef()
-        this.point = React.createRef()
-        this.maxPres = React.createRef()
-        this.area = React.createRef()
-        this.pressure = React.createRef()
-        this.presStan = React.createRef()
+        console.log(22)
     }
 
     componentDidMount() {
-        myChart1 = echarts.init(document.getElementById(`myChart1`));
-        myChart2 = echarts.init(document.getElementById(`myChart2`));
+        var c = document.getElementById("myChart1");
+        var c1 = document.getElementById("myChart2");
+        ctx1 = c.getContext("2d");
+        ctx2 = c1.getContext("2d");
     }
 
-    componentWillUnmount(){
-        if(myChart1)myChart1.dispose()
-        if(myChart2)myChart2.dispose()
+    drawChart({ctx, arr, max , canvas}) {
+        // 清空画布
+        const data = arr.map((a) => a*150/max)
+       
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 计算数据点之间的间距
+        var gap = canvas.width / (data.length + 1);
+
+        // 绘制曲线
+        ctx.beginPath();
+        ctx.moveTo(gap, canvas.height - data[0]);
+
+        for (var i = 1; i < data.length - 2; i++) {
+            var xMid = (gap * (i + 1) + gap * (i + 2)) / 2;
+            var yMid = (canvas.height - data[i + 1] + canvas.height - data[i + 2]) / 2;
+            ctx.quadraticCurveTo(gap * (i + 1), canvas.height - data[i + 1], xMid, yMid);
+        }
+
+        // 连接最后两个数据点
+        ctx.quadraticCurveTo(
+            gap * (data.length - 1),
+            canvas.height - data[data.length - 1],
+            gap * data.length,
+            canvas.height - data[data.length - 1]
+        );
+
+        // 设置曲线样式
+        ctx.strokeStyle = "#FFC600";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 绘制数据点
+        // for (var i = 0; i < data.length; i++) {
+        //     ctx.beginPath();
+        //     ctx.arc((i + 1) * gap, canvas.height - data[i], 5, 0, 2 * Math.PI);
+        //     ctx.fillStyle = "#ff0000";
+        //     ctx.fill();
+        //     ctx.stroke();
+        // }
     }
-    
-    initCharts1 = (props) => {
-        let option = {
-            animation: false,
-            // tooltip: {
-            //   trigger: "axis",
-            //   show: "true",
-            // },
-            grid: {
-                x: 10,
-                x2: 10,
-                y: 10,
-                y2: 10,
-            },
-            xAxis: {
-                type: "category",
-                show: false,
-                splitLine: {
-                    show: false,
-    
-                },
-                data: props.xData,
-                axisLabel: {
-                    show: false,
-    
-                },
-            },
-    
-            yAxis: {
-                type: "value",
-                show: false,
-                splitLine: {
-                    show: false,
-                },
-                max: props.yMax,
-                axisLabel: {
-                    show: false,
-    
-                },
-            },
-            series: [
-                {
-                    symbol: "none",
-                    data: props.yData,
-                    type: "line",
-                    smooth: true,
-                    color: "#E93CA7",
-    
-                },
-    
-            ],
-        };
-        option && myChart1.setOption(option);
-    
-    };
 
-    initCharts2 = (props) => {
-        let option = {
-            animation: false,
-            // tooltip: {
-            //   trigger: "axis",
-            //   show: "true",
-            // },
-            grid: {
-                x: 10,
-                x2: 10,
-                y: 10,
-                y2: 10,
-            },
-            xAxis: {
-                type: "category",
-                show: false,
-                splitLine: {
-                    show: false,
-    
-                },
-                data: props.xData,
-                axisLabel: {
-                    show: false,
-    
-                },
-            },
-    
-            yAxis: {
-                type: "value",
-                show: false,
-                splitLine: {
-                    show: false,
-                },
-                max: props.yMax,
-                axisLabel: {
-                    show: false,
-    
-                },
-            },
-            series: [
-                {
-                    symbol: "none",
-                    data: props.yData,
-                    type: "line",
-                    smooth: true,
-                    color: "#E93CA7",
-    
-                },
-    
-            ],
-        };
-        option && myChart2.setOption(option);
-    
-    };
+    componentWillUnmount() {
 
+    }
 
-    changeData(obj){
+    handleCharts(arr, max) {
+        const canvas = document.getElementById('myChart1')
+        this.drawChart({ctx : ctx1, arr, max,canvas})
+    }
+
+    handleChartsArea(arr, max) {
+        const canvas = document.getElementById('myChart2')
+        this.drawChart({ctx : ctx2, arr, max,canvas})
+    }
+
+    changeData(obj) {
         this.setState(obj)
     }
 
     render() {
-        console.log('aside')
+        // console.log('aside')
 
         return (
             <div className='aside'>
                 <div className="asideContent firstAside">
                     <h2 className="asideTitle">Pressure Area</h2>
-                    <div id="myChart1" style={{ height: '150px' }}></div>
+                    <canvas id="myChart1" style={{ height: '150px', width: '100%' }}></canvas>
                     {
                         dataArr.map((a, index) => {
                             return (
@@ -437,9 +320,7 @@ class Aside extends React.Component {
                                     </div>
                                     <div className='dataIteminfo'>
                                         <div className='standardColor'>{a.eng}</div>
-                                        <div>
-                                            {this.state[arrArea[index]]}
-                                            </div>
+                                        <div>{this.state[arrArea[index]]}</div>
                                     </div>
                                 </div>
 
@@ -449,11 +330,9 @@ class Aside extends React.Component {
                 </div>
                 <div className="asideContent">
                     <h2 className="asideTitle">Pressure Data</h2>
-                    <h1 className='pressData' ref={this.pressure}>
-                        {/* {this.state.pressure} */}
-                        </h1>
+                    <h1 className='pressData'>{this.state.pressure}</h1>
                     <div className='pressTitle standardColor'>总体压力 Total Pres</div>
-                    <div id="myChart2" style={{ height: '150px' }}></div>
+                    <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>
                     {
                         dataArr1.map((a, index) => {
                             return (

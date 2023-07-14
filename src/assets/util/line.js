@@ -1,5 +1,5 @@
 export function footLine(wsPointData, flag) {
-
+    // console.log(wsPointData)
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 32; j++) {
             [wsPointData[i * 32 + j], wsPointData[(14 - i) * 32 + j]] = [
@@ -23,6 +23,8 @@ export function footLine(wsPointData, flag) {
 
     wsPointData = zeroLine(wsPointData)
 
+    const arr =  graCenter(wsPointData,32,32)
+
     let colArr = [], rowArr = []
     for (let i = 0; i < 32; i++) {
         let coltotal = 0, rowtotal = 0
@@ -38,6 +40,8 @@ export function footLine(wsPointData, flag) {
         wsPointData = press(wsPointData)
     }
 
+
+    // wsPointData[1023] = 100
     let sitData = [],
         backData = [];
     for (let i = 0; i < 32; i++) {
@@ -49,8 +53,8 @@ export function footLine(wsPointData, flag) {
             }
         }
     }
-
-    return { sitData, backData }
+    // console.log(arr)
+    return { sitData, backData,arr , realData : wsPointData }
 
 }
 
@@ -294,7 +298,9 @@ function getLineOk(arr) {
     return wsPointData
 }
 
-export function graCenter(arr, width, height) {
+
+export function graCenter(matrix, width, height) {
+    const arr = [...matrix].map((a) => a < 10 ? 0 : a)
     let rowTotal = []
     let cloumnTotal = []
     for (let i = 0; i < height; i++) {
@@ -308,18 +314,30 @@ export function graCenter(arr, width, height) {
     }
     const x = findMedian(rowTotal)
     const y = findMedian(cloumnTotal)
-    return [x, y]
+    return [y, x]
 }
 
 function findMedian(arr) {
     const total = arr.reduce((a,b) => a+b,0)
-    let num = 0
+    let numLeft = 0 , numRight = 0 ,left , right
     for(let i = 0 ; i < arr.length ; ){
-        num += arr[i]
-        if(num < total / 2){
+        numLeft += arr[i]
+        if(numLeft < total / 2){
             i++
         }else{
-            return i
+            left = i
+            break
         }
     }
+
+    for(let i = 31 ; i >=0 ; ){
+        numRight += arr[i]
+        if(numRight < total / 2){
+            i--
+        }else{
+            right = i
+            break
+        }
+    }
+    return parseInt((right + left)/2)
 }
