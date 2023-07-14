@@ -23,9 +23,14 @@
 
 .setIcon{
     width: 18px;
-
+   
 }
 
+.no-click-slider .ant-slider-rail,
+.no-click-slider .ant-slider-track,
+.no-click-slider .ant-slider-handle {
+  pointer-events: none; /* 禁用点击事件 */
+}
 .setIcon img{
     width: 100%;
 }

@@ -15,8 +15,9 @@ import { rainbowTextColors } from "../../assets/util/color";
 import { handLine, footLine, carSitLine, carBackLine } from '../../assets/util/line';
 import { Select, Slider, Popover } from 'antd'
 import { SelectOutlined } from '@ant-design/icons'
+import { Num } from '../../components/num/Num'
 
-let ws,ws1, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0;
+let ws, ws1, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0;
 let backTotal = 0, backMean = 0, backMax = 0, backMin = 0, backPoint = 0, backArea = 0, sitTotal = 0, sitMean = 0, sitMax = 0, sitMin = 0, sitPoint = 0, sitArea = 0
 
 class Com extends React.Component {
@@ -89,7 +90,8 @@ let totalArr = [], totalPointArr = [], wsMatrixName = 'foot'
 // }
 
 
-let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0,sitDataFlag = false
+let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0,
+  sitDataFlag = false, areaArrSit = [], areaArrBack = [], pressArrBack = [], pressArrSit = []
 
 const text = '旋转'
 const text2 = '框选'
@@ -126,22 +128,32 @@ class Home extends React.Component {
       portname: '',
       portnameBack: "",
       matrixName: 'car',
-      length: 0,
+      length: 2,
       local: false,
       dataArr: [],
       index: 0,
       playflag: false,
       selectFlag: false,
       colFlag: true,
-      colNum: 0
+      colNum: 0,
+      numMatrixFlag: false,
+      carState: 'all',
+      history: 'now',
+      left: 0,
+      right: 100,
+      indexArr: [0, 0],
+      indexInit: 0,
+
     }
     this.com = React.createRef()
     this.data = React.createRef()
     this.title = React.createRef()
+    this.num = React.createRef()
+    this.line = React.createRef()
   }
 
   componentDidMount() {
-    
+
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     ws = new WebSocket(" ws://127.0.0.1:19999");
     ws.onopen = () => {
@@ -154,7 +166,7 @@ class Home extends React.Component {
       //处理空数组
       sitDataFlag = false
       if (jsonObject.sitData != null) {
-        
+
         if (colValueFlag) {
           num++
 
@@ -164,11 +176,11 @@ class Home extends React.Component {
         }
         // console.log(num)
 
-        
+
 
         let selectArr
         let wsPointData = jsonObject.sitData;
-        if(!Array.isArray(wsPointData)){
+        if (!Array.isArray(wsPointData)) {
           wsPointData = JSON.parse(wsPointData)
         }
 
@@ -189,15 +201,24 @@ class Home extends React.Component {
           });
 
         } else if (this.state.matrixName == 'car') {
-          wsPointData = carSitLine(wsPointData)
-          this.com.current?.sitData({
-            wsPointData: wsPointData,
-          });
+
+          if (this.com.current) {
+            // wsPointData = new Array(625).fill(50)
+            this.com.current?.sitData({
+              wsPointData: wsPointData,
+            });
+          } else if (this.num.current && this.state.carState === 'sit') {
+            this.num.current?.changeWsData(
+              wsPointData
+            );
+          }
+
+
           selectArr = []
 
           for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
             for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
-              
+
               selectArr.push(wsPointData[i * 32 + j])
             }
           }
@@ -232,8 +253,6 @@ class Home extends React.Component {
 
         // data.current?.initCharts2(totalArr)
       }
-
-     
       if (jsonObject.port != null) {
         // console.log(jsonObject.port)
         const port = []
@@ -285,6 +304,27 @@ class Home extends React.Component {
 
       }
 
+      if (jsonObject.areaArr != null) {
+        this.data.current?.initCharts2({
+          yData: jsonObject.areaArr,
+          xData: new Array(jsonObject.areaArr.length).fill(0),
+          index: 0 + 1,
+          name: "中风",
+          // yMax: returnChartMax(max)
+        })
+      }
+
+      if (jsonObject.pressArr != null) {
+        this.data.current?.initCharts1({
+          yData: jsonObject.pressArr,
+          xData: new Array(jsonObject.pressArr.length).fill(0),
+          index: 0 + 1,
+          name: "中风",
+
+          // yMax: returnChartMax(max1)
+        })
+      }
+
     };
     ws.onerror = (e) => {
       // an error occurred
@@ -301,19 +341,27 @@ class Home extends React.Component {
     };
     ws1.onmessage = (e) => {
       let jsonObject = JSON.parse(e.data);
-    
+
       if (jsonObject.backData != null) {
-       
+
         backPress = 0
         let wsPointData = jsonObject.backData;
 
-        if(!Array.isArray(wsPointData)){
+        if (!Array.isArray(wsPointData)) {
           wsPointData = JSON.parse(wsPointData)
         }
-       
-        this.com.current?.backData({
-          wsPointData: wsPointData,
-        });
+
+        if (this.com.current) {
+          // wsPointData = new Array(625).fill(50)
+          this.com.current?.backData({
+            wsPointData: wsPointData,
+          });
+        } else if (this.num.current && this.state.carState === 'back') {
+          // console.log(wsPointData)
+          this.num.current?.changeWsData(
+            wsPointData
+          );
+        }
 
 
 
@@ -324,7 +372,7 @@ class Home extends React.Component {
           }
         }
 
-      
+
 
         let DataArr
         if (sitIndexArr.every((a) => a == 0) && backIndexArr.every((a) => a == 0)) {
@@ -375,7 +423,19 @@ class Home extends React.Component {
 
         this.data.current?.changeData({ meanPres: meanSmooth, maxPres: maxSmooth, point: pointSmooth, area: areaSmooth, totalPres: pressSmooth, pressure: pressureSmooth })
 
+        // console.log(this.data.current)
 
+        // echarts
+        // if (this.data.current) {
+        //   // console.log(this.data.current)
+        //   this.data.current.meanPres.current.innerText = meanSmooth
+        //   // this.data.current.meanPres.current?.innerText = meanSmooth
+        //   this.data.current.maxPres.current.innerText = maxSmooth
+        //   this.data.current.point.current.innerText = pointSmooth
+        //   this.data.current.area.current.innerText = areaSmooth
+        //   this.data.current.totalPres.current.innerText = pressSmooth
+        //   this.data.current.pressure.current.innerText = pressureSmooth
+        // }
 
         if (totalArr.length < 20) {
           totalArr.push(totalPress)
@@ -385,7 +445,18 @@ class Home extends React.Component {
         }
         // console.log(totalArr.length)
         const max = findMax(totalArr)
-        this.data.current?.handleCharts(totalArr, returnChartMax(max))
+        this.data.current?.initCharts2({
+          yData: totalArr,
+          xData: [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20,
+          ],
+          index: 0 + 1,
+          name: "中风",
+          yMax: max + 1000
+        })
+
+
 
         if (totalPointArr.length < 20) {
           totalPointArr.push(totalPoint)
@@ -395,7 +466,18 @@ class Home extends React.Component {
         }
 
         const max1 = findMax(totalPointArr)
-        this.data.current?.handleChartsArea(totalPointArr, returnChartMax(max1))
+        this.data.current?.initCharts1({
+          yData: totalPointArr,
+          xData: [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20,
+          ],
+          index: 0 + 1,
+          name: "中风",
+
+          yMax: max1 + 1000
+        })
+
 
       }
 
@@ -406,6 +488,22 @@ class Home extends React.Component {
     ws1.onclose = (e) => {
       // connection closed
     };
+
+    window.addEventListener('mouseup', () => {
+      this.setState({
+        leftFlag: false
+      })
+    })
+
+  }
+
+  componentWillUnmount() {
+    if (ws) {
+      ws.close()
+    }
+    if (ws1) {
+      ws1.close()
+    }
   }
 
   wsSendObj = (obj) => {
@@ -554,9 +652,16 @@ class Home extends React.Component {
     colValueFlag = value
   }
 
+  handleSliderClick = (e) => {
+    console.log(e)
+    // if (e.target.tagName === 'SPAN') {
+    //   e.stopPropagation();
+    // }
+  }
 
   render() {
     // console.log('home')
+    console.log(this.state.carState, this.state.numMatrixFlag)
     return (
       <div className='home'>
         <div className="setIcons">
@@ -684,7 +789,7 @@ class Home extends React.Component {
                       textAlign: "left",
                     }}
                   >
-                    {(0.92 * ((rainbowTextColors.length - 1 - indexs)) / rainbowTextColors.length).toFixed(2)}N/cm^2
+                    {(0.92 * this.state.valuej1 / 100 * ((rainbowTextColors.length - 1 - indexs)) / rainbowTextColors.length).toFixed(2)}N/cm^2
                   </div>
                   <div className="switchLevels"></div>
                 </div>
@@ -713,7 +818,7 @@ class Home extends React.Component {
         local={local}
         dataArr={dataArr}
       > */}
-      {/* <TitleCom
+        {/* <TitleCom
         valueg1={this.state.valueg1}
         value1={this.state.value1}
         valuef1={this.state.valuef1}
@@ -741,13 +846,14 @@ class Home extends React.Component {
           valuelInit1={this.state.valuelInit1}
           ref={this.title}
           com={this.com}
+          history={this.state.history}
           port={this.state.port}
           portname={this.state.portname}
           portnameBack={this.state.portnameBack}
           local={this.state.local}
           dataArr={this.state.dataArr}
           matrixName={this.state.matrixName}
-
+          numMatrixFlag={this.state.numMatrixFlag}
           wsSendObj={this.wsSendObj}
           changeMatrix={this.changeMatrix}
           changeLocal={this.changeLocal}
@@ -770,11 +876,13 @@ class Home extends React.Component {
       
       
       } */}
-        <Com>
-          <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
-        </Com>
 
-        {this.state.local ?
+        {this.state.carState === 'all' || !this.state.numMatrixFlag ? <Com> <CanvasCar ref={this.com} selectFlag={this.state.selectFlag} changeSelect={this.changeSelect} />   </Com> :
+          this.state.carState === 'sit' && this.state.numMatrixFlag ? <Num wsDress={'19999'} ref={this.num} /> :
+            this.state.carState === 'back' && this.state.numMatrixFlag ? <Num wsDress={'19998'} ref={this.num} /> : null}
+
+
+        {this.state.history == 'playback' ?
           <div style={{ position: "fixed", bottom: 0, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <div style={{ width: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', position: 'relative' }}>
               <Slider
@@ -785,7 +893,7 @@ class Home extends React.Component {
                 min={0}
                 max={this.state.length - 2}
                 onChange={(value) => {
-                  localStorage.setItem("localValuej", value);
+                  // localStorage.setItem("localValuej", value);
                   console.log(value)
                   // setIndex(value)
                   this.setState({
@@ -845,7 +953,71 @@ class Home extends React.Component {
                 </div>
               </div>
             </div>
-          </div> : null}
+          </div> : this.state.history == 'history' ? <>
+            <div style={{ position: "fixed", bottom: 15, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{
+                width: 400, display: 'flex', justifyContent: 'center',
+                //  alignItems: 'center', 
+                flexDirection: 'column',
+                position: 'relative',
+              }}>
+                {/* <Slider
+                  // dots={true}
+                  colorBgContainer="#fff"
+                  min={0}
+                  max={this.state.length - 2}
+                  range={{
+                    draggableTrack: true,
+                  }}
+                  // className="no-click-slider"
+                  onMouseDown={(e) => { console.log(e) }}
+                  defaultValue={[0, this.state.length - 2]}
+                  onChange={(value, e) => {
+                    // console.log(e)
+                    // localStorage.setItem("localValuej", value);
+                    console.log(value)
+                    // setIndex(value)
+                    this.setState({
+                      indexArr: value,
+                      indexInit: value[0]
+                    })
+                    if (ws && ws.readyState === 1) {
+                      ws.send(JSON.stringify({ indexArr: value }))
+                    }
+                  }}
+                  // value={this.state.index}
+                  step={1}
+                  style={{ width: '100%' }}
+                /> */}
+
+                <div style={{ position: 'absolute', left: 0, transform: "translate('-50%')", width: 20, height: '30px', backgroundColor: 'yellow' }}
+
+                  onMouseDown={(e) => {
+                    console.log('down')
+                    this.setState({
+                      leftFlag: true
+                    })
+                  }}
+
+                  onMouseMove={(e) => {
+                    console.log(e)
+                    if (this.state.leftFlag) {
+                      var moveX = e.clientX;
+                      // if (moveX < 0) {
+                      //   moveX = 0;
+                      // } else if (moveX >= self.range.endFlage - 10) { // 开始时间游标距离结束时间游标至少10px，保证2个游标不会重叠，导致不方便操作
+                      //   moveX = self.range.endFlage - 10;
+                      // }
+
+                    }
+                  }}
+
+                ></div>
+                <div style={{ position: 'absolute', left: '100%', transform: "translate('-50%')", width: 20, height: '30px', backgroundColor: 'yellow' }}></div>
+                <div ref={this.line} style={{ position: 'absolute', left: `${this.state.indexInit / (this.state.length - 2 == 0 ? 1 : this.state.length - 2) * 100}%`, height: 30, width: 1, transform: `translate('-50%')`, backgroundColor: 'red' }}></div>
+              </div>
+            </div>
+          </> : null}
       </div>
     )
   }

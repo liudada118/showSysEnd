@@ -226,24 +226,24 @@ function rotateMatrix(matrix, m, n) {
 function rotateMatrixsit180(matrix, m, n) {
     const wsPointData = [...matrix]
     for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n/2; j++) {
-            [wsPointData[i * m + j], wsPointData[( i) * m + n-1-j]] = [wsPointData[(i) * m + n-1-j], wsPointData[i * m + j],]
+        for (let j = 0; j < n / 2; j++) {
+            [wsPointData[i * m + j], wsPointData[(i) * m + n - 1 - j]] = [wsPointData[(i) * m + n - 1 - j], wsPointData[i * m + j],]
         }
     }
     return wsPointData
 }
 
-function rotateMatrixback180(matrix, m, n){
+function rotateMatrixback180(matrix, m, n) {
     const wsPointData = [...matrix]
     for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n/2; j++) {
-            [wsPointData[i * m + j], wsPointData[( i) * m + n-1-j]] = [wsPointData[(i) * m + n-1-j], wsPointData[i * m + j],]
+        for (let j = 0; j < n / 2; j++) {
+            [wsPointData[i * m + j], wsPointData[(i) * m + n - 1 - j]] = [wsPointData[(i) * m + n - 1 - j], wsPointData[i * m + j],]
         }
     }
 
-    for (let i = 0; i < m/2; i++) {
+    for (let i = 0; i < m / 2; i++) {
         for (let j = 0; j < n; j++) {
-            [wsPointData[i * m + j], wsPointData[(m-1- i) * m + j]] = [wsPointData[(m-1-i) * m +j], wsPointData[i * m + j],]
+            [wsPointData[i * m + j], wsPointData[(m - 1 - i) * m + j]] = [wsPointData[(m - 1 - i) * m + j], wsPointData[i * m + j],]
         }
     }
 
@@ -292,4 +292,34 @@ function getLineOk(arr) {
         }
     }
     return wsPointData
+}
+
+export function graCenter(arr, width, height) {
+    let rowTotal = []
+    let cloumnTotal = []
+    for (let i = 0; i < height; i++) {
+        let a = 0, b = 0
+        for (let j = 0; j < width; j++) {
+            a += arr[i * width + j]
+            b += arr[i + height * j]
+        }
+        rowTotal.push(a)
+        cloumnTotal.push(b)
+    }
+    const x = findMedian(rowTotal)
+    const y = findMedian(cloumnTotal)
+    return [x, y]
+}
+
+function findMedian(arr) {
+    const total = arr.reduce((a,b) => a+b,0)
+    let num = 0
+    for(let i = 0 ; i < arr.length ; ){
+        num += arr[i]
+        if(num < total / 2){
+            i++
+        }else{
+            return i
+        }
+    }
 }

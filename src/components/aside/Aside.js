@@ -285,60 +285,142 @@ class Aside extends React.Component {
             pressure: 0,
             presStan: 0
         }
-        console.log(22)
+        this.totalPres = React.createRef()
+        this.meanPres = React.createRef()
+        this.point = React.createRef()
+        this.maxPres = React.createRef()
+        this.area = React.createRef()
+        this.pressure = React.createRef()
+        this.presStan = React.createRef()
     }
 
     componentDidMount() {
         myChart1 = echarts.init(document.getElementById(`myChart1`));
         myChart2 = echarts.init(document.getElementById(`myChart2`));
-        console.log(11)
     }
 
     componentWillUnmount(){
         if(myChart1)myChart1.dispose()
         if(myChart2)myChart2.dispose()
     }
+    
+    initCharts1 = (props) => {
+        let option = {
+            animation: false,
+            // tooltip: {
+            //   trigger: "axis",
+            //   show: "true",
+            // },
+            grid: {
+                x: 10,
+                x2: 10,
+                y: 10,
+                y2: 10,
+            },
+            xAxis: {
+                type: "category",
+                show: false,
+                splitLine: {
+                    show: false,
+    
+                },
+                data: props.xData,
+                axisLabel: {
+                    show: false,
+    
+                },
+            },
+    
+            yAxis: {
+                type: "value",
+                show: false,
+                splitLine: {
+                    show: false,
+                },
+                max: props.yMax,
+                axisLabel: {
+                    show: false,
+    
+                },
+            },
+            series: [
+                {
+                    symbol: "none",
+                    data: props.yData,
+                    type: "line",
+                    smooth: true,
+                    color: "#E93CA7",
+    
+                },
+    
+            ],
+        };
+        option && myChart1.setOption(option);
+    
+    };
 
-    handleCharts = (arr, value) => {
+    initCharts2 = (props) => {
+        let option = {
+            animation: false,
+            // tooltip: {
+            //   trigger: "axis",
+            //   show: "true",
+            // },
+            grid: {
+                x: 10,
+                x2: 10,
+                y: 10,
+                y2: 10,
+            },
+            xAxis: {
+                type: "category",
+                show: false,
+                splitLine: {
+                    show: false,
+    
+                },
+                data: props.xData,
+                axisLabel: {
+                    show: false,
+    
+                },
+            },
+    
+            yAxis: {
+                type: "value",
+                show: false,
+                splitLine: {
+                    show: false,
+                },
+                max: props.yMax,
+                axisLabel: {
+                    show: false,
+    
+                },
+            },
+            series: [
+                {
+                    symbol: "none",
+                    data: props.yData,
+                    type: "line",
+                    smooth: true,
+                    color: "#E93CA7",
+    
+                },
+    
+            ],
+        };
+        option && myChart2.setOption(option);
+    
+    };
 
-        if (myChart2) {
-            initCharts1({
-                yData: arr,
-                xData: [
-                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                    20,
-                ],
-                index: 0 + 1,
-                name: "中风",
-                myChart: myChart2,
-                yMax: value
-            });
-        }
-    }
-
-    handleChartsArea = (arr, value) => {
-
-        if (myChart1) {
-            initCharts1({
-                yData: arr,
-                xData: [
-                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                    20,
-                ],
-                index: 0 + 1,
-                name: "中风",
-                myChart: myChart1,
-                yMax: value
-            });
-        }
-    }
 
     changeData(obj){
         this.setState(obj)
     }
 
     render() {
-        // console.log('aside')
+        console.log('aside')
 
         return (
             <div className='aside'>
@@ -355,7 +437,9 @@ class Aside extends React.Component {
                                     </div>
                                     <div className='dataIteminfo'>
                                         <div className='standardColor'>{a.eng}</div>
-                                        <div>{this.state[arrArea[index]]}</div>
+                                        <div>
+                                            {this.state[arrArea[index]]}
+                                            </div>
                                     </div>
                                 </div>
 
@@ -365,7 +449,9 @@ class Aside extends React.Component {
                 </div>
                 <div className="asideContent">
                     <h2 className="asideTitle">Pressure Data</h2>
-                    <h1 className='pressData'>{this.state.pressure}</h1>
+                    <h1 className='pressData' ref={this.pressure}>
+                        {/* {this.state.pressure} */}
+                        </h1>
                     <div className='pressTitle standardColor'>总体压力 Total Pres</div>
                     <div id="myChart2" style={{ height: '150px' }}></div>
                     {

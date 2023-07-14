@@ -25,11 +25,11 @@ const Canvas = React.forwardRef((props, refs) => {
   const sitnum1 = 32;
   const sitnum2 = 32;
   const sitInterp = 2;
-  const sitOrder = 4;
+  const sitOrder = 0;
   const backnum1 = 32;
   const backnum2 = 32;
   const backInterp = 2;
-  const backOrder = 4;
+  const backOrder = 0;
   let controlsFlag = true;
   var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
     valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
@@ -78,11 +78,11 @@ const Canvas = React.forwardRef((props, refs) => {
   let container;
 
 
-  let controls;
+  let controls,lastRender = 0;
   const ALT_KEY = 18;
   const CTRL_KEY = 17;
   const CMD_KEY = 91;
-  const AMOUNTX = sitnum1 * sitInterp + sitOrder * 2;
+  const AMOUNTX = sitnum1 * sitInterp + sitOrder * 2 ;
   const AMOUNTY = sitnum2 * sitInterp + sitOrder * 2;
   const AMOUNTX1 = backnum1 * backInterp + backOrder * 2;
   const AMOUNTY1 = backnum2 * backInterp + backOrder * 2;
@@ -196,7 +196,7 @@ const Canvas = React.forwardRef((props, refs) => {
     selectHelper = new SelectionHelper(renderer, controls, 'selectBox');
 
     document.addEventListener('pointerdown', function (event) {
-      console.log(selectHelper.isShiftPressed)
+      
       if (selectHelper.isShiftPressed) {
         sitIndexArr = []
         backIndexArr = []
@@ -214,7 +214,7 @@ const Canvas = React.forwardRef((props, refs) => {
     document.addEventListener('pointermove', function (event) {
       
       if (selectHelper.isShiftPressed) {
-        console.log(selectHelper.isShiftPressed)
+      
 
         selectEndArr = [(event.clientX), event.clientY,]
 
@@ -295,10 +295,7 @@ const Canvas = React.forwardRef((props, refs) => {
       "position",
       new THREE.BufferAttribute(positions, 3)
     );
-    function getTexture() {
-      return new TextureLoader().load("");
-    }
-
+   
     const spite = new THREE.TextureLoader().load("./circle.png");
     material = new THREE.PointsMaterial({
       vertexColors: true,
@@ -394,14 +391,20 @@ const Canvas = React.forwardRef((props, refs) => {
 
   //模型动画
 
-  function animate() {
-    animationRequestId = requestAnimationFrame(animate);
+  function animate(timestamp) {
+
+    const delta = timestamp - lastRender;
+    // console.log(delta)
     // if(dataFlag){
     //   console.log(111)
+    if (delta >= 1000 / 40) {
       render();
+      lastRender = timestamp;
+    }
+    
       // dataFlag = false
     // }
-   
+    animationRequestId = requestAnimationFrame(animate);
   }
 
   function move(position, time, particles) {
@@ -806,6 +809,140 @@ const Canvas = React.forwardRef((props, refs) => {
       wsPointData: wsPointData,
     } = prop;
     newData1 = wsPointData;
+  }
+
+  function addEvent(){
+    document.addEventListener('pointerdown', function (event) {
+      
+      if (selectHelper.isShiftPressed) {
+        sitIndexArr = []
+        backIndexArr = []
+        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        selectStartArr = [(event.clientX), event.clientY]
+
+        sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
+        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
+
+        sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
+        backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
+      }
+    });
+
+    document.addEventListener('pointermove', function (event) {
+      
+      if (selectHelper.isShiftPressed) {
+      
+
+        selectEndArr = [(event.clientX), event.clientY,]
+
+
+
+        selectMatrix = [...selectStartArr, ...selectEndArr]
+
+        if (selectStartArr[0] > selectEndArr[0]) {
+          // selectMatrix = [...selectEndArr , ...selectStartArr]
+          selectMatrix[0] = selectEndArr[0]
+          selectMatrix[2] = selectStartArr[0]
+        } else {
+          selectMatrix[0] = selectStartArr[0]
+          selectMatrix[2] = selectEndArr[0]
+        }
+
+        if (selectStartArr[1] > selectEndArr[1]) {
+          selectMatrix[1] = selectEndArr[1]
+          selectMatrix[3] = selectStartArr[1]
+        } else {
+          selectMatrix[1] = selectStartArr[1]
+          selectMatrix[3] = selectEndArr[1]
+        }
+
+
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+
+      }
+    });
+
+    document.addEventListener('pointerup', function (event) {
+      if (selectHelper.isShiftPressed) {
+        selectStartArr = []
+        selectEndArr = []
+      }
+    });
+  }
+
+  function removeEvent(){
+    document.removeEventListener('pointerdown', function (event) {
+      
+      if (selectHelper.isShiftPressed) {
+        sitIndexArr = []
+        backIndexArr = []
+        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        selectStartArr = [(event.clientX), event.clientY]
+
+        sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
+        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
+
+        sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
+        backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
+      }
+    });
+
+    document.removeEventListener('pointermove', function (event) {
+      
+      if (selectHelper.isShiftPressed) {
+      
+
+        selectEndArr = [(event.clientX), event.clientY,]
+
+
+
+        selectMatrix = [...selectStartArr, ...selectEndArr]
+
+        if (selectStartArr[0] > selectEndArr[0]) {
+          // selectMatrix = [...selectEndArr , ...selectStartArr]
+          selectMatrix[0] = selectEndArr[0]
+          selectMatrix[2] = selectStartArr[0]
+        } else {
+          selectMatrix[0] = selectStartArr[0]
+          selectMatrix[2] = selectEndArr[0]
+        }
+
+        if (selectStartArr[1] > selectEndArr[1]) {
+          selectMatrix[1] = selectEndArr[1]
+          selectMatrix[3] = selectStartArr[1]
+        } else {
+          selectMatrix[1] = selectStartArr[1]
+          selectMatrix[3] = selectEndArr[1]
+        }
+
+
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+
+      }
+    });
+
+    document.removeEventListener('pointerup', function (event) {
+      if (selectHelper.isShiftPressed) {
+        selectStartArr = []
+        selectEndArr = []
+      }
+    });
   }
 
   useImperativeHandle(refs, () => ({

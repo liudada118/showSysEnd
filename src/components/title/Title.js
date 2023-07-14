@@ -13,6 +13,10 @@ const navItems = [
     label: '回放',
     key: 'playback',
   },
+  {
+    label: '历史曲线',
+    key: 'history',
+  },
 ];
 
 const carItems = [
@@ -50,7 +54,7 @@ class Title extends React.Component {
       carCurrent: 'all',
       show: false,
       num: 0,
-      dataTime : ''
+      dataTime: ''
     }
   }
 
@@ -61,10 +65,35 @@ class Title extends React.Component {
   onClick = (e) => {
     console.log('click ', e.key);
     if (e.key === 'now') {
-      this.props.changeLocal(false)
+      // this.props.changeLocal(false)
+      this.props.wsSendObj({
+        local: false,
+        history: false
+      })
+      this.props.changeStateData({ history: 'now',local : false })
+    } else if (e.key === 'playback') {
+      // this.props.changeLocal(true)
+      this.props.wsSendObj({
+        local: true,
+        history: false
+      })
+      this.props.changeStateData({ history: 'playback', index: 0,local : true })
     } else {
-      this.props.changeLocal(true)
-      this.props.changeStateData({ index: 0 })
+      this.props.changeStateData({ history: 'history', index: 0,local : true })
+      // this.props.changeLocal(true)
+
+
+      if (this.state.dataTime != '') {
+        this.props.wsSendObj({
+          local: true,
+          history: true
+        })
+      } else {
+        this.props.wsSendObj({
+          local: true,
+          // history : true
+        })
+      }
     }
     this.setState({
       current: e.key
@@ -78,16 +107,20 @@ class Title extends React.Component {
         carCurrent: 'sit'
       })
       this.props.com.current?.actionSit()
+      this.props.changeStateData({ carState: 'sit' })
     } else if (e.key === 'back') {
       this.setState({
         carCurrent: 'back'
       })
       this.props.com.current?.actionBack()
+      this.props.changeStateData({ carState: 'back' })
     } else {
       this.setState({
         carCurrent: 'all'
       })
       this.props.com.current?.actionAll()
+      this.props.changeStateData({ carState: 'all' })
+      this.props.changeStateData({ numMatrixFlag: false })
     }
   }
 
@@ -121,7 +154,7 @@ class Title extends React.Component {
 
 
         <Menu className='menu' onClick={this.onClick} selectedKeys={[this.state.current]} mode="horizontal" items={navItems} />
-        {!this.props.local ? <><Select
+        {this.props.history === 'now' ? <><Select
           // value={this.props.portname}
           style={{ marginRight: 20, width: 160 }}
           placeholder="请选择座椅串口"
@@ -168,8 +201,13 @@ class Title extends React.Component {
           onChange={(e) => {
             // this.props.handleChangeCom(e);
             console.log(e);
-            this.setState({dataTime : e})
+            this.setState({ dataTime: e })
             this.props.wsSendObj({ getTime: e, index: 0 })
+            if (this.props.history === 'history') {
+              this.props.wsSendObj({ getTime: e, index: 0, history: true })
+            } else {
+              this.props.wsSendObj({ getTime: e, index: 0 })
+            }
             // this.props.wsSendObj({port : e})
             // if (ws && ws.readyState === 1)
             //   ws.send(JSON.stringify({ sitPort: e }));
@@ -197,29 +235,36 @@ class Title extends React.Component {
           <Menu className='menu' onClick={this.onCarClick} selectedKeys={[this.state.carCurrent]} mode="horizontal" items={carItems} />
           : null}
         {!this.props.local ?
-        <>
-          <Button onClick={() => {
-            const flag = this.props.colFlag
-            const date = new Date(Date.now());
-            const formattedDate = date.toLocaleString();
-            if (flag) {
-              this.props.wsSendObj({ flag: true, time: formattedDate })
-            } else {
-              this.props.wsSendObj({ flag: flag })
-            }
-            // console.log(flag)
-            // this.props.setColFlag(!flag)
-            this.props.changeStateData({ colFlag: !flag })
-            this.props.setColValueFlag(flag)
-          }}>{this.props.colFlag ? '采集' : '停止'}{this.state.num ? this.state.num : null}
-          </Button>
-          
+          <>
+            <Button onClick={() => {
+              const flag = this.props.colFlag
+              const date = new Date(Date.now());
+              const formattedDate = date.toLocaleString();
+              if (flag) {
+                this.props.wsSendObj({ flag: true, time: formattedDate })
+              } else {
+                this.props.wsSendObj({ flag: flag })
+              }
+              // console.log(flag)
+              // this.props.setColFlag(!flag)
+              this.props.changeStateData({ colFlag: !flag })
+              this.props.setColValueFlag(flag)
+            }}>{this.props.colFlag ? '采集' : '停止'}{this.state.num ? this.state.num : null}
+            </Button>
           </>
           : <Button
-          onClick={() => {
-            this.props.wsSendObj({ download: this.state.dataTime })
-          }}
-        >{'下载'}</Button>}
+            onClick={() => {
+              this.props.wsSendObj({ download: this.state.dataTime })
+            }}
+          >{'下载'}</Button>
+        }
+        <Button onClick={() => {
+          const flag = this.props.numMatrixFlag
+          this.props.changeStateData({ numMatrixFlag: !flag })
+        }}>矩阵</Button>
+        <Button onClick={() => {
+          this.props.wsSendObj({ serialReset: true })
+        }}>重连串口</Button>
       </div>
       <div style={{ position: 'relative' }}>
         <img onClick={() => {
