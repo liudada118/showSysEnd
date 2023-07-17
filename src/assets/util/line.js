@@ -1,32 +1,30 @@
 export function footLine(wsPointData, flag) {
     // console.log(wsPointData)
-    
+
     let a = wsPointData.splice(0, 1 * 32)
     let b = wsPointData.splice(0, 15 * 32)
-    wsPointData = a.concat(wsPointData,b)
+    wsPointData = a.concat(wsPointData, b)
 
-    // for (let i = 0; i < 8; i++) {
-    //     for (let j = 0; j < 32; j++) {
-    //         [wsPointData[i * 32 + j], wsPointData[(14 - i) * 32 + j]] = [
-    //             wsPointData[(14 - i) * 32 + j],
-    //             wsPointData[i * 32 + j],
-    //         ];
-    //     }
-    // }
-
-
+    let newArr = []
     for (let i = 0; i < 32; i++) {
-        for (let j = 1; j < 16; j++) {
-            [wsPointData[i * 32 + j], wsPointData[(i) * 32 + 16 + j]] = [
-                wsPointData[(i) * 32 + 16 + j],
-                wsPointData[i * 32 + j],
-            ];
+        for (let j = 0; j < 1; j++) {
+            newArr[i * 32 + j] = (wsPointData[(i * 32 + j)])
         }
     }
-
+    for (let i = 0; i < 32; i++) {
+        for (let j = 16; j < 32; j++) {
+            newArr[i * 32 + j] = (wsPointData[(i * 32 + j - 15)])
+        }
+    }
+    for (let i = 0; i < 32; i++) {
+        for (let j = 1; j < 16; j++) {
+            newArr[i * 32 + j] = (wsPointData[(i * 32 + 16 + j)])
+        }
+    }
+    wsPointData = newArr
     wsPointData = zeroLine(wsPointData)
 
-    const arr =  graCenter(wsPointData,32,32)
+    const arr = graCenter(wsPointData, 32, 32)
 
     let colArr = [], rowArr = []
     for (let i = 0; i < 32; i++) {
@@ -57,7 +55,7 @@ export function footLine(wsPointData, flag) {
         }
     }
     // console.log(arr)
-    return { sitData, backData,arr , realData : wsPointData }
+    return { sitData, backData, arr, realData: wsPointData }
 
 }
 
@@ -315,32 +313,136 @@ export function graCenter(matrix, width, height) {
         rowTotal.push(a)
         cloumnTotal.push(b)
     }
-    const x = findMedian(rowTotal)
-    const y = findMedian(cloumnTotal)
+    // const x = findMedian(rowTotal, 0, 32)
+    // const y = findMedian(cloumnTotal, 0, 32)
+    const x = findGroup(rowTotal)
+    const y = findGroup(cloumnTotal)
+    console.log([y, x])
     return [y, x]
 }
 
-function findMedian(arr) {
-    const total = arr.reduce((a,b) => a+b,0)
-    let numLeft = 0 , numRight = 0 ,left , right
-    for(let i = 0 ; i < arr.length ; ){
+function findGroup(arr) {
+
+    const groupArr = findNonZeroSubarrays(arr)
+    const indexArr = findNonZeroSubarraysWithIndex(arr)
+
+    const res = [{value : 1 , index : 0}], resValue = []
+    for (let i = 0; i < groupArr.length; i++) {
+        const value = groupArr[i].reduce((a, b) => a + b, 0)
+        const index = findMedian(groupArr[i], indexArr[i].start, indexArr[i].end)
+        res.push({ value, index })
+        // resValue.push(value, index)
+    }
+    // console.log(resValue)
+    res.push({value : 1 , index : 31})
+    const index = calCenter(res)
+    return index
+}
+
+function calCenter(arr) {
+    let res = arr
+    while (res.length > 1) {
+        const data = []
+        for (let i = 0; i < res.length - 1; i++) {
+            const value = res[i].value - (res[i].value - res[i + 1].value) * ( res[i + 1].value ) / (res[i].value + res[i + 1].value)
+            const index = res[i].index + Math.abs((res[i].index - res[i + 1].index)) * ( res[i + 1].value ) / (res[i].value + res[i + 1].value)
+            data.push({ value, index })
+
+        }
+        res = data
+    }
+
+    return res[0]?.index
+}
+
+function findMedian(arr, start, end) {
+    if (start === end) {
+        return start
+    }
+    const total = arr.reduce((a, b) => a + b, 0)
+    let numLeft = 0, numRight = 0, left, right
+    for (let i = start; i < end;) {
         numLeft += arr[i]
-        if(numLeft < total / 2){
+        if (numLeft < total / 2) {
             i++
-        }else{
+        } else {
             left = i
             break
         }
     }
 
-    for(let i = 31 ; i >=0 ; ){
+    for (let i = end - 1; i >= start;) {
         numRight += arr[i]
-        if(numRight < total / 2){
+        if (numRight < total / 2) {
             i--
-        }else{
+        } else {
             right = i
             break
         }
     }
-    return parseInt((right + left)/2)
+    return parseInt((right + left) / 2) ? parseInt((right + left) / 2) : 1
 }
+
+function findNonZeroSubarrays(arr) {
+    const result = [];
+    let start = -1; // 记录连续子数组的起始位置
+
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] !== 0) {
+            // 当找到非零数字时，记录连续子数组的起始位置
+            if (start === -1) {
+                start = i;
+            }
+        } else {
+            // 当遇到0或者数组遍历结束时，结束记录
+            if (start !== -1) {
+                result.push(arr.slice(start, i));
+                start = -1;
+            }
+        }
+    }
+
+    // 处理连续子数组在数组末尾的情况
+    if (start !== -1) {
+        result.push(arr.slice(start));
+    }
+
+    return result;
+}
+
+function findNonZeroSubarraysWithIndex(arr) {
+    const result = [];
+    let start = -1; // 记录连续子数组的起始位置
+
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] !== 0) {
+            // 当找到非零数字时，记录连续子数组的起始位置
+            if (start === -1) {
+                start = i;
+            }
+        } else {
+            // 当遇到0或者数组遍历结束时，记录结束位置，并将连续子数组的起始和结束索引添加到结果中
+            if (start !== -1) {
+                result.push({ start, end: i - 1 });
+                start = -1;
+            }
+        }
+    }
+
+    // 处理连续子数组在数组末尾的情况
+    if (start !== -1) {
+        result.push({ start, end: arr.length - 1 });
+    }
+
+    return result;
+}
+
+// 示例用法
+// const arr = [1, 2, 0, 0, 3, 4, 0, 5, 6];
+// const nonZeroSubarraysWithIndex = findNonZeroSubarraysWithIndex(arr);
+// console.log("Non-zero Subarrays with Index:", nonZeroSubarraysWithIndex);
+
+  // 示例用法
+//   const arr = [1, 2, 0, 0, 3, 4, 0, 5, 6];
+//   const nonZeroSubarrays = findNonZeroSubarrays(arr);
+//   console.log("Non-zero Subarrays:", nonZeroSubarrays);

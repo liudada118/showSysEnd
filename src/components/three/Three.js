@@ -53,7 +53,7 @@ let isShiftPressed = false;
 
 const Canvas = React.forwardRef((props, refs) => {
 
-  var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper, cooArr = []
+  var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper, cooArr = [0,0]
   let sitIndexArr = [], backIndexArr = []
   let dataFlag = false;
   const changeDataFlag = () => {
@@ -135,7 +135,7 @@ const Canvas = React.forwardRef((props, refs) => {
     );
 
 
-    camera.position.z = 300;
+    camera.position.z = 10;
     camera.position.y = 200;
     // camera.position.z = 1;
     // camera.position.y = 50;
@@ -155,10 +155,10 @@ const Canvas = React.forwardRef((props, refs) => {
     initBack();
     initPoint();
     // scene.add(group);
-    group.rotation.x = Math.PI / 3
-    group.position.x = -15
-    group.position.y = 150
-    group.position.z = 230
+    // group.rotation.x = Math.PI / 3
+    group.position.x = -10
+    group.position.y = 110
+    group.position.z =5 
     scene.add(group);
     const helper = new THREE.GridHelper(2000, 100);
     helper.position.y = -199;
@@ -228,11 +228,31 @@ const Canvas = React.forwardRef((props, refs) => {
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
         selectStartArr = [(event.clientX), event.clientY]
 
-        sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
-        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
+        sitArr = getPointCoordinate({ particles, camera, position: { x: -15, y: 150, z: 230 }  })
+        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -15, y: 150, z: 230 }, width: AMOUNTX1 })
 
         sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
-        backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
+        backMatrix = [backArr[1].x, backArr[0].y, backArr[0].x, backArr[1].y]
+      
+        
+        // const newDiv = document.createElement('div');
+
+        // newDiv.classList.add('my-class');
+        // // 设置 <div> 的属性、内容或样式
+        // newDiv.style.backgroundColor = 'lightblue';
+        // // newDiv.style.padding = '10px';
+        // newDiv.style.width = `${100}px`
+        // newDiv.style.height = `${100}px`
+        // // newDiv.style.left = `${viewportPosition.x}px`
+        // // newDiv.style.top = `${viewportPosition.y}px`
+        // // newDiv.style.left = `${vector.x}px`
+        // // newDiv.style.top = `${vector.y}px`
+        // newDiv.style.left = `${backMatrix[2]}px`
+        // newDiv.style.top = `${backMatrix[3]}px`
+  
+        // // 将 <div> 元素添加到页面中的某个元素中
+        // document.body?.appendChild(newDiv);
+
       }
     });
 
@@ -338,7 +358,7 @@ const Canvas = React.forwardRef((props, refs) => {
     particles.scale.x = 0.0062;
     particles.scale.y = 0.0062;
     particles.scale.z = 0.0062;
-
+    // particles.rotation.x = Math.PI / 3
 
     // particles.rotation.x = Math.PI / 4;
     // particles.rotation.y = 0; //-Math.PI / 2;
@@ -349,46 +369,46 @@ const Canvas = React.forwardRef((props, refs) => {
 
 
     // 
-    const position = particles.geometry.attributes.position;
+    // const position = particles.geometry.attributes.position;
 
-    const screenCoordinates = [];
-    const dataArr = [0, 2879]
-    for (let i = 0; i < dataArr.length; i++) {
-      const vertex = new THREE.Vector3();
-      vertex.fromBufferAttribute(position, dataArr[i]); // 获取顶点的世界坐标
-      const geometry = new THREE.BufferGeometry();
-      const vertices = new Float32Array([vertex.x, vertex.y, vertex.z])
-      const colors = new Float32Array([1, 0, 0])
-      console.log(vertices, 'vertices')
-      geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-      geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-      const point = new THREE.Points(geometry, material);
+    // const screenCoordinates = [];
+    // const dataArr = [0, 2879]
+    // for (let i = 0; i < dataArr.length; i++) {
+    //   const vertex = new THREE.Vector3();
+    //   vertex.fromBufferAttribute(position, dataArr[i]); // 获取顶点的世界坐标
+    //   const geometry = new THREE.BufferGeometry();
+    //   const vertices = new Float32Array([vertex.x, vertex.y, vertex.z])
+    //   const colors = new Float32Array([1, 0, 0])
+    //   console.log(vertices, 'vertices')
+    //   geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    //   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    //   const point = new THREE.Points(geometry, material);
 
-      group.add(point);
-      point.scale.x = 0.0062;
-      point.scale.y = 0.0062;
-      point.scale.z = 0.0062;
-      point.position.x = -15
-      point.position.y = -1000
-      point.position.z = 230
+    //   group.add(point);
+    //   point.scale.x = 0.0062;
+    //   point.scale.y = 0.0062;
+    //   point.scale.z = 0.0062;
+    //   point.position.x = -15
+    //   point.position.y = -1000
+    //   point.position.z = 230
 
-      const vector = new THREE.Vector3();
-      var widthHalf = 0.5 * window.innerWidth;  //此处应使用画布长和宽
-      var heightHalf = 0.5 * window.innerHeight;
+    //   const vector = new THREE.Vector3();
+    //   var widthHalf = 0.5 * window.innerWidth;  //此处应使用画布长和宽
+    //   var heightHalf = 0.5 * window.innerHeight;
 
-      point.updateMatrixWorld(); // 函数updateMatrix()和updateMatrixWorld(force)将根据position，rotation或quaternion，scale参数更新matrix和matrixWorld。updateMatrixWorld还会更新所有后代元素的matrixWorld，如果force值为真则调用者本身的matrixWorldNeedsUpdate值为真。
+    //   point.updateMatrixWorld(); // 函数updateMatrix()和updateMatrixWorld(force)将根据position，rotation或quaternion，scale参数更新matrix和matrixWorld。updateMatrixWorld还会更新所有后代元素的matrixWorld，如果force值为真则调用者本身的matrixWorldNeedsUpdate值为真。
 
-      //getPositionFromMatrix()方法已经删除,使用setFromMatrixPosition()替换, setFromMatrixPosition方法将返回从矩阵中的元素得到的新的向量值的向量
-      vector.setFromMatrixPosition(point.matrixWorld);
+    //   //getPositionFromMatrix()方法已经删除,使用setFromMatrixPosition()替换, setFromMatrixPosition方法将返回从矩阵中的元素得到的新的向量值的向量
+    //   vector.setFromMatrixPosition(point.matrixWorld);
 
-      //projectOnVector方法在将当前三维向量(x,y,z)投影一个向量到另一个向量,参数vector(x,y,z). 
-      vector.project(camera);
+    //   //projectOnVector方法在将当前三维向量(x,y,z)投影一个向量到另一个向量,参数vector(x,y,z). 
+    //   vector.project(camera);
 
-      vector.x = (vector.x * widthHalf) + widthHalf;
-      vector.y = -(vector.y * heightHalf) + heightHalf;
-      console.log(vector.x, vector.y,)
-    }
-    console.log(group)
+    //   vector.x = (vector.x * widthHalf) + widthHalf;
+    //   vector.y = -(vector.y * heightHalf) + heightHalf;
+    //   console.log(vector.x, vector.y,)
+    // }
+    // console.log(group)
   }
   // 初始化靠背
   function initBack() {
@@ -439,7 +459,7 @@ const Canvas = React.forwardRef((props, refs) => {
     particles1.scale.y = 0.0062;
     particles1.scale.z = 0.0062;
 
-
+    // particles1.rotation.x = Math.PI / 3
     particles1.position.x = 30;
     // particles1.rotation.x = Math.PI / 2
     // particles1.rotation.y = Math.PI 
@@ -453,10 +473,11 @@ const Canvas = React.forwardRef((props, refs) => {
     const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
     particlesPoint = new THREE.Mesh(geometry, material);
 
-    particlesPoint.rotation.x = Math.PI / 2
+    particlesPoint.rotation.x = -Math.PI/2
     particlesPoint.position.y = 10
-    particlesPoint.position.x = -9 + 47.5
-    particlesPoint.position.z = -20.5 + 38.5
+
+    particlesPoint.position.x = -10 + 48
+    particlesPoint.position.z = -19 + 38.5
     group.add(particlesPoint);
 
   }
@@ -524,10 +545,10 @@ const Canvas = React.forwardRef((props, refs) => {
 
         if (backIndexArr && !backIndexArr.every((a) => a == 0)) {
 
-          if (ix >= backIndexArr[0] && ix < backIndexArr[1] && iy < AMOUNTY1 - backIndexArr[2] && iy >= AMOUNTY1 - backIndexArr[3]) {
+          if (ix >= backIndexArr[0] && ix < backIndexArr[1] && iy >= backIndexArr[2] && iy < backIndexArr[3]) {
             // rgb = [255, 0, 0];
-            rgb = jetWhite2(0, valuej2, smoothBig1[l] + 50);
-            scales1[l] = 2;
+            rgb = jetWhite2(0, valuej2, smoothBig1[l]);
+            // scales1[l] = 2;
             // positions1[k + 1] = smoothBig1[l] / value2 - 1000
           } else {
             rgb = jetgGrey(0, valuej2, smoothBig1[l]);
@@ -595,12 +616,12 @@ const Canvas = React.forwardRef((props, refs) => {
         positions[k + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2; // z
         let rgb
 
-        if (backIndexArr && !backIndexArr.every((a) => a == 0)) {
+        if (sitIndexArr && !sitIndexArr.every((a) => a == 0)) {
 
-          if (ix >= backIndexArr[0] && ix < backIndexArr[1] && iy < AMOUNTY1 - backIndexArr[2] && iy >= AMOUNTY1 - backIndexArr[3]) {
+          if (ix >= sitIndexArr[0] && ix < sitIndexArr[1] && iy >= sitIndexArr[2] && iy < sitIndexArr[3]) {
             // rgb = [255, 0, 0];
-            rgb = jetWhite2(0, valuej2, smoothBig[l] + 50);
-            scales1[l] = 2;
+            rgb = jetWhite2(0, valuej2, smoothBig[l]);
+            // scales1[l] = 2;
             // positions1[k + 1] = smoothBig[l] / value2 - 1000
           } else {
             rgb = jetgGrey(0, valuej2, smoothBig[l]);
@@ -631,10 +652,11 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function render() {
-
+    // particlesPoint.position.x = -10 + 48
+    // particlesPoint.position.z = -19 + 38.5
     if(particlesPoint){
-      particlesPoint.position.x = -9 + (47.5)* cooArr[0]/32
-      particlesPoint.position.z = -20.5 + (38.5 )* cooArr[1]/32
+      particlesPoint.position.x = -10 + (48)* cooArr[0]/32
+      particlesPoint.position.z = -19 + (38.5 )* cooArr[1]/32
     }
 
     backRenew();

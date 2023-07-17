@@ -91,7 +91,7 @@ let totalArr = [], totalPointArr = [], wsMatrixName = 'foot'
 // }
 
 
-let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0, sitDataFlag = false
+let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0, sitDataFlag = false , arrSmooth = [0,0]
 
 const text = '旋转'
 const text2 = '框选'
@@ -183,18 +183,25 @@ class Home extends React.Component {
         if (this.state.matrixName == 'foot') {
           const { sitData, backData, arr, realData } = footLine(wsPointData)
 
-          ctx.lineTo(arr[0] * 300 / 32, arr[1] * 300 / 32);
+          arr[0] = arr[0] ? arr[0] : 0
+          arr[1] = arr[1] ? arr[1] : 0
+          for(let i = 0 ; i < arrSmooth.length ; i++){
+            arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i])/4
+          }
+
+          // console.log(arrSmooth)
+          ctx.lineTo(arrSmooth[0] * 300 / 32, arrSmooth[1] * 300 / 32);
           ctx.stroke();
 
           this.com.current?.changeDataFlag();
           this.com.current?.sitData({
             wsPointData: sitData,
-            arr
+            arr : arrSmooth
           });
           // console.log(arr)
           selectArr = []
 
-
+          
 
           for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
             for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
@@ -695,7 +702,7 @@ class Home extends React.Component {
                       textAlign: "left",
                     }}
                   >
-                    {(0.92 * ((rainbowTextColors.length - 1 - indexs)) / rainbowTextColors.length).toFixed(2)}N/cm^2
+                    {(this.state.valuej1/100 * ((rainbowTextColors.length - 1 - indexs)) / rainbowTextColors.length).toFixed(2)}N/cm^2
                   </div>
                   <div className="switchLevels"></div>
                 </div>

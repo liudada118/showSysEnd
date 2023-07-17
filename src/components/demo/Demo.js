@@ -47,66 +47,29 @@ export default function Demo() {
 
             if (jsonObject.sitData != null) {
                 let wsPointData = jsonObject.sitData;
-                console.log(wsPointData)
-                // if (!Array.isArray(wsPointData)) {
-                //     wsPointData = JSON.parse(JSON.parse(wsPointData));
-                //     //   console.log(wsPointData)
-
-                // }
-
-
-
-
-
-                // for (let i = 0; i < 8; i++) {
-                //     for (let j = 0; j < 32; j++) {
-                //         [wsPointData[i * 32 + j], wsPointData[(15 - i) * 32 + j]] = [
-                //             wsPointData[(15 - i) * 32 + j],
-                //             wsPointData[i * 32 + j],
-                //         ];
-                //     }
-                // }
-
-                // for (let i = 0; i < 32; i++) {
-                //     for (let j = 0; j < 8; j++) {
-                //         [wsPointData[i * 32 + j + 15], wsPointData[(i) * 32 + 16 - j + 15]] = [
-                //             wsPointData[(i) * 32 + 16 - j + 15],
-                //             wsPointData[i * 32 + j + 15],
-                //         ];
-                //     }
-                // }
-
-                //  let b = wsPointData.splice(0, 16 * 32)
-                // // console.log(b,wsPointData)
-                // wsPointData = wsPointData.concat(b)
-
+                
                 wsPointData = wsPointData.map((a) => a < 10 ? 0 : a)
                 let a = wsPointData.splice(0, 1 * 32)
                 let b = wsPointData.splice(0, 15 * 32)
                 wsPointData = a.concat(wsPointData, b)
 
-                // for (let i = 0; i < 32; i++) {
-                //     for (let j = 1; j < 16; j++) {
-                //         [wsPointData[i * 32 + j], wsPointData[(i) * 32 + 16 + j]] = [
-                //             wsPointData[(i) * 32 + 16 + j],
-                //             wsPointData[i * 32 + j],
-                //         ];
-                //     }
-                // }
                 let newArr = []
                 for (let i = 0; i < 32; i++) {
-                    for (let j = 0; j < 32; j++) {
-                        if (j = 0) {
-                            newArr.push(wsPointData[(i * 32 + j)])
-                        }
-                        else if (j >= 1 && j <= 15) {
-                            newArr.push(wsPointData[(i * 32 + 16 + j)])
-                        }
-                        else if (j > 16) {
-                            newArr.push(wsPointData[(i * 32 + j - 16)])
-                        }
+                    for (let j = 0; j < 1; j++) {
+                        newArr[i * 32 + j] = (wsPointData[(i * 32 + j)])
                     }
                 }
+                for (let i = 0; i < 32; i++) {
+                    for (let j = 16; j < 32; j++) {
+                        newArr[i * 32 + j] = (wsPointData[(i * 32 + j - 15)])
+                    }
+                }
+                for (let i = 0; i < 32; i++) {
+                    for (let j = 1; j < 16; j++) {
+                        newArr[i * 32 + j] = (wsPointData[(i * 32 + 16 + j)])
+                    }
+                }
+
                 wsPointData = newArr
                 let colArr = [], rowArr = []
                 for (let i = 0; i < 32; i++) {
