@@ -1,5 +1,6 @@
 import React from 'react'
 import './aside.scss'
+import { CanvasDemo } from '../chart/Chart'
 
 
 const dataArr = [{
@@ -216,6 +217,22 @@ let myChart1, myChart2
 // const [pressure, setPressure] = useState(0)
 // const [presStan, setPresStan] = useState(0)
 // const [obj, setObj] = useState({})
+
+class Com extends React.Component {
+    constructor(props) {
+      super(props)
+    }
+    shouldComponentUpdate(nextProps, nextState) {
+      return false
+    }
+    render() {
+      console.log(this.props)
+      return (
+        <>{this.props.children}</>
+      )
+    }
+  }
+
 const arr = ['meanPres', 'maxPres', 'totalPres', 'presStan']
 const arrArea = ['point', 'area',]
 let ctx1, ctx2
@@ -232,20 +249,22 @@ class Aside extends React.Component {
             pressure: 0,
             presStan: 0
         }
-        console.log(22)
+        this.canvas = React.createRef()
     }
 
     componentDidMount() {
+        
         var c = document.getElementById("myChart1");
+        if(c)ctx1 = c.getContext("2d");
+
         var c1 = document.getElementById("myChart2");
-        ctx1 = c.getContext("2d");
-        ctx2 = c1.getContext("2d");
+        if(c1)ctx2 = c1.getContext("2d");
     }
 
-    drawChart({ctx, arr, max , canvas}) {
+    drawChart({ ctx, arr, max, canvas }) {
         // 清空画布
-        const data = arr.map((a) => a*150/max)
-       
+        const data = arr.map((a) => a * 150 / max)
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // 计算数据点之间的间距
@@ -290,12 +309,12 @@ class Aside extends React.Component {
 
     handleCharts(arr, max) {
         const canvas = document.getElementById('myChart1')
-        this.drawChart({ctx : ctx1, arr, max,canvas})
+        this.drawChart({ ctx: ctx1, arr, max, canvas })
     }
 
     handleChartsArea(arr, max) {
         const canvas = document.getElementById('myChart2')
-        this.drawChart({ctx : ctx2, arr, max,canvas})
+        this.drawChart({ ctx: ctx2, arr, max, canvas })
     }
 
     changeData(obj) {
@@ -308,25 +327,27 @@ class Aside extends React.Component {
         return (
             <div className='aside'>
                 <div className="asideContent firstAside">
-                    <h2 className="asideTitle">Pressure Area</h2>
-                    <canvas id="myChart1" style={{ height: '150px', width: '100%' }}></canvas>
-                    {
-                        dataArr.map((a, index) => {
-                            return (
-                                <div className='dataItem' key={a.eng}>
-                                    <div className='dataItemCircle'>
-                                        <div className='circleItem' style={{ backgroundColor: a.color }}></div>
-                                        <div>{a.data}</div>
-                                    </div>
-                                    <div className='dataIteminfo'>
-                                        <div className='standardColor'>{a.eng}</div>
-                                        <div>{this.state[arrArea[index]]}</div>
-                                    </div>
-                                </div>
+                    {this.props.matrixName != 'foot' ? <><h2 className="asideTitle">Pressure Area</h2>
+                        <canvas id="myChart1" style={{ height: '150px', width: '100%' }}></canvas>
+                        <>
+                            {
+                                dataArr.map((a, index) => {
+                                    return (
+                                        <div className='dataItem' key={a.eng}>
+                                            <div className='dataItemCircle'>
+                                                <div className='circleItem' style={{ backgroundColor: a.color }}></div>
+                                                <div>{a.data}</div>
+                                            </div>
+                                            <div className='dataIteminfo'>
+                                                <div className='standardColor'>{a.eng}</div>
+                                                <div>{this.state[arrArea[index]]}</div>
+                                            </div>
+                                        </div>
 
-                            )
-                        })
-                    }
+                                    )
+                                })
+                            }
+                        </> </> : <Com> <CanvasDemo ref={this.canvas} /></Com>}
                 </div>
                 <div className="asideContent">
                     <h2 className="asideTitle">Pressure Data</h2>

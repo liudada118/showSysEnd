@@ -141,9 +141,9 @@ class Title extends React.Component {
           placeholder="请选择对应传感器"
           onChange={(e) => {
             // this.props.handleChangeCom(e);
-            console.log(e.info);
-            this.props.wsSendObj({ file: e.info })
-            this.props.changeMatrix(e.info)
+            console.log(e);
+            this.props.wsSendObj({ file: e })
+            this.props.changeMatrix(e)
             // this.props.changeDateArr(e.info)
             // if (ws && ws.readyState === 1)
             //   ws.send(JSON.stringify({ sitPort: e }));

@@ -35,25 +35,25 @@ const backOrder = 4;
 let controlsFlag = true;
 var ndata = new Array(backnum1 * backnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0);
 
-let valuej1 = 500,
-  valueg1 = 2,
-  value1 = 5,
-  valuel1 = 5,
-  valuef1 = 5,
-  valuej2 = 500,
-  valueg2 = 2,
-  value2 = 5,
-  valuel2 = 5,
-  valuef2 = 5,
-  valuelInit1 = 1,
-  valuelInit2 = 2;
+var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
+  valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
+  value1 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
+  valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
+  valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
+  valuej2 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
+  valueg2 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
+  value2 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
+  valuel2 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
+  valuef2 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
+  valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2,
+  valuelInit2 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2;
 let enableControls = true;
 let isShiftPressed = false;
 
 
 const Canvas = React.forwardRef((props, refs) => {
 
-  var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper, cooArr = [0,0]
+  var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper, cooArr = [0, 0]
   let sitIndexArr = [], backIndexArr = []
   let dataFlag = false;
   const changeDataFlag = () => {
@@ -158,7 +158,7 @@ const Canvas = React.forwardRef((props, refs) => {
     // group.rotation.x = Math.PI / 3
     group.position.x = -10
     group.position.y = 110
-    group.position.z =5 
+    group.position.z = 5
     scene.add(group);
     const helper = new THREE.GridHelper(2000, 100);
     helper.position.y = -199;
@@ -220,94 +220,104 @@ const Canvas = React.forwardRef((props, refs) => {
 
     selectHelper = new SelectionHelper(renderer, controls, 'selectBox');
 
-    document.addEventListener('pointerdown', function (event) {
+    document.addEventListener('pointerdown', pointDown);
 
-      if (selectHelper.isShiftPressed) {
-        sitIndexArr = []
-        backIndexArr = []
-        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
-        selectStartArr = [(event.clientX), event.clientY]
+    document.addEventListener('pointermove', pointMove);
 
-        sitArr = getPointCoordinate({ particles, camera, position: { x: -15, y: 150, z: 230 }  })
-        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -15, y: 150, z: 230 }, width: AMOUNTX1 })
-
-        sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
-        backMatrix = [backArr[1].x, backArr[0].y, backArr[0].x, backArr[1].y]
-      
-        
-        // const newDiv = document.createElement('div');
-
-        // newDiv.classList.add('my-class');
-        // // 设置 <div> 的属性、内容或样式
-        // newDiv.style.backgroundColor = 'lightblue';
-        // // newDiv.style.padding = '10px';
-        // newDiv.style.width = `${100}px`
-        // newDiv.style.height = `${100}px`
-        // // newDiv.style.left = `${viewportPosition.x}px`
-        // // newDiv.style.top = `${viewportPosition.y}px`
-        // // newDiv.style.left = `${vector.x}px`
-        // // newDiv.style.top = `${vector.y}px`
-        // newDiv.style.left = `${backMatrix[2]}px`
-        // newDiv.style.top = `${backMatrix[3]}px`
-  
-        // // 将 <div> 元素添加到页面中的某个元素中
-        // document.body?.appendChild(newDiv);
-
-      }
-    });
-
-    document.addEventListener('pointermove', function (event) {
-
-      if (selectHelper.isShiftPressed) {
-
-
-        selectEndArr = [(event.clientX), event.clientY,]
-
-
-
-        selectMatrix = [...selectStartArr, ...selectEndArr]
-
-        if (selectStartArr[0] > selectEndArr[0]) {
-          // selectMatrix = [...selectEndArr , ...selectStartArr]
-          selectMatrix[0] = selectEndArr[0]
-          selectMatrix[2] = selectStartArr[0]
-        } else {
-          selectMatrix[0] = selectStartArr[0]
-          selectMatrix[2] = selectEndArr[0]
-        }
-
-        if (selectStartArr[1] > selectEndArr[1]) {
-          selectMatrix[1] = selectEndArr[1]
-          selectMatrix[3] = selectStartArr[1]
-        } else {
-          selectMatrix[1] = selectStartArr[1]
-          selectMatrix[3] = selectEndArr[1]
-        }
-
-
-        if (!controlsFlag) {
-          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
-          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
-
-          if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-          if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-
-          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
-        }
-
-      }
-    });
-
-    document.addEventListener('pointerup', function (event) {
-      if (selectHelper.isShiftPressed) {
-        selectStartArr = []
-        selectEndArr = []
-      }
-    });
+    document.addEventListener('pointerup', pointUp);
 
 
 
   }
+
+  function pointDown(event){
+    if (selectHelper.isShiftPressed) {
+      sitIndexArr = []
+      backIndexArr = []
+      props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+      selectStartArr = [(event.clientX), event.clientY]
+
+
+      // group.position.x = -10
+      // group.position.y = 110
+      // group.position.z =5 
+
+
+      sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: 110, z: 5 } })
+      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: 110, z: 5 }, width: AMOUNTX1 })
+
+      sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
+      backMatrix = [backArr[1].x, backArr[0].y, backArr[0].x, backArr[1].y]
+
+
+      // const newDiv = document.createElement('div');
+
+      // newDiv.classList.add('my-class');
+      // // 设置 <div> 的属性、内容或样式
+      // newDiv.style.backgroundColor = 'lightblue';
+      // // newDiv.style.padding = '10px';
+      // newDiv.style.width = `${100}px`
+      // newDiv.style.height = `${100}px`
+      // // newDiv.style.left = `${viewportPosition.x}px`
+      // // newDiv.style.top = `${viewportPosition.y}px`
+      // // newDiv.style.left = `${vector.x}px`
+      // // newDiv.style.top = `${vector.y}px`
+      // newDiv.style.left = `${backMatrix[2]}px`
+      // newDiv.style.top = `${backMatrix[3]}px`
+
+      // // 将 <div> 元素添加到页面中的某个元素中
+      // document.body?.appendChild(newDiv);
+
+    }
+  }
+
+  function pointMove(event){
+    if (selectHelper.isShiftPressed) {
+
+
+      selectEndArr = [(event.clientX), event.clientY,]
+
+
+
+      selectMatrix = [...selectStartArr, ...selectEndArr]
+
+      if (selectStartArr[0] > selectEndArr[0]) {
+        // selectMatrix = [...selectEndArr , ...selectStartArr]
+        selectMatrix[0] = selectEndArr[0]
+        selectMatrix[2] = selectStartArr[0]
+      } else {
+        selectMatrix[0] = selectStartArr[0]
+        selectMatrix[2] = selectEndArr[0]
+      }
+
+      if (selectStartArr[1] > selectEndArr[1]) {
+        selectMatrix[1] = selectEndArr[1]
+        selectMatrix[3] = selectStartArr[1]
+      } else {
+        selectMatrix[1] = selectStartArr[1]
+        selectMatrix[3] = selectEndArr[1]
+      }
+
+
+      if (!controlsFlag) {
+        const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+        const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+        if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+        if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+      }
+
+    }
+  }
+
+  function pointUp(event){
+    if (selectHelper.isShiftPressed) {
+      selectStartArr = []
+      selectEndArr = []
+    }
+  }
+
   //   初始化座椅
   function initSet() {
     // const AMOUNTX = 1
@@ -349,7 +359,7 @@ const Canvas = React.forwardRef((props, refs) => {
       transparent: true,
       //   color: 0xffffff,
       map: spite,
-      size: 2,
+      size: 1,
     });
     sitGeometry.setAttribute("scale", new THREE.BufferAttribute(scales, 1));
     sitGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
@@ -448,7 +458,7 @@ const Canvas = React.forwardRef((props, refs) => {
       vertexColors: true,
       transparent: true,
       map: spite,
-      size: 2,
+      size: 1,
     });
 
     particles1 = new THREE.Points(backGeometry, material1);
@@ -473,7 +483,7 @@ const Canvas = React.forwardRef((props, refs) => {
     const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
     particlesPoint = new THREE.Mesh(geometry, material);
 
-    particlesPoint.rotation.x = -Math.PI/2
+    particlesPoint.rotation.x = -Math.PI / 2
     particlesPoint.position.y = 10
 
     particlesPoint.position.x = -10 + 48
@@ -547,7 +557,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
           if (ix >= backIndexArr[0] && ix < backIndexArr[1] && iy >= backIndexArr[2] && iy < backIndexArr[3]) {
             // rgb = [255, 0, 0];
-            rgb = jetWhite2(0, valuej2, smoothBig1[l]);
+            rgb = jet(0, valuej2, smoothBig1[l]);
             // scales1[l] = 2;
             // positions1[k + 1] = smoothBig1[l] / value2 - 1000
           } else {
@@ -555,7 +565,7 @@ const Canvas = React.forwardRef((props, refs) => {
             scales1[l] = 1;
           }
         } else {
-          rgb = jetWhite2(0, valuej2, smoothBig1[l]);
+          rgb = jet(0, valuej2, smoothBig1[l]);
           scales1[l] = 1;
         }
 
@@ -620,7 +630,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
           if (ix >= sitIndexArr[0] && ix < sitIndexArr[1] && iy >= sitIndexArr[2] && iy < sitIndexArr[3]) {
             // rgb = [255, 0, 0];
-            rgb = jetWhite2(0, valuej2, smoothBig[l]);
+            rgb = jet(0, valuej2, smoothBig[l]);
             // scales1[l] = 2;
             // positions1[k + 1] = smoothBig[l] / value2 - 1000
           } else {
@@ -628,7 +638,7 @@ const Canvas = React.forwardRef((props, refs) => {
             scales1[l] = 1;
           }
         } else {
-          rgb = jetWhite2(0, valuej2, smoothBig[l]);
+          rgb = jet(0, valuej2, smoothBig[l]);
           scales1[l] = 1;
         }
 
@@ -654,9 +664,9 @@ const Canvas = React.forwardRef((props, refs) => {
   function render() {
     // particlesPoint.position.x = -10 + 48
     // particlesPoint.position.z = -19 + 38.5
-    if(particlesPoint){
-      particlesPoint.position.x = -10 + (48)* cooArr[0]/32
-      particlesPoint.position.z = -19 + (38.5 )* cooArr[1]/32
+    if (particlesPoint) {
+      particlesPoint.position.x = -10 + (48) * cooArr[0] / 32
+      particlesPoint.position.z = -19 + (38.5) * cooArr[1] / 32
     }
 
     backRenew();
@@ -733,7 +743,7 @@ const Canvas = React.forwardRef((props, refs) => {
       wsPointData: wsPointData,
       arr
     } = prop;
-    cooArr = arr
+    if (arr) cooArr = arr
     ndata1 = wsPointData;
 
   }
@@ -848,7 +858,10 @@ const Canvas = React.forwardRef((props, refs) => {
 
     return () => {
       cancelAnimationFrame(animationRequestId);
-      document.removeEventListener('pointerdown', function () { })
+      document.removeEventListener('pointerdown', pointDown)
+      document.removeEventListener('pointermove', pointMove)
+      document.removeEventListener('pointup', pointUp)
+      selectHelper.dispose()
     };
   }, []);
   return (

@@ -195,70 +195,74 @@ const Canvas = React.forwardRef((props, refs) => {
 
     selectHelper = new SelectionHelper(renderer, controls, 'selectBox');
 
-    document.addEventListener('pointerdown', function (event) {
+    document.addEventListener('pointerdown', pointDown);
+
+    document.addEventListener('pointermove', pointMove);
+
+    document.addEventListener('pointerup', pointUp);
+  }
+
+  function pointDown(event){
+    if (selectHelper.isShiftPressed) {
+      sitIndexArr = []
+      backIndexArr = []
+      props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+      selectStartArr = [(event.clientX), event.clientY]
+
+      sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
+      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
+
+      sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
+      backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
+    }
+  }
+
+  function pointMove(event){
+    if (selectHelper.isShiftPressed) {
       
-      if (selectHelper.isShiftPressed) {
-        sitIndexArr = []
-        backIndexArr = []
+
+      selectEndArr = [(event.clientX), event.clientY,]
+
+
+
+      selectMatrix = [...selectStartArr, ...selectEndArr]
+
+      if (selectStartArr[0] > selectEndArr[0]) {
+        // selectMatrix = [...selectEndArr , ...selectStartArr]
+        selectMatrix[0] = selectEndArr[0]
+        selectMatrix[2] = selectStartArr[0]
+      } else {
+        selectMatrix[0] = selectStartArr[0]
+        selectMatrix[2] = selectEndArr[0]
+      }
+
+      if (selectStartArr[1] > selectEndArr[1]) {
+        selectMatrix[1] = selectEndArr[1]
+        selectMatrix[3] = selectStartArr[1]
+      } else {
+        selectMatrix[1] = selectStartArr[1]
+        selectMatrix[3] = selectEndArr[1]
+      }
+
+
+      if (!controlsFlag) {
+        const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+        const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+        if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+        if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
-        selectStartArr = [(event.clientX), event.clientY]
-
-        sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
-        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
-
-        sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
-        backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
       }
-    });
 
-    document.addEventListener('pointermove', function (event) {
-      
-      if (selectHelper.isShiftPressed) {
-      
+    }
+  }
 
-        selectEndArr = [(event.clientX), event.clientY,]
-
-
-
-        selectMatrix = [...selectStartArr, ...selectEndArr]
-
-        if (selectStartArr[0] > selectEndArr[0]) {
-          // selectMatrix = [...selectEndArr , ...selectStartArr]
-          selectMatrix[0] = selectEndArr[0]
-          selectMatrix[2] = selectStartArr[0]
-        } else {
-          selectMatrix[0] = selectStartArr[0]
-          selectMatrix[2] = selectEndArr[0]
-        }
-
-        if (selectStartArr[1] > selectEndArr[1]) {
-          selectMatrix[1] = selectEndArr[1]
-          selectMatrix[3] = selectStartArr[1]
-        } else {
-          selectMatrix[1] = selectStartArr[1]
-          selectMatrix[3] = selectEndArr[1]
-        }
-
-
-        if (!controlsFlag) {
-          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
-          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
-
-          if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-          if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-
-          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
-        }
-
-      }
-    });
-
-    document.addEventListener('pointerup', function (event) {
-      if (selectHelper.isShiftPressed) {
-        selectStartArr = []
-        selectEndArr = []
-      }
-    });
+  function pointUp(event){
+    if (selectHelper.isShiftPressed) {
+      selectStartArr = []
+      selectEndArr = []
+    }
   }
 
   function changeSelectFlag(value) {
@@ -967,11 +971,10 @@ const Canvas = React.forwardRef((props, refs) => {
     animate();
     return () => {
       if (animationRequestId) cancelAnimationFrame(animationRequestId);
-      document.removeEventListener('pointerdown', function () { 
-        console.log('de')
-      })
-      document.removeEventListener('pointermove', function () { })
-      document.removeEventListener('pointerup', function () { })
+      document.removeEventListener('pointerdown', pointDown)
+      document.removeEventListener('pointermove', pointMove)
+      document.removeEventListener('pointup', pointUp)
+      selectHelper?.dispose()
     };
   }, []);
   return (

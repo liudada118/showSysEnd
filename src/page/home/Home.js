@@ -18,7 +18,7 @@ import { handLine, footLine, carSitLine, carBackLine } from '../../assets/util/l
 import { Select, Slider, Popover } from 'antd'
 import { SelectOutlined } from '@ant-design/icons'
 
-let ws, ws1, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0, ctx;
+let ws, ws1, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0, ctx, ctxCircle;
 let backTotal = 0, backMean = 0, backMax = 0, backMin = 0, backPoint = 0, backArea = 0, sitTotal = 0, sitMean = 0, sitMax = 0, sitMin = 0, sitPoint = 0, sitArea = 0
 
 class Com extends React.Component {
@@ -27,6 +27,21 @@ class Com extends React.Component {
   }
   shouldComponentUpdate(nextProps, nextState) {
     return false
+  }
+  render() {
+    console.log(this.props)
+    return (
+      <>{this.props.children}</>
+    )
+  }
+}
+
+class CanvasCom extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.matrixName != nextProps.matrixName
   }
   render() {
     console.log(this.props)
@@ -91,7 +106,17 @@ let totalArr = [], totalPointArr = [], wsMatrixName = 'foot'
 // }
 
 
-let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0, sitDataFlag = false , arrSmooth = [0,0]
+let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 0, areaSmooth = 0, pressSmooth = 0, pressureSmooth = 0, sitDataFlag = false, arrSmooth = [16, 16],
+  totalSmooth = 0,
+  leftValueSmooth = 0,
+  leftPropSmooth = 0,
+  rightValueSmooth = 0,
+  rightPropSmooth = 0,
+  leftTopPropSmooth = 0,
+  rightTopPropSmooth = 0,
+  leftBottomPropSmooth = 0,
+  rightBottomPropSmooth = 0
+  
 
 const text = '旋转'
 const text2 = '框选'
@@ -136,7 +161,7 @@ class Home extends React.Component {
       selectFlag: false,
       colFlag: true,
       colNum: 0,
-      history : 'now'
+      history: 'now'
     }
     this.com = React.createRef()
     this.data = React.createRef()
@@ -145,11 +170,24 @@ class Home extends React.Component {
 
   componentDidMount() {
 
-    var c = document.getElementById("myCanvasTrack");
-    ctx = c.getContext("2d");
-    // ctx.fillStyle = "rgb(200,0,0)";
-    ctx.strokeStyle = "rgb(200,0,0)"
-    ctx.moveTo(0, 0);
+    if (document.getElementById("myCanvasTrack")) {
+      var c = document.getElementById("myCanvasTrack");
+      ctx = c.getContext("2d");
+      var c1 = document.getElementById("myCanvasCircle");
+      ctxCircle = c1.getContext("2d");
+      ctx.strokeStyle = '#01F1E3';
+      ctx.strokeRect(1, 1, 298, 298)
+      ctx.fillStyle = "#333";
+      ctx.fillRect(1, 1, 298, 298)
+      ctx.beginPath()
+      ctx.moveTo(1, 150);
+      ctx.lineTo(298, 150)
+      ctx.moveTo(150, 1);
+      ctx.lineTo(150, 298)
+      // ctx.fillStyle = "rgb(200,0,0)";
+      ctx.strokeStyle = '#01F1E3'
+      ctx.moveTo(150, 150);
+    }
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     ws = new WebSocket(" ws://127.0.0.1:19999");
     ws.onopen = () => {
@@ -185,29 +223,106 @@ class Home extends React.Component {
 
           arr[0] = arr[0] ? arr[0] : 0
           arr[1] = arr[1] ? arr[1] : 0
-          for(let i = 0 ; i < arrSmooth.length ; i++){
-            arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i])/4
+          for (let i = 0; i < arrSmooth.length; i++) {
+            arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i]) / 4
           }
 
-          // console.log(arrSmooth)
+          const leftValue = sitData.reduce((a, b) => a + b, 0)
+          const rightValue = backData.reduce((a, b) => a + b, 0)
+
+          let leftProp = parseInt(leftValue * 100 / (leftValue + rightValue))
+          let rightProp = 100 - leftProp
+          this.data.current?.canvas.current.initCanvasrotate1((leftProp - 50) / 100)
+
+          let leftTop = [...sitData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
+          let leftTopProp = parseInt(leftTop * 100 / (leftValue))
+          let leftBottomProp = 100 - leftTopProp
+
+          let rightTop = [...backData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
+          let rightTopProp = parseInt(rightTop * 100 / (rightValue))
+          let rightBottomProp = 100 - rightTopProp
+
+
+          const total = leftValue + rightValue
+          totalSmooth = parseInt(totalSmooth + (total - totalSmooth)/10)
+          leftPropSmooth = parseInt(leftPropSmooth + (leftProp - leftPropSmooth)/10)
+          leftValueSmooth = parseInt(leftValueSmooth + (leftValue - leftValueSmooth)/10)
+          rightValueSmooth = parseInt(rightValueSmooth + (rightValue - rightValueSmooth)/10)
+          leftTopPropSmooth = parseInt(leftTopPropSmooth + (leftTopProp - leftTopPropSmooth)/10)
+          rightTopPropSmooth = parseInt(rightTopPropSmooth + (rightTopProp - rightTopPropSmooth)/10)
+          rightPropSmooth = 100 - leftPropSmooth
+          leftBottomPropSmooth = 100 - leftTopPropSmooth
+          rightBottomPropSmooth = 100 - rightTopPropSmooth
+          this.data.current?.canvas.current.changeState({
+            total: totalSmooth,
+            leftValue: leftValueSmooth,
+            rightValue: rightValueSmooth,
+            leftProp: leftPropSmooth,
+            rightProp: rightPropSmooth
+          })
+
+          if (!ctx) {
+            var c = document.getElementById("myCanvasTrack");
+            ctx = c.getContext("2d");
+            // ctx.fillStyle = "rgb(200,0,0)";
+            ctx.strokeStyle = '#01F1E3'
+            ctx.beginPath()
+            ctx.moveTo(150, 150);
+          }
+
+          // ctx.strokeStyle = "rgb(200,0,0)"
+          // ctx.moveTo(0, 0);
           ctx.lineTo(arrSmooth[0] * 300 / 32, arrSmooth[1] * 300 / 32);
           ctx.stroke();
+
+          ctxCircle.clearRect(0, 0, 300, 300);
+          ctxCircle.beginPath();
+          ctxCircle.fillStyle = '#991BFA'
+          ctxCircle.arc(arrSmooth[0] * 300 / 32, arrSmooth[1] * 300 / 32, 5, 0, 2 * Math.PI);
+          ctxCircle.fill();
+          ctxCircle.font = "20px Arial"
+          ctxCircle.fillStyle = '#fff';
+          ctxCircle.fillText(rightTopPropSmooth, 265, 140);
+
+          ctxCircle.font = "20px Arial"
+          ctxCircle.fillStyle = '#fff';
+          ctxCircle.fillText(rightBottomPropSmooth, 265, 175);
+
+          ctxCircle.font = "20px Arial"
+          ctxCircle.fillStyle = '#fff';
+          ctxCircle.fillText(leftTopPropSmooth, 5, 140);
+
+          ctxCircle.font = "20px Arial"
+          ctxCircle.fillStyle = '#fff';
+          ctxCircle.fillText(leftBottomPropSmooth, 5, 175);
+
+          ctxCircle.font = "20px Arial"
+          ctxCircle.fillStyle = '#fff';
+          ctxCircle.fillText(leftPropSmooth, 120, 290);
+
+          ctxCircle.font = "20px Arial"
+          ctxCircle.fillStyle = '#fff';
+          ctxCircle.fillText(rightPropSmooth, 155, 290);
 
           this.com.current?.changeDataFlag();
           this.com.current?.sitData({
             wsPointData: sitData,
-            arr : arrSmooth
+            arr: arrSmooth
           });
           // console.log(arr)
           selectArr = []
 
-          
+
 
           for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
             for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
               selectArr.push(sitData[i * 16 + j])
             }
           }
+
+
+
+          // console.log(sitIndexArr)
 
           this.com.current?.backData({
             wsPointData: backData,
@@ -244,8 +359,8 @@ class Home extends React.Component {
             totalArr.push(totalPress)
           }
           // console.log(totalArr.length)
-          const max = findMax(totalArr)
-          this.data.current?.handleCharts(totalArr, max + 1000)
+          // const max = findMax(totalArr)
+          // this.data.current?.handleCharts(totalArr, max + 1000)
 
           if (totalPointArr.length < 20) {
             totalPointArr.push(totalPoint)
@@ -490,7 +605,7 @@ class Home extends React.Component {
     if (ws && ws.readyState === 1) {
       ws.send(JSON.stringify(obj));
     }
-    
+
   }
 
   playData = (value) => {
@@ -547,10 +662,10 @@ class Home extends React.Component {
   // };
 
   changeValue = (value) => {
-    return value < 8 ? 0 : value > 68 ? 31 : Math.round((value - 8) / 2)
+    return value < 4 ? 0 : value > 68 ? 31 : Math.round((value - 4) / 2 - 1)
   }
 
-  changeSelect = (obj) => {
+  changeSelect = (obj, type) => {
 
     let sit = obj.sit
     let back = obj.back
@@ -574,7 +689,7 @@ class Home extends React.Component {
 
 
   render() {
-    // console.log('home')
+    console.log(this.state.matrixName)
     return (
       <div className='home'>
         <div className="setIcons">
@@ -619,7 +734,13 @@ class Home extends React.Component {
           <div className="setIconItem setIconItem2">
             <div className='setIcon'>
               <img src={icon} alt="" onClick={() => {
-                this.com.current?.reset()
+                // this.com.current?.reset()
+                if (ctx) {
+                  ctx.clearRect(0, 0, 300, 300);
+                }
+                if (ctxCircle) {
+                  ctxCircle.clearRect(0, 0, 300, 300);
+                }
               }} />
             </div>
           </div>
@@ -702,7 +823,7 @@ class Home extends React.Component {
                       textAlign: "left",
                     }}
                   >
-                    {(this.state.valuej1/100 * ((rainbowTextColors.length - 1 - indexs)) / rainbowTextColors.length).toFixed(2)}N/cm^2
+                    {(this.state.valuej1 / 100 * ((rainbowTextColors.length - 1 - indexs)) / rainbowTextColors.length).toFixed(2)}N/cm^2
                   </div>
                   <div className="switchLevels"></div>
                 </div>
@@ -778,15 +899,15 @@ class Home extends React.Component {
         {/* </TitleCom> */}
         {/* </Com> */}
         <Com>
-          <Aside ref={this.data} />
-
+          <Aside ref={this.data} matrixName={this.state.matrixName} />
         </Com>
 
 
-        {this.state.matrixName == 'foot' ? <Com> <Canvas ref={this.com} changeSelect={this.changeSelect} /> </Com> : this.state.matrixName == 'hand' ? <Com><CanvasHand ref={this.com} /></Com> :
-
-          <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
-
+        {this.state.matrixName == 'foot' ? <CanvasCom matrixName={this.state.matrixName}><Canvas ref={this.com} changeSelect={this.changeSelect} /> </CanvasCom>
+          : this.state.matrixName == 'hand' ? <CanvasCom matrixName={this.state.matrixName}><CanvasHand ref={this.com} /></CanvasCom>
+            : <CanvasCom matrixName={this.state.matrixName}>
+              <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
+            </CanvasCom>
         }
         {/* <Com>
           <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
@@ -865,7 +986,10 @@ class Home extends React.Component {
             </div>
           </div> : null}
 
-        {this.state.matrixName == 'foot' ? <canvas id="myCanvasTrack" width="300" height="300" style={{ position: 'fixed', top: '5%', right: '5%' }}></canvas> : null
+        {this.state.matrixName == 'foot' ? <>
+          <canvas id="myCanvasTrack" width="300" height="300" style={{ position: 'fixed', top: '6%', right: '5%' }}></canvas>
+          <canvas id="myCanvasCircle" width="300" height="300" style={{ position: 'fixed', top: '6%', right: '5%' }}></canvas>
+        </> : null
 
         }
       </div>

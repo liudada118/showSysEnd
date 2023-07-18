@@ -85,7 +85,7 @@ export function handLine(arr, flag) {
     if (flag) {
         wsPointData = press(wsPointData)
     }
-
+    wsPointData = rotateMatrixsit180(wsPointData , 32,32)
     return wsPointData
 }
 
@@ -317,7 +317,6 @@ export function graCenter(matrix, width, height) {
     // const y = findMedian(cloumnTotal, 0, 32)
     const x = findGroup(rowTotal)
     const y = findGroup(cloumnTotal)
-    console.log([y, x])
     return [y, x]
 }
 
