@@ -25,15 +25,14 @@ const dataArr1 = [
         eng: 'Max Pres'
     },
     {
+        color: '#FF2A2A',
+        data: '压力总和',
+        eng: 'Pressure'
+    }, {
         color: '#FFA63F',
-        data: '点数',
-        eng: 'Points'
-    },
-    {
-        color: '#2A99FF',
-        data: '面积',
-        eng: 'Area'
-    }   
+        data: '压力标准差',
+        eng: 'Pres Standard'
+    }
 ]
 
 
@@ -221,22 +220,21 @@ let myChart1, myChart2
 
 class Com extends React.Component {
     constructor(props) {
-        super(props)
+      super(props)
     }
     shouldComponentUpdate(nextProps, nextState) {
-        return false
+      return false
     }
     render() {
-        console.log(this.props)
-        return (
-            <>{this.props.children}</>
-        )
+      console.log(this.props)
+      return (
+        <>{this.props.children}</>
+      )
     }
-}
+  }
 
 const arr = ['meanPres', 'maxPres', 'totalPres', 'presStan']
 const arrArea = ['point', 'area',]
-const footArr = ['meanPres', 'maxPres','point', 'area',]
 let ctx1, ctx2
 class Aside extends React.Component {
     constructor() {
@@ -255,20 +253,12 @@ class Aside extends React.Component {
     }
 
     componentDidMount() {
-
+        
         var c = document.getElementById("myChart1");
-        if (c) ctx1 = c.getContext("2d");
+        if(c)ctx1 = c.getContext("2d");
 
         var c1 = document.getElementById("myChart2");
-        if (c1) ctx2 = c1.getContext("2d");
-    }
-
-    componentDidUpdate(){
-        var c = document.getElementById("myChart1");
-        if (c) ctx1 = c.getContext("2d");
-
-        var c1 = document.getElementById("myChart2");
-        if (c1) ctx2 = c1.getContext("2d");
+        if(c1)ctx2 = c1.getContext("2d");
     }
 
     drawChart({ ctx, arr, max, canvas }) {
@@ -362,45 +352,24 @@ class Aside extends React.Component {
                 <div className="asideContent">
                     <h2 className="asideTitle">Pressure Data</h2>
                     <h1 className='pressData'>{this.state.pressure}</h1>
-                    {this.props.matrixName != 'foot' ? <>
-                        <div className='pressTitle standardColor'>总体压力 Total Pres</div>
-                        <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>
-                        {
-                            dataArr1.map((a, index) => {
-                                return (
-                                    <div className='dataItem' key={a.eng}>
-                                        <div className='dataItemCircle'>
-                                            <div className='circleItem' style={{ backgroundColor: a.color }}></div>
-                                            <div>{a.data}</div>
-                                        </div>
-                                        <div className='dataIteminfo'>
-                                            <div className='standardColor'>{a.eng}</div>
-                                            <div>{this.state[arr[index]]}</div>
-                                        </div>
+                    <div className='pressTitle standardColor'>总体压力 Total Pres</div>
+                    <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>
+                    {
+                        dataArr1.map((a, index) => {
+                            return (
+                                <div className='dataItem' key={a.eng}>
+                                    <div className='dataItemCircle'>
+                                        <div className='circleItem' style={{ backgroundColor: a.color }}></div>
+                                        <div>{a.data}</div>
                                     </div>
-                                )
-                            })
-                        }
-                    </> : <>
-                        <div className='pressTitle standardColor'>总体面积 Total Area</div>
-                        <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>
-                        {
-                            dataArr1.map((a, index) => {
-                                return (
-                                    <div className='dataItem' key={a.eng}>
-                                        <div className='dataItemCircle'>
-                                            <div className='circleItem' style={{ backgroundColor: a.color }}></div>
-                                            <div>{a.data}</div>
-                                        </div>
-                                        <div className='dataIteminfo'>
-                                            <div className='standardColor'>{a.eng}</div>
-                                            <div>{this.state[footArr[index]]}</div>
-                                        </div>
+                                    <div className='dataIteminfo'>
+                                        <div className='standardColor'>{a.eng}</div>
+                                        <div>{this.state[arr[index]]}</div>
                                     </div>
-                                )
-                            })
-                        }
-                    </>}
+                                </div>
+                            )
+                        })
+                    }
                 </div>
             </div>
         )

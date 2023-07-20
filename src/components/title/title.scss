@@ -6,9 +6,11 @@
 .title {
     box-sizing: border-box;
     z-index: 10;
-    h2{
+
+    h2 {
         color: #fff;
     }
+
     display: flex;
     background-color: #191932;
     justify-content: space-between;
@@ -18,11 +20,18 @@
     top: 0;
     width: 100%;
     padding: 5px 3%;
+
     .titleItems {
         // display: inline-block;
         // width: 50%;
         display: flex;
         align-items: center;
+    }
+
+    .titleButton{
+        background-color: #000;
+        color: #5A5A89;
+        border-color: #5A5A89;
     }
 
     .titleSelect {
@@ -46,6 +55,34 @@
         color: #fff;
     }
 
+    .ant-select-selector {
+        background-color: #000 !important;
+        border: 0px !important;
+    }
+
+
+    .ant-select-selection-placeholder {
+        color: #5A5A89;
+    }
+
+    .ant-select-selection-item {
+        color: #fff !important;
+    }
+
+    .ant-select-selection-item:after {
+        background-color: #fff !important;
+        color: #fff !important;
+    }
+
+    .ant-select-selector:after{
+        background-color: #fff !important;
+        color: #fff !important;
+    }
+
+    .ant-select-arrow{
+        color: #5A5A89;
+    }
+
     .ant-menu {
         background-color: unset;
     }
@@ -54,22 +91,20 @@
         border: 0;
     }
 
-    .el-input__inner{
+    .el-input__inner {
         background-color: #000;
         border-color: #000;
         color: #fff;
     }
 
-    .el-select:hover{
+    .el-select:hover {
         border-color: #5A5A89;
     }
 
-    .slideContent{
-        
-    }
+    .slideContent {}
 
-    .aniButton{
-       padding: 5px 10px; 
+    .aniButton {
+        padding: 5px 10px;
     }
 
 }

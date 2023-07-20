@@ -12,14 +12,16 @@ import load from '../../assets/images/load.png'
 import stop from '../../assets/images/stop.png'
 import play from '../../assets/images/play.png'
 import pause from '../../assets/images/pause.png'
+import refresh from '../../assets/images/refresh.png'
 import { findMax, findMin, returnChartMax, } from '../../assets/util/util'
 import { rainbowTextColors } from "../../assets/util/color";
 import { handLine, footLine, carSitLine, carBackLine } from '../../assets/util/line';
 import { Select, Slider, Popover } from 'antd'
 import { SelectOutlined } from '@ant-design/icons'
+import { Num } from '../../components/num/Num'
 
-let ws, ws1, xvalue = 0, yvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0, ctx, ctxCircle;
-let backTotal = 0, backMean = 0, backMax = 0, backMin = 0, backPoint = 0, backArea = 0, sitTotal = 0, sitMean = 0, sitMax = 0, sitMin = 0, sitPoint = 0, sitArea = 0
+let ws, ws1, xvalue = 0, zvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0, ctx, ctxCircle;
+let backTotal = 0, backMean = 0, backMax = 0, backMin = 0, backPoint = 0, backArea = 0, sitTotal = 0, sitMean = 0, sitMax = 0, sitMin = 0, sitPoint = 0, sitArea = 0, clearFlag = false, lastArr = []
 
 class Com extends React.Component {
   constructor(props) {
@@ -116,7 +118,7 @@ let num = 0, colValueFlag = false, meanSmooth = 0, maxSmooth = 0, pointSmooth = 
   rightTopPropSmooth = 0,
   leftBottomPropSmooth = 0,
   rightBottomPropSmooth = 0
-  
+
 
 const text = '旋转'
 const text2 = '框选'
@@ -135,9 +137,22 @@ const content1 = (
 
 const content2 = (
   <div>
-    <p>款选一个矩形区域</p>
+    <p>框选一个矩形区域</p>
   </div>
 );
+
+const content3 = (
+  <div>
+    <p>刷新轨迹图</p>
+  </div>
+);
+
+const content4 = (
+  <div>
+    <p>下载轨迹图</p>
+  </div>
+);
+
 
 class Home extends React.Component {
   constructor() {
@@ -161,7 +176,12 @@ class Home extends React.Component {
       selectFlag: false,
       colFlag: true,
       colNum: 0,
-      history: 'now'
+      history: 'now',
+      numMatrixFlag: false,
+      carState: 'all',
+      leftFlag: false,
+      rightFlag: false,
+      lineFlag: false
     }
     this.com = React.createRef()
     this.data = React.createRef()
@@ -175,18 +195,9 @@ class Home extends React.Component {
       ctx = c.getContext("2d");
       var c1 = document.getElementById("myCanvasCircle");
       ctxCircle = c1.getContext("2d");
-      ctx.strokeStyle = '#01F1E3';
-      ctx.strokeRect(1, 1, 298, 298)
-      ctx.fillStyle = "#333";
-      ctx.fillRect(1, 1, 298, 298)
-      ctx.beginPath()
-      ctx.moveTo(1, 150);
-      ctx.lineTo(298, 150)
-      ctx.moveTo(150, 1);
-      ctx.lineTo(150, 298)
-      // ctx.fillStyle = "rgb(200,0,0)";
-      ctx.strokeStyle = '#01F1E3'
-      ctx.moveTo(150, 150);
+
+      this.canvasInit1(ctx)
+
     }
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     ws = new WebSocket(" ws://127.0.0.1:19999");
@@ -227,116 +238,47 @@ class Home extends React.Component {
             arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i]) / 4
           }
 
-          const leftValue = sitData.reduce((a, b) => a + b, 0)
-          const rightValue = backData.reduce((a, b) => a + b, 0)
-
-          let leftProp = parseInt(leftValue * 100 / (leftValue + rightValue))
-          let rightProp = 100 - leftProp
-          this.data.current?.canvas.current.initCanvasrotate1((leftProp - 50) / 100)
-
-          let leftTop = [...sitData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
-          let leftTopProp = parseInt(leftTop * 100 / (leftValue))
-          let leftBottomProp = 100 - leftTopProp
-
-          let rightTop = [...backData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
-          let rightTopProp = parseInt(rightTop * 100 / (rightValue))
-          let rightBottomProp = 100 - rightTopProp
-
-
-          const total = leftValue + rightValue
-          totalSmooth = parseInt(totalSmooth + (total - totalSmooth)/10)
-          leftPropSmooth = parseInt(leftPropSmooth + (leftProp - leftPropSmooth)/10)
-          leftValueSmooth = parseInt(leftValueSmooth + (leftValue - leftValueSmooth)/10)
-          rightValueSmooth = parseInt(rightValueSmooth + (rightValue - rightValueSmooth)/10)
-          leftTopPropSmooth = parseInt(leftTopPropSmooth + (leftTopProp - leftTopPropSmooth)/10)
-          rightTopPropSmooth = parseInt(rightTopPropSmooth + (rightTopProp - rightTopPropSmooth)/10)
-          rightPropSmooth = 100 - leftPropSmooth
-          leftBottomPropSmooth = 100 - leftTopPropSmooth
-          rightBottomPropSmooth = 100 - rightTopPropSmooth
-          this.data.current?.canvas.current.changeState({
-            total: totalSmooth,
-            leftValue: leftValueSmooth,
-            rightValue: rightValueSmooth,
-            leftProp: leftPropSmooth,
-            rightProp: rightPropSmooth
-          })
-
-          if (!ctx) {
-            var c = document.getElementById("myCanvasTrack");
-            ctx = c.getContext("2d");
-            // ctx.fillStyle = "rgb(200,0,0)";
-            ctx.strokeStyle = '#01F1E3'
-            ctx.beginPath()
-            ctx.moveTo(150, 150);
-          }
-
-          // ctx.strokeStyle = "rgb(200,0,0)"
-          // ctx.moveTo(0, 0);
-          ctx.lineTo(arrSmooth[0] * 300 / 32, arrSmooth[1] * 300 / 32);
-          ctx.stroke();
-
-          ctxCircle.clearRect(0, 0, 300, 300);
-          ctxCircle.beginPath();
-          ctxCircle.fillStyle = '#991BFA'
-          ctxCircle.arc(arrSmooth[0] * 300 / 32, arrSmooth[1] * 300 / 32, 5, 0, 2 * Math.PI);
-          ctxCircle.fill();
-          ctxCircle.font = "20px Arial"
-          ctxCircle.fillStyle = '#fff';
-          ctxCircle.fillText(rightTopPropSmooth, 265, 140);
-
-          ctxCircle.font = "20px Arial"
-          ctxCircle.fillStyle = '#fff';
-          ctxCircle.fillText(rightBottomPropSmooth, 265, 175);
-
-          ctxCircle.font = "20px Arial"
-          ctxCircle.fillStyle = '#fff';
-          ctxCircle.fillText(leftTopPropSmooth, 5, 140);
-
-          ctxCircle.font = "20px Arial"
-          ctxCircle.fillStyle = '#fff';
-          ctxCircle.fillText(leftBottomPropSmooth, 5, 175);
-
-          ctxCircle.font = "20px Arial"
-          ctxCircle.fillStyle = '#fff';
-          ctxCircle.fillText(leftPropSmooth, 120, 290);
-
-          ctxCircle.font = "20px Arial"
-          ctxCircle.fillStyle = '#fff';
-          ctxCircle.fillText(rightPropSmooth, 155, 290);
-
-          this.com.current?.changeDataFlag();
-          this.com.current?.sitData({
-            wsPointData: sitData,
-            arr: arrSmooth
-          });
           // console.log(arr)
           selectArr = []
 
 
-
-          for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
-            for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
-              selectArr.push(sitData[i * 16 + j])
+          for (let j = sitIndexArr[2]; j <= sitIndexArr[3]; j++) {
+            for (let i = sitIndexArr[0]; i <= sitIndexArr[1]; i++) {
+              selectArr.push(sitData[j * 16 + i])
             }
+          }
+
+          for (let j = backIndexArr[2]; j <= backIndexArr[3]; j++) {
+            for (let i = backIndexArr[0]; i <= backIndexArr[1]; i++) {
+              selectArr.push(backData[j * 16 + i])
+            }
+          }
+
+
+          let DataArr
+          if (sitIndexArr.every((a) => a == 0) && backIndexArr.every((a) => a == 0)) {
+            DataArr = [...realData]
+          } else {
+
+            DataArr = [...selectArr]
           }
 
 
 
           // console.log(sitIndexArr)
 
-          this.com.current?.backData({
-            wsPointData: backData,
-          });
+
 
 
 
           // 脚型渲染页面
-
-          let totalPress = realData.reduce((a, b) => a + b, 0)
-          let totalPoint = realData.filter((a) => a > 10).length
-          let totalMean = parseInt(backTotal / (totalPoint ? totalPoint : 1))
-          let totalMax = findMax(realData)
+          // console.log(sitIndexArr,selectArr, selectArr.reduce((a,b) => a+b , 0))
+          let totalPress = DataArr.reduce((a, b) => a + b, 0)
+          let totalPoint = DataArr.filter((a) => a > 10).length
+          let totalMean = parseInt(totalPress / (totalPoint ? totalPoint : 1))
+          let totalMax = findMax(DataArr)
           // backMin = findMin(realData.filter((a) => a > 10))
+
           let totalArea = totalPoint * 4
           const sitPressure = totalMax * 1000 / (totalArea ? totalArea : 1)
 
@@ -348,7 +290,101 @@ class Home extends React.Component {
 
           pressureSmooth = parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
 
+
+
+          const leftValue = sitData.reduce((a, b) => a + b, 0)
+          const rightValue = backData.reduce((a, b) => a + b, 0)
+
+          let leftProp = parseInt(leftValue * 100 / (leftValue + rightValue))
+          let rightProp = 100 - leftProp
+
+
+          let leftTop = [...sitData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
+          let leftTopProp = parseInt(leftTop * 100 / (leftValue))
+          let leftBottomProp = 100 - leftTopProp
+
+          let rightTop = [...backData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
+          let rightTopProp = parseInt(rightTop * 100 / (rightValue))
+          let rightBottomProp = 100 - rightTopProp
+
+
+          const total = DataArr.reduce((a, b) => a + b, 0)
+          totalSmooth = parseInt(totalSmooth + (total - totalSmooth) / 10)
+          leftPropSmooth = parseInt(leftPropSmooth + (leftProp - leftPropSmooth) / 10)
+          leftValueSmooth = parseInt(leftValueSmooth + (leftValue - leftValueSmooth) / 10)
+          rightValueSmooth = parseInt(rightValueSmooth + (rightValue - rightValueSmooth) / 10)
+          leftTopPropSmooth = parseInt(leftTopPropSmooth + (leftTopProp - leftTopPropSmooth) / 10)
+          rightTopPropSmooth = parseInt(rightTopPropSmooth + (rightTopProp - rightTopPropSmooth) / 10)
+          rightPropSmooth = 100 - leftPropSmooth
+          leftBottomPropSmooth = 100 - leftTopPropSmooth
+          rightBottomPropSmooth = 100 - rightTopPropSmooth
+
+          if (totalPoint < 10 && (sitIndexArr.every((a) => a == 0) && backIndexArr.every((a) => a == 0))) {
+            // console.log('noSelect')
+            meanSmooth = 0
+            maxSmooth = 0
+            pointSmooth = 0
+            areaSmooth = 0
+            pressSmooth = 0
+            pressureSmooth = 0
+            totalSmooth = 0
+            leftValueSmooth = 0
+            rightValueSmooth = 0
+            leftPropSmooth = 0
+            rightPropSmooth = 0
+            leftTopPropSmooth = 0
+            leftBottomPropSmooth = 0
+            rightTopPropSmooth = 0
+            rightBottomPropSmooth = 0
+            arrSmooth = [16, 16]
+            leftProp = 50
+            rightProp = 50
+            totalPoint = 0
+          }
+
+
+
+          if (this.state.numMatrixFlag) {
+            this.com.current?.changeWsData(realData)
+          } else {
+            this.com.current?.backData({
+              wsPointData: backData,
+            });
+            this.com.current?.sitData({
+              wsPointData: sitData,
+              arr: arrSmooth
+            });
+            this.com.current?.changeDataFlag();
+          }
+
+
+
           this.data.current?.changeData({ meanPres: meanSmooth, maxPres: maxSmooth, point: pointSmooth, area: areaSmooth, totalPres: pressSmooth, pressure: pressureSmooth })
+
+          this.data.current?.canvas.current.initCanvasrotate1((rightProp - 50) / 100)
+
+          this.data.current?.canvas.current.changeState({
+            total: totalSmooth,
+            leftValue: leftValueSmooth,
+            rightValue: rightValueSmooth,
+            leftProp: leftPropSmooth,
+            rightProp: rightPropSmooth
+          })
+
+          ctx.strokeStyle = '#01F1E3'
+          ctx.lineTo(arrSmooth[0] * 300 / 32, arrSmooth[1] * 300 / 32);
+          ctx.stroke();
+
+          ctxCircle.clearRect(0, 0, 300, 300);
+
+          // lastArr = arrSmooth
+
+          ctxCircle.beginPath();
+          ctxCircle.fillStyle = '#991BFA'
+          ctxCircle.arc(arrSmooth[0] * 300 / 32, arrSmooth[1] * 300 / 32, 5, 0, 2 * Math.PI);
+          ctxCircle.fill();
+
+          this.canvasText2(ctxCircle)
 
 
 
@@ -361,17 +397,17 @@ class Home extends React.Component {
           // console.log(totalArr.length)
           // const max = findMax(totalArr)
           // this.data.current?.handleCharts(totalArr, max + 1000)
+          if (!this.state.local) {
+            if (totalPointArr.length < 20) {
+              totalPointArr.push(totalPoint)
+            } else {
+              totalPointArr.shift()
+              totalPointArr.push(totalPoint)
+            }
 
-          if (totalPointArr.length < 20) {
-            totalPointArr.push(totalPoint)
-          } else {
-            totalPointArr.shift()
-            totalPointArr.push(totalPoint)
+            const max1 = findMax(totalPointArr)
+            this.data.current?.handleChartsArea(totalPointArr, max1 + 100)
           }
-
-          const max1 = findMax(totalPointArr)
-          this.data.current?.handleChartsArea(totalPointArr, max1 + 1000)
-
 
 
         } else if (this.state.matrixName == 'hand') {
@@ -382,9 +418,15 @@ class Home extends React.Component {
 
         } else if (this.state.matrixName == 'car') {
           wsPointData = carSitLine(wsPointData)
-          this.com.current?.sitData({
-            wsPointData: wsPointData,
-          });
+
+          if (this.state.carState == 'sit' && this.state.numMatrixFlag) {
+            this.com.current?.changeWsData(wsPointData);
+          } else if (this.state.carState == 'all' && !this.state.numMatrixFlag) {
+            this.com.current?.sitData({
+              wsPointData: wsPointData,
+            });
+          }
+
           selectArr = []
 
           for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
@@ -477,6 +519,11 @@ class Home extends React.Component {
 
       }
 
+      if (jsonObject.areaArr != null) {
+        const max = findMax(jsonObject.areaArr)
+        this.data.current?.handleChartsArea(jsonObject.areaArr, max + 100)
+      }
+
     };
     ws.onerror = (e) => {
       // an error occurred
@@ -503,11 +550,13 @@ class Home extends React.Component {
           wsPointData = JSON.parse(wsPointData)
         }
 
-        this.com.current?.backData({
-          wsPointData: wsPointData,
-        });
-
-
+        if (this.state.carState == 'back' && this.state.numMatrixFlag) {
+          this.com.current?.changeWsData(wsPointData);
+        } else if (this.state.carState == 'all' && !this.state.numMatrixFlag) {
+          this.com.current?.backData({
+            wsPointData: wsPointData,
+          });
+        }
 
         const selectArr = []
         for (let i = 31 - backIndexArr[0]; i > 31 - backIndexArr[1]; i--) {
@@ -578,7 +627,8 @@ class Home extends React.Component {
         }
         // console.log(totalArr.length)
         const max = findMax(totalArr)
-        this.data.current?.handleCharts(totalArr, returnChartMax(max))
+
+        if (this.state.matrixName == 'car') this.data.current?.handleCharts(totalArr, returnChartMax(max))
 
         if (totalPointArr.length < 20) {
           totalPointArr.push(totalPoint)
@@ -588,7 +638,7 @@ class Home extends React.Component {
         }
 
         const max1 = findMax(totalPointArr)
-        this.data.current?.handleChartsArea(totalPointArr, returnChartMax(max1))
+        if (this.state.matrixName == 'car') this.data.current?.handleChartsArea(totalPointArr, returnChartMax(max1))
 
       }
 
@@ -599,6 +649,140 @@ class Home extends React.Component {
     ws1.onclose = (e) => {
       // connection closed
     };
+
+    window.addEventListener('mousemove', this.changeLeftProgress.bind(this))
+
+    window.addEventListener('mouseup', this.changeLeftProgressFalse.bind(this))
+  }
+
+  canvasText1(ctx) {
+    ctx.clearRect(260, 110, 35, 35)
+    ctx.fillStyle = '#333';
+    ctx.fillRect(260, 110, 35, 35)
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(rightTopPropSmooth, 265, 140);
+
+
+    ctx.clearRect(260, 155, 35, 35)
+    ctx.fillStyle = '#333';
+    ctx.fillRect(260, 155, 35, 35)
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(rightBottomPropSmooth, 265, 175);
+
+    ctx.clearRect(5, 110, 35, 35)
+    ctx.fillStyle = '#333';
+    ctx.fillRect(5, 110, 35, 35)
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(leftTopPropSmooth, 5, 140);
+
+
+    ctx.clearRect(5, 155, 35, 35)
+    ctx.fillStyle = '#333';
+    ctx.fillRect(5, 155, 35, 35)
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(leftBottomPropSmooth, 5, 175);
+
+    ctx.clearRect(110, 260, 35, 35)
+    ctx.fillStyle = '#333';
+    ctx.fillRect(110, 260, 36, 36)
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(leftPropSmooth, leftPropSmooth < 10 ? 135 : 120, 290);
+
+    ctx.clearRect(155, 260, 35, 35)
+    ctx.fillStyle = '#333';
+    ctx.fillRect(155, 260, 35, 35)
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(rightPropSmooth, 155, 290);
+  }
+
+  canvasText2(ctx) {
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(rightTopPropSmooth, 265, 140);
+
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(rightBottomPropSmooth, 265, 175);
+
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(leftTopPropSmooth, 5, 140);
+
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(leftBottomPropSmooth, 5, 175);
+
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(leftPropSmooth, leftPropSmooth < 10 ? 135 : 120, 290);
+
+    ctx.font = "20px Arial"
+    ctx.fillStyle = '#fff';
+    ctx.fillText(rightPropSmooth, 155, 290);
+  }
+
+  canvasInit1(ctx) {
+    ctx.beginPath()
+    ctx.strokeStyle = '#01F1E3';
+    ctx.strokeRect(1, 1, 299, 299)
+    ctx.fillStyle = "#333";
+    ctx.fillRect(1, 1, 299, 299)
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#fff';
+    for (let i = 0; i < 9; i++) {
+      ctx.moveTo(1, (i + 1) * 30);
+      ctx.lineTo(299, (i + 1) * 30)
+
+    }
+
+    for (let i = 0; i < 9; i++) {
+
+      ctx.moveTo((i + 1) * 30, 1);
+      ctx.lineTo((i + 1) * 30, 299)
+
+    }
+    ctx.stroke();
+    ctx.beginPath()
+    ctx.moveTo(1, 150);
+    ctx.lineTo(299, 150)
+    ctx.moveTo(150, 1);
+    ctx.lineTo(150, 299)
+    ctx.stroke();
+
+    ctx.strokeStyle = '#01F1E3'
+    ctx.moveTo(150, 150);
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.state.matrixName != prevState.matrixName) {
+      if (document.getElementById("myCanvasTrack")) {
+        var c = document.getElementById("myCanvasTrack");
+        ctx = c.getContext("2d");
+        var c1 = document.getElementById("myCanvasCircle");
+        ctxCircle = c1.getContext("2d");
+        ctx.strokeStyle = '#01F1E3';
+        ctx.strokeRect(1, 1, 298, 298)
+        ctx.fillStyle = "#333";
+        ctx.fillRect(1, 1, 298, 298)
+        // ctx.beginPath()
+        ctx.moveTo(1, 150);
+        ctx.lineTo(298, 150)
+        ctx.moveTo(150, 1);
+        ctx.lineTo(150, 298)
+        // ctx.fillStyle = "rgb(200,0,0)";
+        // ctx.beginPath()
+        ctx.strokeStyle = '#01F1E3'
+        ctx.moveTo(150, 150);
+      }
+    }
+
   }
 
   wsSendObj = (obj) => {
@@ -662,7 +846,11 @@ class Home extends React.Component {
   // };
 
   changeValue = (value) => {
-    return value < 4 ? 0 : value > 68 ? 31 : Math.round((value - 4) / 2 - 1)
+    return value < 4 ? 0 : value >= 68 ? 31 : Math.round((value - 4) / 2 - 1)
+  }
+
+  changeFootValue = (value) => {
+    return value < 4 ? 0 : value >= 36 ? 15 : Math.round((value - 4) / 2 - 1)
   }
 
   changeSelect = (obj, type) => {
@@ -670,8 +858,29 @@ class Home extends React.Component {
     let sit = obj.sit
     let back = obj.back
     // console.log(sit , back , 'length')
-    const sitIndex = sit.length ? sit.map((a) => { return this.changeValue(a) }) : []
-    const backIndex = back.length ? back.map((a) => { return this.changeValue(a) }) : []
+    const sitIndex = sit.length ? sit.map((a, index) => {
+      if (this.state.matrixName === 'foot') {
+        if (index == 0 || index == 1) {
+          return this.changeFootValue(a)
+        } else {
+          return this.changeValue(a)
+        }
+      } else {
+        return this.changeValue(a)
+      }
+
+    }) : new Array(4).fill(0)
+    const backIndex = back.length ? back.map((a, index) => {
+      if (this.state.matrixName === 'foot') {
+        if (index == 0 || index == 1) {
+          return this.changeFootValue(a)
+        } else {
+          return this.changeValue(a)
+        }
+      } else {
+        return this.changeValue(a)
+      }
+    }) : new Array(4).fill(0)
     // setSitArr(obj.sit)
     // setBackArr(obj.back)
 
@@ -687,9 +896,144 @@ class Home extends React.Component {
     colValueFlag = value
   }
 
+  saveCanvasAsImage() {
+    ctx.beginPath()
+    ctx.fillStyle = '#991BFA'
+    ctx.arc(arrSmooth[0] * 300 / 32, arrSmooth[1] * 300 / 32, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    const canvas = document.getElementById('myCanvasTrack');
+    const dataURL = canvas.toDataURL('image/png');
+
+    // 创建一个虚拟链接来下载保存的图片
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'canvas_image.png';
+    link.click();
+  }
+
+  moveValue(value) {
+    return value < 0 ? 0 : value > 580 ? 580 : value
+  }
+
+  thrott(fun) {
+    if (!this.timer) {
+      this.timer = setTimeout(() => {
+        fun()
+        this.timer = null
+      }, 100)
+    }
+  }
+
+  changePxToValue(value, type) {
+    let res
+    if (type === 'line') {
+      res = Math.floor(((value - 20) / 560) * (this.state.length - 2))
+    } else {
+      res = Math.floor((value / 580) * (this.state.length - 2))
+    }
+    return res
+  }
+
+  changeLeftProgress(e) {
+
+    if (this.state.leftFlag) {
+      const leftX = document.querySelector('.progress').getBoundingClientRect().x
+      const right = parseInt(document.querySelector('.rightProgress').style.left)
+      var moveX = e.clientX;
+
+      const leftpx = this.moveValue(e.clientX - leftX - 10)
+
+
+      document.querySelector('.leftProgress').style.left = `${leftpx > right - 20 ? right - 20 : leftpx}px`
+
+      const left = parseInt(document.querySelector('.leftProgress').style.left)
+
+      const lineleft = parseInt(document.querySelector('.progressLine').style.left)
+
+
+      if (lineleft < e.clientX - leftX + 10) {
+        document.querySelector('.progressLine').style.left = `${this.moveValue(left + 20)}px`
+        let value = this.changePxToValue(left, 'line')
+        this.thrott(() => {
+          this.wsSendObj({
+            value
+          })
+        })
+      }
+      let arr = [this.changePxToValue(left), this.changePxToValue(right)]
+      console.log(arr)
+      this.thrott(() => {
+        this.wsSendObj({
+          indexArr: arr
+        })
+      })
+    }
+
+    if (this.state.rightFlag) {
+      const leftX = document.querySelector('.progress').getBoundingClientRect().x
+      const left = parseInt(document.querySelector('.leftProgress').style.left)
+
+      var moveX = e.clientX;
+
+      const rightpx = this.moveValue(e.clientX - leftX - 10)
+      document.querySelector('.rightProgress').style.left = `${rightpx < left + 20 ? left + 20 : rightpx}px`
+
+
+      const right = parseInt(document.querySelector('.rightProgress').style.left)
+      const lineleft = parseInt(document.querySelector('.progressLine').style.left)
+      if (lineleft > e.clientX - leftX - 10) {
+        console.log('111')
+        document.querySelector('.progressLine').style.left = `${this.moveValue(right)}px`
+        let value = this.changePxToValue(right, 'line')
+        this.thrott(() => {
+          this.wsSendObj({
+            value
+          })
+        })
+      }
+
+
+      let arr = [this.changePxToValue(left), this.changePxToValue(right)]
+      // console.log(arr)
+      this.thrott(() => {
+        this.wsSendObj({
+          indexArr: arr
+        })
+      })
+    }
+
+    if (this.state.lineFlag) {
+      const leftX = document.querySelector('.progress').getBoundingClientRect().x
+      var moveX = e.clientX;
+      const left = parseInt(document.querySelector('.leftProgress').style.left)
+      const right = parseInt(document.querySelector('.rightProgress').style.left)
+      document.querySelector('.progressLine').style.left = `${this.moveValue(e.clientX - leftX < left + 20 ? left + 20 : e.clientX - leftX > right ? right : e.clientX - leftX)}px`
+
+      const lineleft = parseInt(document.querySelector('.progressLine').style.left)
+
+      let value = this.changePxToValue(lineleft, 'line')
+      this.thrott(() => {
+        this.wsSendObj({
+          value
+        })
+      })
+    }
+
+
+  }
+
+  changeLeftProgressFalse() {
+    console.log('up')
+    this.setState({
+      leftFlag: false,
+      rightFlag: false,
+      lineFlag: false
+    })
+  }
 
   render() {
-    console.log(this.state.matrixName)
+    console.log(this.state.matrixName, this.state.numMatrixFlag)
     return (
       <div className='home'>
         <div className="setIcons">
@@ -701,11 +1045,17 @@ class Home extends React.Component {
 
                 xvalue++
                 if (xvalue < 3) {
-                  // this.com.current?.changeGroupRotate({ x: xvalue })
+                  if (this.com.current && this.com.current.changeGroupRotate) {
+                    this.com.current?.changeGroupRotate({ x: xvalue })
+                  }
+
                   console.log(xvalue)
                 } else {
                   xvalue = 0
-                  // this.com.current?.changeGroupRotate({ x: xvalue })
+                  if (this.com.current && this.com.current.changeGroupRotate) {
+                    this.com.current?.changeGroupRotate({ x: xvalue })
+                  }
+
                 }
               }}>
                 <img src={plus} alt="" />
@@ -716,71 +1066,52 @@ class Home extends React.Component {
             // arrow={mergedArrow}
             >
               <div className='setIcon' onClick={() => {
-                yvalue++
-                if (yvalue < 3) {
-                  // this.com.current?.changeGroupRotate({ y: yvalue })
-                  console.log(yvalue)
+                zvalue++
+                if (zvalue < 3) {
+                  if (this.com.current && this.com.current.changeGroupRotate) {
+                    this.com.current?.changeGroupRotate({ z: zvalue })
+                  }
+
+                  console.log(zvalue)
                 } else {
-                  yvalue = 0
-                  // this.com.current?.changeGroupRotate({ y: yvalue })
-                  console.log(yvalue)
+                  zvalue = 0
+                  if (this.com.current && this.com.current.changeGroupRotate) {
+                    this.com.current?.changeGroupRotate({ z: zvalue })
+                  }
+                  console.log(zvalue)
                 }
               }}>
                 <img src={minus} alt="" />
               </div>
             </Popover>
           </div>
+          <Popover placement="top" title={'刷新'} content={content3} >
+            <div className="setIconItem setIconItem2">
+              <div className='setIcon'>
+                <img src={refresh} alt="" onClick={() => {
+                  this.canvasInit1(ctx)
+                }} />
+              </div>
+            </div>
+          </Popover>
 
           <div className="setIconItem setIconItem2">
-            <div className='setIcon'>
-              <img src={icon} alt="" onClick={() => {
-                // this.com.current?.reset()
-                if (ctx) {
-                  ctx.clearRect(0, 0, 300, 300);
-                }
-                if (ctxCircle) {
-                  ctxCircle.clearRect(0, 0, 300, 300);
-                }
-              }} />
-            </div>
-          </div>
-
-          <div className="setIconItem setIconItem2">
-            <div className='setIcon marginB10' onClick={() => {
-              console.log('load')
-              const date = new Date(Date.now());
-              const formattedDate = date.toLocaleString();
-              // if (matrixName == 'foot') {
-              //   const dataArr = localStorage.getItem('dataArr')
-              //   const arr = dataArr ? JSON.parse(dataArr) : []
-              //   arr.push(formattedDate)
-              //   localStorage.setItem('dataArr', JSON.stringify(arr))
-              // } else if (matrixName == 'hand') {
-              //   const dataArr = localStorage.getItem('handArr')
-              //   const arr = dataArr ? JSON.parse(dataArr) : []
-              //   arr.push(formattedDate)
-              //   localStorage.setItem('handArr', JSON.stringify(arr))
-              // } else if (matrixName == 'car') {
-              //   const dataArr = localStorage.getItem('handArr')
-              //   const arr = dataArr ? JSON.parse(dataArr) : []
-              //   arr.push(formattedDate)
-              //   localStorage.setItem('handArr', JSON.stringify(arr))
-              // }
-
-
-              this.wsSendObj({ flag: true, time: formattedDate })
-            }}>
-              <img src={load} alt="" />
-            </div>
-            <div className='setIcon marginB10' onClick={() => {
+            <Popover placement="top" title={'下载'} content={content4} >
+              <div className='setIcon marginB10' onClick={() => {
+                this.canvasText2(ctx)
+                this.saveCanvasAsImage()
+                this.canvasInit1(ctx)
+              }}>
+                <img src={load} alt="" />
+              </div>
+            </Popover>
+            {/* <div className='setIcon marginB10' onClick={() => {
               console.log('load')
               this.wsSendObj({ flag: false })
             }}>
               <img src={stop} alt="" />
-            </div>
-            <Popover placement="top" title={text2} content={content2}
-            // arrow={mergedArrow}
-            >
+            </div> */}
+            <Popover placement="top" title={text2} content={content2} >
               <div className='setIcon'
                 onClick={() => {
                   const flag = this.state.selectFlag
@@ -893,17 +1224,18 @@ class Home extends React.Component {
           colFlag={this.state.colFlag}
           changeStateData={this.changeStateData}
           setColValueFlag={this.setColValueFlag}
+          numMatrixFlag={this.state.numMatrixFlag}
         // colNum={colNum}
         // changeDateArr={changeDateArr}
         />
         {/* </TitleCom> */}
         {/* </Com> */}
-        <Com>
+        <CanvasCom matrixName={this.state.matrixName}>
           <Aside ref={this.data} matrixName={this.state.matrixName} />
-        </Com>
+        </CanvasCom>
 
 
-        {this.state.matrixName == 'foot' ? <CanvasCom matrixName={this.state.matrixName}><Canvas ref={this.com} changeSelect={this.changeSelect} /> </CanvasCom>
+        {this.state.numMatrixFlag && (this.state.matrixName == 'foot' || this.state.matrixName == 'hand' || this.state.carState == 'back' || this.state.carState == 'sit') ? <Num ref={this.com} /> : this.state.matrixName == 'foot' ? <CanvasCom matrixName={this.state.matrixName}><Canvas ref={this.com} changeSelect={this.changeSelect} /> </CanvasCom>
           : this.state.matrixName == 'hand' ? <CanvasCom matrixName={this.state.matrixName}><CanvasHand ref={this.com} /></CanvasCom>
             : <CanvasCom matrixName={this.state.matrixName}>
               <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
@@ -938,6 +1270,13 @@ class Home extends React.Component {
                 step={1}
                 style={{ width: '100%' }}
               />
+
+
+              {/* 新进度条 */}
+
+
+
+
               <div>
                 <img src={play} style={{ width: '50px', display: this.state.playflag ? 'none' : 'unset' }}
                   onClick={() => { this.playData(true) }}
@@ -984,15 +1323,90 @@ class Home extends React.Component {
                 </div>
               </div>
             </div>
-          </div> : null}
+          </div> : null
+        }
 
-        {this.state.matrixName == 'foot' ? <>
-          <canvas id="myCanvasTrack" width="300" height="300" style={{ position: 'fixed', top: '6%', right: '5%' }}></canvas>
-          <canvas id="myCanvasCircle" width="300" height="300" style={{ position: 'fixed', top: '6%', right: '5%' }}></canvas>
-        </> : null
+        {
+          this.state.matrixName == 'foot' ? <CanvasCom matrixName={this.state.matrixName}>
+            <canvas id="myCanvasTrack" width="300" height="300" style={{ position: 'fixed', top: '6%', right: 'calc(3% + 48px)' }}></canvas>
+            <canvas id="myCanvasCircle" width="300" height="300" style={{ position: 'fixed', top: '6%', right: 'calc(3% + 48px)' }}></canvas>
+          </CanvasCom> : null
 
         }
-      </div>
+
+        <div style={{ position: "fixed", bottom: 15, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{
+            width: 600, display: 'flex', justifyContent: 'center',
+            //  alignItems: 'center', 
+            flexDirection: 'column',
+            position: 'relative',
+            border: '1px #01F1E3 solid',
+            height: '30px'
+          }}
+            className='progress'
+
+            onClick={(e) => {
+              const leftX = document.querySelector('.progress').getBoundingClientRect().x
+              const left = parseInt(document.querySelector('.leftProgress').style.left)
+              const right = parseInt(document.querySelector('.rightProgress').style.left)
+              document.querySelector('.progressLine').style.left = `${this.moveValue(e.clientX - leftX < left + 20 ? left + 20 : e.clientX - leftX > right ? right : e.clientX - leftX)}px`
+
+              const lineleft = parseInt(document.querySelector('.progressLine').style.left)
+
+              let value = this.changePxToValue(lineleft, 'line')
+              console.log(lineleft, value)
+
+              this.wsSendObj({
+                value
+              })
+
+            }}
+          >
+
+            <div style={{ border: this.state.leftFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 0, width: 20, height: '30px', backgroundColor: 'yellow', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              className='leftProgress'
+              onMouseDown={(e) => {
+                e.stopPropagation()
+                console.log('down')
+                this.setState({
+                  leftFlag: true
+                })
+              }}
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            >
+              {/* <div style={{height : 15 , width : 2 , backgroundColor : '#333' , marginRight : 2}}></div>
+              <div style={{height : 15 , width : 2 , backgroundColor : '#333'}}></div> */}
+            </div>
+            <div style={{ border: this.state.rightFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 580, width: 20, height: '30px', backgroundColor: 'yellow' }}
+              className='rightProgress'
+              onMouseDown={(e) => {
+                console.log('down')
+                this.setState({
+                  rightFlag: true
+                })
+              }}
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            ></div>
+            <div ref={this.line} className='progressLine'
+              onMouseDown={(e) => {
+                console.log('down')
+                this.setState({
+                  lineFlag: true
+                })
+              }}
+              style={{
+                position: 'absolute',
+                left: 20,
+                //  left: `${this.state.indexInit / (this.state.length - 2 == 0 ? 1 : this.state.length - 2) * 100}%`, 
+                height: 36, width: 2, transform: `translate('-50%')`, backgroundColor: 'red'
+              }}></div>
+          </div>
+        </div>
+      </div >
     )
   }
 }

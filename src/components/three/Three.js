@@ -33,7 +33,7 @@ const backnum2 = 32;
 const backInterp = 2;
 const backOrder = 4;
 let controlsFlag = true;
-var ndata = new Array(backnum1 * backnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0);
+var ndata = new Array(backnum1 * backnum2).fill(0), newData = new Array(backnum1 * backnum2).fill(0), newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0);
 
 var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
   valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
@@ -230,7 +230,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
   }
 
-  function pointDown(event){
+  function pointDown(event) {
     if (selectHelper.isShiftPressed) {
       sitIndexArr = []
       backIndexArr = []
@@ -271,7 +271,7 @@ const Canvas = React.forwardRef((props, refs) => {
     }
   }
 
-  function pointMove(event){
+  function pointMove(event) {
     if (selectHelper.isShiftPressed) {
 
 
@@ -311,7 +311,7 @@ const Canvas = React.forwardRef((props, refs) => {
     }
   }
 
-  function pointUp(event){
+  function pointUp(event) {
     if (selectHelper.isShiftPressed) {
       selectStartArr = []
       selectEndArr = []
@@ -479,8 +479,9 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function initPoint() {
-    const geometry = new THREE.PlaneGeometry(1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const spite = new THREE.TextureLoader().load("./circle.png");
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000,map: spite,transparent: true, });
     particlesPoint = new THREE.Mesh(geometry, material);
 
     particlesPoint.rotation.x = -Math.PI / 2
@@ -515,9 +516,9 @@ const Canvas = React.forwardRef((props, refs) => {
   //  更新靠背数据
   function backRenew() {
 
-    // valueg2 = 2
-    // valuej2 = 500 
-    // value2 =2
+
+    
+
     interp1016(ndata, bigArr1, backnum1, backnum2, backInterp);
     //高斯滤波
 
@@ -590,9 +591,7 @@ const Canvas = React.forwardRef((props, refs) => {
   //  更新座椅数据
   function sitRenew() {
 
-    // valueg1 = 2
-    // valuej1 = 500 
-    // value1 =2
+
 
     interp1016(ndata1, bigArr, sitnum1, sitnum2, sitInterp);
     let bigArrs = addSide(
@@ -697,11 +696,16 @@ const Canvas = React.forwardRef((props, refs) => {
     const {
       wsPointData: wsPointData,
     } = prop;
-    ndata = wsPointData
+    newData = wsPointData
 
     // 修改线序 坐垫
+    ndata = [...newData].map((a, index) => (a - valuef2 < 0 ? 0 : a));
     ndataNum = ndata.reduce((a, b) => a + b, 0);
-    ndata = ndata.map((a, index) => (a - valuef2 < 0 ? 0 : a - valuef2));
+    if (ndataNum < valuelInit2) {
+      ndata = new Array(backnum1 * backnum2).fill(1);
+    } else {
+      ndata = [...newData]
+    }
   }
   function backValue(prop) {
     const { valuej, valueg, value, valuel, valuef, valuelInit } = prop;
@@ -712,11 +716,8 @@ const Canvas = React.forwardRef((props, refs) => {
     if (valuef) valuef2 = valuef;
 
     if (valuelInit) valuelInit2 = valuelInit;
-    ndata = ndata.map((a, index) => (a - valuef2 < 0 ? 0 : a - valuef2));
-    ndataNum = ndata.reduce((a, b) => a + b, 0);
-    // if (ndataNum < valuelInit2) {
-    //   ndata = new Array(120).fill(1);
-    // }
+    
+
   }
   // 座椅数据
   function sitValue(prop) {
@@ -728,12 +729,7 @@ const Canvas = React.forwardRef((props, refs) => {
     if (valuel) valuel1 = valuel;
     if (valuef) valuef1 = valuef;
     if (valuelInit) valuelInit1 = valuelInit;
-    ndata1 = ndata1.map((a, index) => (a - valuef1 < 0 ? 0 : a - valuef1));
 
-    ndata1Num = ndata1.reduce((a, b) => a + b, 0);
-    if (ndata1Num < valuelInit1) {
-      ndata1 = new Array(sitnum1 * sitnum2).fill(0);
-    }
 
   }
   function sitData(prop) {
@@ -744,17 +740,26 @@ const Canvas = React.forwardRef((props, refs) => {
       arr
     } = prop;
     if (arr) cooArr = arr
-    ndata1 = wsPointData;
+    newData1 = wsPointData;
+
+    ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
+
+    ndata1Num = ndata1.reduce((a, b) => a + b, 0);
+    if (ndata1Num < valuelInit1) {
+      ndata1 = new Array(sitnum1 * sitnum2).fill(1);
+    } else {
+      ndata1 = [...newData1]
+    }
 
   }
 
   function changeGroupRotate(obj) {
 
     if (typeof obj.x === 'number') {
-      group.rotation.x = -(Math.PI * 2 + (obj.x) * 4) / 12
+      group.rotation.x = -( (obj.x) * 6) / 12
     }
-    if (typeof obj.y === 'number') {
-      group.rotation.y = -(obj.y) * 6 / 12
+    if (typeof obj.z === 'number') {
+      group.rotation.z = (obj.z) * 6 / 12
     }
   }
 
@@ -867,7 +872,7 @@ const Canvas = React.forwardRef((props, refs) => {
   return (
     <div>
       <div
-        // style={{ width: "100%", height: "100%" }}
+      
         id={`canvas`}
       ></div>
     </div>

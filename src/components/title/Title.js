@@ -13,10 +13,6 @@ const navItems = [
     label: '回放',
     key: 'playback',
   },
-  {
-    label: '历史曲线',
-    key: 'history',
-  },
 ];
 
 const carItems = [
@@ -70,16 +66,16 @@ class Title extends React.Component {
         local: false,
         history: false
       })
-      this.props.changeStateData({ history: 'now',local : false })
+      this.props.changeStateData({ history: 'now', local: false })
     } else if (e.key === 'playback') {
       // this.props.changeLocal(true)
       this.props.wsSendObj({
         local: true,
         history: false
       })
-      this.props.changeStateData({ history: 'playback', index: 0,local : true })
+      this.props.changeStateData({ history: 'playback', index: 0, local: true })
     } else {
-      this.props.changeStateData({ history: 'history', index: 0,local : true })
+      this.props.changeStateData({ history: 'history', index: 0, local: true })
       // this.props.changeLocal(true)
 
 
@@ -102,26 +98,29 @@ class Title extends React.Component {
   };
 
   onCarClick = (e) => {
-    if (e.key === 'sit') {
-      this.setState({
-        carCurrent: 'sit'
-      })
-      this.props.com.current?.actionSit()
-      this.props.changeStateData({ carState: 'sit' })
-    } else if (e.key === 'back') {
-      this.setState({
-        carCurrent: 'back'
-      })
-      this.props.com.current?.actionBack()
-      this.props.changeStateData({ carState: 'back' })
-    } else {
-      this.setState({
-        carCurrent: 'all'
-      })
-      this.props.com.current?.actionAll()
-      this.props.changeStateData({ carState: 'all' })
-      this.props.changeStateData({ numMatrixFlag: false })
-    }
+    
+      if (e.key === 'sit') {
+        this.setState({
+          carCurrent: 'sit'
+        })
+        
+        if (!this.props.numMatrixFlag) this.props.com.current?.actionSit()
+        this.props.changeStateData({ carState: 'sit' })
+      } else if (e.key === 'back') {
+        this.setState({
+          carCurrent: 'back'
+        })
+        if (!this.props.numMatrixFlag) this.props.com.current?.actionBack()
+        this.props.changeStateData({ carState: 'back' })
+      } else {
+        this.setState({
+          carCurrent: 'all'
+        })
+        if (!this.props.numMatrixFlag) this.props.com.current?.actionAll()
+        this.props.changeStateData({ carState: 'all' })
+        this.props.changeStateData({ numMatrixFlag: false })
+      }
+    
   }
 
   changeNum = (num) => {
@@ -154,10 +153,31 @@ class Title extends React.Component {
 
 
         <Menu className='menu' onClick={this.onClick} selectedKeys={[this.state.current]} mode="horizontal" items={navItems} />
-        {this.props.history === 'now' ? <><Select
+        {this.props.history === 'now' ? this.props.matrixName != 'car' ? <><Select
+          // value={this.props.portname}
+          style={{ marginRight: 20, width: 160 }}
+          placeholder="请选择串口"
+          value={this.props.portname ? this.props.portname : null}
+          onDropdownVisibleChange={() => {
+            this.props.wsSendObj({ serialReset: true })
+          }}
+
+          onChange={(e) => {
+
+            console.log(e);
+            this.props.wsSendObj({ sitPort: e })
+            this.props.changeStateData({ portname: e })
+
+          }}
+          options={this.props.port}
+        >
+        </Select> <div></div></> : <><Select
           // value={this.props.portname}
           style={{ marginRight: 20, width: 160 }}
           placeholder="请选择座椅串口"
+          onDropdownVisibleChange={() => {
+            this.props.wsSendObj({ serialReset: true })
+          }}
           onChange={(e) => {
 
             console.log(e);
@@ -182,6 +202,9 @@ class Title extends React.Component {
             // value={this.props.portnameBack}
             placeholder={"请选择靠背串口"}
             style={{ width: 160 }}
+            onDropdownVisibleChange={() => {
+              this.props.wsSendObj({ serialReset: true })
+            }}
             onChange={(e) => {
               // this.props.handleChangeCom(e);
               console.log(e);
@@ -198,6 +221,7 @@ class Title extends React.Component {
         </> : <Select
           // value={this.props.dataArr}
           placeholder={"请选择回放数据时间"}
+          style={{ marginRight: 20 }}
           onChange={(e) => {
             // this.props.handleChangeCom(e);
             console.log(e);
@@ -236,35 +260,42 @@ class Title extends React.Component {
           : null}
         {!this.props.local ?
           <>
-            <Button onClick={() => {
-              const flag = this.props.colFlag
-              const date = new Date(Date.now());
-              const formattedDate = date.toLocaleString();
-              if (flag) {
-                this.props.wsSendObj({ flag: true, time: formattedDate })
-              } else {
-                this.props.wsSendObj({ flag: flag })
-              }
-              // console.log(flag)
-              // this.props.setColFlag(!flag)
-              this.props.changeStateData({ colFlag: !flag })
-              this.props.setColValueFlag(flag)
-            }}>{this.props.colFlag ? '采集' : '停止'}{this.state.num ? this.state.num : null}
+            <Button
+              className='titleButton'
+              onClick={() => {
+                const flag = this.props.colFlag
+                const date = new Date(Date.now());
+                const formattedDate = date.toLocaleString();
+                if (flag) {
+                  this.props.wsSendObj({ flag: true, time: formattedDate })
+                } else {
+                  this.props.wsSendObj({ flag: flag })
+                }
+                // console.log(flag)
+                // this.props.setColFlag(!flag)
+                this.props.changeStateData({ colFlag: !flag })
+                this.props.setColValueFlag(flag)
+              }}>{this.props.colFlag ? '采集' : '停止'}{this.state.num ? this.state.num : null}
             </Button>
           </>
           : <Button
+            className='titleButton'
             onClick={() => {
               this.props.wsSendObj({ download: this.state.dataTime })
             }}
           >{'下载'}</Button>
         }
-        <Button onClick={() => {
-          const flag = this.props.numMatrixFlag
-          this.props.changeStateData({ numMatrixFlag: !flag })
-        }}>矩阵</Button>
-        <Button onClick={() => {
+        <Button
+          className='titleButton'
+          onClick={() => {
+            const flag = this.props.numMatrixFlag
+            this.props.changeStateData({ numMatrixFlag: !flag })
+          }}>{this.props.numMatrixFlag ? '矩阵' : '2D'}</Button>
+        {/* <Button 
+        className='titleButton'
+        onClick={() => {
           this.props.wsSendObj({ serialReset: true })
-        }}>重连串口</Button>
+        }}>重连串口</Button> */}
       </div>
       <div style={{ position: 'relative' }}>
         <img onClick={() => {
@@ -308,12 +339,20 @@ class Title extends React.Component {
                     localStorage.setItem("carValueg", value);
                     // this.props.setValueg1(value);
                     this.props.changeStateData({ valueg1: value })
-                    this.props.com.current?.sitValue({
-                      valueg: value,
-                    });
-                    this.props.com.current?.backValue({
-                      valueg: value,
-                    });
+
+                    if (this.props.com.current) {
+                      if (this.props.com.current.sitValue) {
+                        this.props.com.current.sitValue({
+                          valueg: value,
+                        });
+                      }
+                      if (this.props.com.current.backValue) {
+                        this.props.com.current.backValue({
+                          valueg: value,
+                        });
+                      }
+                    }
+
                   }}
                   value={this.props.valueg1}
                   step={0.1}
@@ -349,12 +388,21 @@ class Title extends React.Component {
                     localStorage.setItem("carValuej", value);
                     // this.props.setValuej1(value);
                     this.props.changeStateData({ valuej1: value })
-                    this.props.com.current?.sitValue({
-                      valuej: value,
-                    });
-                    this.props.com.current?.backValue({
-                      valuej: value,
-                    });
+
+                    if (this.props.com.current) {
+                      if (this.props.com.current.sitValue) {
+                        this.props.com.current.sitValue({
+                          valuej: value,
+                        });
+                      }
+                      if (this.props.com.current.backValue) {
+                        this.props.com.current.backValue({
+                          valuej: value,
+                        });
+                      }
+                    }
+
+
                   }}
                   value={this.props.valuej1}
                   step={10}
@@ -386,12 +434,21 @@ class Title extends React.Component {
                     localStorage.setItem("carValuef", value);
                     // this.props.setValuef1(value);
                     this.props.changeStateData({ valuef1: value })
-                    this.props.com.current?.sitValue({
-                      valuef: value,
-                    });
-                    this.props.com.current?.backValue({
-                      valuef: value,
-                    });
+
+                    if (this.props.com.current) {
+                      if (this.props.com.current.sitValue) {
+                        this.props.com.current.sitValue({
+                          valuef: value,
+                        });
+                      }
+                      if (this.props.com.current.backValue) {
+                        this.props.com.current.backValue({
+                          valuef: value,
+                        });
+                      }
+                    }
+
+
                   }}
                   value={this.props.valuef1}
                   step={2}
@@ -424,12 +481,21 @@ class Title extends React.Component {
                     localStorage.setItem("carValue", value);
                     // this.props.setValue1(value);
                     this.props.changeStateData({ value1: value })
-                    this.props.com.current?.sitValue({
-                      value: value,
-                    });
-                    this.props.com.current?.backValue({
-                      value: value,
-                    });
+
+                    if (this.props.com.current) {
+                      if (this.props.com.current.sitValue) {
+                        this.props.com.current.sitValue({
+                          value: value,
+                        });
+                      }
+                      if (this.props.com.current.backValue) {
+                        this.props.com.current.backValue({
+                          value: value,
+                        });
+                      }
+                    }
+
+
                   }}
                   value={this.props.value1}
                   step={0.02}
@@ -461,12 +527,22 @@ class Title extends React.Component {
                     localStorage.setItem("carValuel", value);
                     // this.props.setValuel1(value);
                     this.props.changeStateData({ valuel1: value })
-                    this.props.com.current?.sitValue({
-                      valuel: value,
-                    });
-                    this.props.com.current?.backValue({
-                      valuel: value,
-                    });
+
+                    if (this.props.com.current) {
+                      if (this.props.com.current.sitValue) {
+                        this.props.com.current.sitValue({
+                          valuel: value,
+                        });
+                      }
+                      if (this.props.com.current.backValue) {
+                        this.props.com.current.backValue({
+                          valuel: value,
+                        });
+                      }
+                    }
+
+
+
                   }}
                   value={this.props.valuel1}
                   step={1}
@@ -499,12 +575,21 @@ class Title extends React.Component {
                     localStorage.setItem("carValueInit", value);
                     // this.props.setValuelInit1(value);
                     this.props.changeStateData({ valuelInit1: value })
-                    this.props.com.current?.sitValue({
-                      valuelInit: value,
-                    });
-                    this.props.com.current?.backValue({
-                      valuelInit: value,
-                    });
+
+                    if (this.props.com.current) {
+                      if (this.props.com.current.sitValue) {
+                        this.props.com.current.sitValue({
+                          valuelInit: value,
+                        });
+                      }
+                      if (this.props.com.current.backValue) {
+                        this.props.com.current.backValue({
+                          valuelInit: value,
+                        });
+                      }
+                    }
+
+
                   }}
                   value={this.props.valuelInit1}
                   step={500}

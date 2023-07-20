@@ -1,19 +1,31 @@
 import React, { useEffect, useState, useImperativeHandle } from 'react'
 import './num.css'
+var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
+    valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
+    value1 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
+    valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
+    valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
+    valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2
+
 export const Num = React.forwardRef((porps, refs) => {
     const [data, setData] = useState(new Array(32).fill(new Array(32).fill(0)));
     const [scale, setScale] = useState(1)
 
     const changeWsData = (wsPointData) => {
-        console.log(wsPointData.length)
-        let newData = []
+        console.log(wsPointData.length,valuef1)
+        let newData = [...wsPointData]
+        let dataG = []
+        let ndata = [...newData].map((a, index) => (a - valuef1 < 0 ? 0 : a));
+        const ndataNum = ndata.reduce((a, b) => a + b, 0);
+        if (ndataNum < valuelInit1) {
+            ndata = new Array(32 * 32).fill(1);
+        } 
+
+        gaussBlur_2(ndata, dataG, 32, 32, valueg1)
 
 
-        gaussBlur_2(wsPointData, newData, 32, 32, 1.0)
+        wsPointData = dataG
 
-
-        wsPointData = newData
-        wsPointData = newData
         let a = [];
         for (let i = 0; i < 32; i++) {
             a[i] = [];
@@ -26,12 +38,25 @@ export const Num = React.forwardRef((porps, refs) => {
         setData(a);
     }
 
+    const sitValue = (prop) => {
+        console.log(prop)
+        const { valuej, valueg, value, valuel, valuef, valuelInit } = prop;
+        if (valuej) valuej1 = valuej;
+        if (valueg) valueg1 = valueg;
+        if (value) value1 = value;
+        if (valuel) valuel1 = valuel;
+        if (valuef) valuef1 = valuef;
+        if (valuelInit) valuelInit1 = valuelInit;
+
+    }
+
     const drawContent = () => { }
 
     useImperativeHandle(refs, () => ({
 
         changeWsData: changeWsData,
-        drawContent: drawContent
+        drawContent: drawContent,
+        sitValue
     }));
 
     function jet(min, max, x) {
@@ -120,9 +145,10 @@ export const Num = React.forwardRef((porps, refs) => {
                 style={{
                     color: 'blue', transformStyle: 'preserve-3d',
                     perspective: '500px',
+                  
                 }}
             >
-                <div className="threeBox">
+                <div className="threeBox" style={{   transform: 'rotateX(35deg)'}}>
                     {data.map((items, indexs) => {
                         return (
                             <div key={indexs} style={{ display: 'flex' }}>
@@ -137,7 +163,7 @@ export const Num = React.forwardRef((porps, refs) => {
                                                     fontSize: `${scale * 20 * 0.8}px`,
                                                     lineHeight: '1.5rem',
                                                     transform: `translateY(${-item * 3}px)`,
-                                                    color: `rgb(${jet(0, 100, item * 5)})`,
+                                                    color: `rgb(${jet(0, valuej1, item * 5)})`,
                                                 }}
                                             >
                                                 {parseInt(item)}

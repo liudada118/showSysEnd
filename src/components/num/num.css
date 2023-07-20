@@ -1,7 +1,6 @@
 .threeBox{
-    transform: rotateX(25deg);
+    /* transform: rotateX(25deg); */
     transform-style: preserve-3d;
-    
 }
 
 .threeBoxF{
