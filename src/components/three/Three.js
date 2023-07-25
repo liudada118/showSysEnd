@@ -33,7 +33,7 @@ const backnum2 = 32;
 const backInterp = 2;
 const backOrder = 4;
 let controlsFlag = true;
-var ndata = new Array(backnum1 * backnum2).fill(0), newData = new Array(backnum1 * backnum2).fill(0), newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0);
+var ndata = new Array(backnum1 * backnum2).fill(0), newData = new Array(backnum1 * backnum2).fill(0), newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0) , centerFlag = true;
 
 var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
   valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
@@ -305,6 +305,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
         if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
         if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       }
 
@@ -481,7 +482,7 @@ const Canvas = React.forwardRef((props, refs) => {
   function initPoint() {
     const geometry = new THREE.PlaneGeometry(2, 2);
     const spite = new THREE.TextureLoader().load("./circle.png");
-    const material = new THREE.MeshBasicMaterial({ color: 0xff0000,map: spite,transparent: true, });
+    const material = new THREE.MeshBasicMaterial({ color: 0x991BFA,map: spite,transparent: true, });
     particlesPoint = new THREE.Mesh(geometry, material);
 
     particlesPoint.rotation.x = -Math.PI / 2
@@ -517,7 +518,13 @@ const Canvas = React.forwardRef((props, refs) => {
   function backRenew() {
 
 
-    
+    ndata = [...newData].map((a, index) => (a - valuef2 < 0 ? 0 : a));
+    ndataNum = ndata.reduce((a, b) => a + b, 0);
+    if (ndataNum < valuelInit2) {
+      ndata = new Array(backnum1 * backnum2).fill(0);
+    } else {
+      ndata = [...newData]
+    }
 
     interp1016(ndata, bigArr1, backnum1, backnum2, backInterp);
     //高斯滤波
@@ -591,7 +598,14 @@ const Canvas = React.forwardRef((props, refs) => {
   //  更新座椅数据
   function sitRenew() {
 
+    ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
 
+    ndata1Num = ndata1.reduce((a, b) => a + b, 0);
+    if (ndata1Num < valuelInit1) {
+      ndata1 = new Array(sitnum1 * sitnum2).fill(0);
+    } else {
+      ndata1 = [...newData1]
+    }
 
     interp1016(ndata1, bigArr, sitnum1, sitnum2, sitInterp);
     let bigArrs = addSide(
@@ -667,6 +681,11 @@ const Canvas = React.forwardRef((props, refs) => {
       particlesPoint.position.x = -10 + (48) * cooArr[0] / 32
       particlesPoint.position.z = -19 + (38.5) * cooArr[1] / 32
     }
+    if(centerFlag){
+      particlesPoint.visible = false
+    }else{
+      particlesPoint.visible = true
+    }
 
     backRenew();
     sitRenew();
@@ -699,13 +718,7 @@ const Canvas = React.forwardRef((props, refs) => {
     newData = wsPointData
 
     // 修改线序 坐垫
-    ndata = [...newData].map((a, index) => (a - valuef2 < 0 ? 0 : a));
-    ndataNum = ndata.reduce((a, b) => a + b, 0);
-    if (ndataNum < valuelInit2) {
-      ndata = new Array(backnum1 * backnum2).fill(1);
-    } else {
-      ndata = [...newData]
-    }
+    
   }
   function backValue(prop) {
     const { valuej, valueg, value, valuel, valuef, valuelInit } = prop;
@@ -742,14 +755,7 @@ const Canvas = React.forwardRef((props, refs) => {
     if (arr) cooArr = arr
     newData1 = wsPointData;
 
-    ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
-
-    ndata1Num = ndata1.reduce((a, b) => a + b, 0);
-    if (ndata1Num < valuelInit1) {
-      ndata1 = new Array(sitnum1 * sitnum2).fill(1);
-    } else {
-      ndata1 = [...newData1]
-    }
+    
 
   }
 
@@ -763,6 +769,9 @@ const Canvas = React.forwardRef((props, refs) => {
     }
   }
 
+  function changeCenterFlag(value){
+    centerFlag = value
+  }
 
   function changeSelectFlag(value) {
     controlsFlag = value
@@ -810,7 +819,8 @@ const Canvas = React.forwardRef((props, refs) => {
     sitRenew,
     changeGroupRotate,
     reset,
-    changeSelectFlag
+    changeSelectFlag,
+    changeCenterFlag
     // actionAll: actionAll,
     // actionSit: actionSit,
     // actionBack: actionBack,

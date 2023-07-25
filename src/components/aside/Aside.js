@@ -33,7 +33,7 @@ const dataArr1 = [
         color: '#2A99FF',
         data: '面积',
         eng: 'Area'
-    }   
+    }
 ]
 
 
@@ -236,7 +236,7 @@ class Com extends React.Component {
 
 const arr = ['meanPres', 'maxPres', 'totalPres', 'presStan']
 const arrArea = ['point', 'area',]
-const footArr = ['meanPres', 'maxPres','point', 'area',]
+const footArr = ['meanPres', 'maxPres', 'point', 'area',]
 let ctx1, ctx2
 class Aside extends React.Component {
     constructor() {
@@ -263,7 +263,7 @@ class Aside extends React.Component {
         if (c1) ctx2 = c1.getContext("2d");
     }
 
-    componentDidUpdate(){
+    componentDidUpdate() {
         var c = document.getElementById("myChart1");
         if (c) ctx1 = c.getContext("2d");
 
@@ -271,7 +271,7 @@ class Aside extends React.Component {
         if (c1) ctx2 = c1.getContext("2d");
     }
 
-    drawChart({ ctx, arr, max, canvas }) {
+    drawChart({ ctx, arr, max, canvas, index }) {
         // 清空画布
         const data = arr.map((a) => a * 150 / max)
 
@@ -282,6 +282,7 @@ class Aside extends React.Component {
 
         // 绘制曲线
         ctx.beginPath();
+        ctx.setLineDash([]);
         ctx.moveTo(gap, canvas.height - data[0]);
 
         for (var i = 1; i < data.length - 2; i++) {
@@ -303,28 +304,30 @@ class Aside extends React.Component {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 绘制数据点
-        // for (var i = 0; i < data.length; i++) {
-        //     ctx.beginPath();
-        //     ctx.arc((i + 1) * gap, canvas.height - data[i], 5, 0, 2 * Math.PI);
-        //     ctx.fillStyle = "#ff0000";
-        //     ctx.fill();
-        //     ctx.stroke();
-        // }
+        if (index != null) {
+            ctx.beginPath();
+            ctx.moveTo(gap * (index), canvas.height);
+            ctx.lineTo(gap * (index), 0);
+            ctx.strokeStyle = "#01F1E3";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3,3]);
+            ctx.stroke();
+        }
+
     }
 
     componentWillUnmount() {
 
     }
 
-    handleCharts(arr, max) {
+    handleCharts(arr, max, index) {
         const canvas = document.getElementById('myChart1')
-        this.drawChart({ ctx: ctx1, arr, max, canvas })
+        this.drawChart({ ctx: ctx1, arr, max, canvas, index })
     }
 
-    handleChartsArea(arr, max) {
+    handleChartsArea(arr, max, index) {
         const canvas = document.getElementById('myChart2')
-        this.drawChart({ ctx: ctx2, arr, max, canvas })
+        this.drawChart({ ctx: ctx2, arr, max, canvas, index })
     }
 
     changeData(obj) {

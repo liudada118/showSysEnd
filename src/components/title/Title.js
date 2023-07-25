@@ -60,6 +60,7 @@ class Title extends React.Component {
 
   onClick = (e) => {
     console.log('click ', e.key);
+    this.props.canvasInit()
     if (e.key === 'now') {
       // this.props.changeLocal(false)
       this.props.wsSendObj({
@@ -98,29 +99,29 @@ class Title extends React.Component {
   };
 
   onCarClick = (e) => {
-    
-      if (e.key === 'sit') {
-        this.setState({
-          carCurrent: 'sit'
-        })
-        
-        if (!this.props.numMatrixFlag) this.props.com.current?.actionSit()
-        this.props.changeStateData({ carState: 'sit' })
-      } else if (e.key === 'back') {
-        this.setState({
-          carCurrent: 'back'
-        })
-        if (!this.props.numMatrixFlag) this.props.com.current?.actionBack()
-        this.props.changeStateData({ carState: 'back' })
-      } else {
-        this.setState({
-          carCurrent: 'all'
-        })
-        if (!this.props.numMatrixFlag) this.props.com.current?.actionAll()
-        this.props.changeStateData({ carState: 'all' })
-        this.props.changeStateData({ numMatrixFlag: false })
-      }
-    
+
+    if (e.key === 'sit') {
+      this.setState({
+        carCurrent: 'sit'
+      })
+
+      if (!this.props.numMatrixFlag) this.props.com.current?.actionSit()
+      this.props.changeStateData({ carState: 'sit' })
+    } else if (e.key === 'back') {
+      this.setState({
+        carCurrent: 'back'
+      })
+      if (!this.props.numMatrixFlag) this.props.com.current?.actionBack()
+      this.props.changeStateData({ carState: 'back' })
+    } else {
+      this.setState({
+        carCurrent: 'all'
+      })
+      if (!this.props.numMatrixFlag) this.props.com.current?.actionAll()
+      this.props.changeStateData({ carState: 'all' })
+      this.props.changeStateData({ numMatrixFlag: false })
+    }
+
   }
 
   changeNum = (num) => {
@@ -162,9 +163,7 @@ class Title extends React.Component {
             this.props.wsSendObj({ serialReset: true })
           }}
 
-          onChange={(e) => {
-
-            console.log(e);
+          onSelect={(e) => {
             this.props.wsSendObj({ sitPort: e })
             this.props.changeStateData({ portname: e })
 
@@ -175,10 +174,11 @@ class Title extends React.Component {
           // value={this.props.portname}
           style={{ marginRight: 20, width: 160 }}
           placeholder="请选择座椅串口"
+          value={this.props.portname ? `${this.props.portname}(座椅)` : null}
           onDropdownVisibleChange={() => {
             this.props.wsSendObj({ serialReset: true })
           }}
-          onChange={(e) => {
+          onSelect={(e) => {
 
             console.log(e);
             this.props.wsSendObj({ sitPort: e })
@@ -202,18 +202,20 @@ class Title extends React.Component {
             // value={this.props.portnameBack}
             placeholder={"请选择靠背串口"}
             style={{ width: 160 }}
-            onDropdownVisibleChange={() => {
+            value={this.props.portnameBack ? `${this.props.portnameBack}(靠背)` : null}
+            onDropdownVisibleChange={(e) => {
+              console.log(e)
               this.props.wsSendObj({ serialReset: true })
             }}
-            onChange={(e) => {
+            onSelect={(e) => {
               // this.props.handleChangeCom(e);
               console.log(e);
               this.props.wsSendObj({ backPort: e })
-              // this.props.setPortnameBack(e)
+
               this.props.changeStateData({ portnameBack: e })
-              // if (ws && ws.readyState === 1)
-              //   ws.send(JSON.stringify({ sitPort: e }));
+
             }}
+
             options={this.props.port}
           >
           </Select>
@@ -224,6 +226,7 @@ class Title extends React.Component {
           style={{ marginRight: 20 }}
           onChange={(e) => {
             // this.props.handleChangeCom(e);
+            this.props.canvasInit()
             console.log(e);
             this.setState({ dataTime: e })
             this.props.wsSendObj({ getTime: e, index: 0 })
@@ -291,11 +294,16 @@ class Title extends React.Component {
             const flag = this.props.numMatrixFlag
             this.props.changeStateData({ numMatrixFlag: !flag })
           }}>{this.props.numMatrixFlag ? '矩阵' : '2D'}</Button>
-        {/* <Button 
-        className='titleButton'
-        onClick={() => {
-          this.props.wsSendObj({ serialReset: true })
-        }}>重连串口</Button> */}
+        {this.props.matrixName == 'foot' ? <Button
+          className='titleButton'
+          onClick={() => {
+            const flag = this.props.centerFlag
+            this.props.changeStateData({ centerFlag: !flag })
+            this.props.com.current?.changeCenterFlag(flag)
+            if (flag) {
+              this.props.canvasInit()
+            }
+          }}>{!this.props.centerFlag ? '重心' : '隐藏'}</Button> : null}
       </div>
       <div style={{ position: 'relative' }}>
         <img onClick={() => {

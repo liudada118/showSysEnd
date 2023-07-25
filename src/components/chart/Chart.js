@@ -32,18 +32,30 @@ export function Chart2() {
   )
 }
 
+const dataArr1 = [
+  {
+    color: '#2A99FF',
+    data: '足弓分类',
+  }, {
+    color: '#FF2A2A',
+    data: '脚长',
+  }
+]
+const footArr = ['footType', 'footLength']
 
 var ele, context
 
 export class CanvasDemo extends React.Component {
   constructor(props) {
     super()
-    this.state ={
-        total : 0,
-        leftValue : 0,
-        rightValue : 0 ,
-        leftProp : 0 , 
-        rightProp : 0
+    this.state = {
+      total: 0,
+      leftValue: 0,
+      rightValue: 0,
+      leftProp: 0,
+      rightProp: 0,
+      footType: '正常',
+      footLength: 0
     }
     this.initCanvasrotate = this.initCanvasrotate.bind(this)
     this.initCanvasrotate1 = this.initCanvasrotate1.bind(this)
@@ -381,7 +393,7 @@ export class CanvasDemo extends React.Component {
     context.translate(-(x + radius), -(y + radius))
   }
 
-  changeState(obj){
+  changeState(obj) {
     this.setState(obj)
   }
 
@@ -405,7 +417,7 @@ export class CanvasDemo extends React.Component {
     LinearGradientColor2: '#499BE6'
   }
   render() {
-    
+
     const { width, height, canvaswidth, canvasheight } = this.props
     return (
       <div style={{ width: width, height: height, padding: 10 }}>
@@ -433,6 +445,24 @@ export class CanvasDemo extends React.Component {
             </div>
             <div>{this.state.rightValue}+{this.state.rightProp}%</div>
           </div>
+
+        </div>
+        <div>
+          {
+            dataArr1.map((a, index) => {
+              return (
+                <div className='dataItem' key={a.eng}>
+                  <div className='dataItemCircle'>
+                    <div className='circleItem' style={{ backgroundColor: a.color }}></div>
+                    <div>{a.data}</div>
+                  </div>
+               
+                    <div>{this.state[footArr[index]]}</div>
+               
+                </div>
+              )
+            })
+          }
         </div>
       </div>
     )

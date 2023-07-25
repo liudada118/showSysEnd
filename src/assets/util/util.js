@@ -3,6 +3,7 @@
  * @param {*} arr 32*32
  * @returns 10*10
  */
+import { rainbowTextColors } from "./color";
 import { garyColors, rainbowBackColors, rainbowColors } from "./value";
 
 export function findArr(arr) {
@@ -527,6 +528,17 @@ export function jetWhite2(min, max, x) {
   const num = Math.floor(x / count) >= length - 1 ? length - 1 : Math.floor(x / count) < 0 ? 0 : Math.floor(x / count);
     // console.log(length,count,x  , num,Math.floor(x / count))
   return rainbowColors[length - 1 - num];
+}
+
+export function jetWhite3(min, max, x) {
+  if(!x){
+    return rainbowTextColors[rainbowTextColors.length-1]
+  }
+  const length = rainbowTextColors.length;
+  const count = (max - min)*2 / length ;
+  const num = Math.floor(x / count) >= length - 1 ? length - 1 : Math.floor(x / count) < 0 ? 0 : Math.floor(x / count);
+    // console.log(length,count,x  , num,Math.floor(x / count))
+  return rainbowTextColors[length - 1 - num];
 }
 
 export function jetgGrey(min, max, x) {
