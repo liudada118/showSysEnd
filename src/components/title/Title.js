@@ -34,6 +34,7 @@ const sensorArr = [
   { label: '脚型检测', value: 'foot' },
   { label: '手部检测', value: 'hand' },
   { label: '汽车座椅', value: 'car' },
+  { label: '床垫', value: 'bigBed' },
 ]
 
 

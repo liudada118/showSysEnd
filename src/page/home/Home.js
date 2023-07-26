@@ -4,6 +4,7 @@ import './index.scss'
 import CanvasCar from '../../components/three/carnewTest'
 import Canvas from '../../components/three/Three'
 import CanvasHand from '../../components/three/hand'
+import Bed from '../../components/three/Bed'
 import Aside from '../../components/aside/Aside'
 import plus from '../../assets/images/Plus.png'
 import minus from '../../assets/images/Minus.png'
@@ -134,7 +135,7 @@ class Home extends React.Component {
       port: [{ value: ' ', label: ' ', }],
       portname: '',
       portnameBack: "",
-      matrixName: 'foot',
+      matrixName: 'bigBed',
       length: 0,
       local: false,
       dataArr: [],
@@ -420,6 +421,10 @@ class Home extends React.Component {
             }
           }
 
+        }else if(this.state.matrixName == 'bigBed') {
+          this.com.current?.sitData({
+            wsPointData: wsPointData,
+          });
         }
 
         let DataArr
@@ -1236,9 +1241,9 @@ class Home extends React.Component {
         {this.state.numMatrixFlag && (this.state.matrixName == 'foot' || this.state.matrixName == 'hand' || this.state.carState == 'back' || this.state.carState == 'sit') ? <Num ref={this.com} /> :
           this.state.matrixName == 'foot' ? <CanvasCom matrixName={this.state.matrixName}><Canvas ref={this.com} changeSelect={this.changeSelect} /> </CanvasCom>
             : this.state.matrixName == 'hand' ? <CanvasCom matrixName={this.state.matrixName}><CanvasHand ref={this.com} /></CanvasCom>
-              : <CanvasCom matrixName={this.state.matrixName}>
+              :this.state.matrixName == 'car' ? <CanvasCom matrixName={this.state.matrixName}>
                 <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
-              </CanvasCom>
+              </CanvasCom> : <Bed ref={this.com}/>
         }
         {/* <Com>
           <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
