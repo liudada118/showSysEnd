@@ -253,6 +253,8 @@ class Home extends React.Component {
           let totalArea = totalPoint * 4
           const sitPressure = totalMax * 1000 / (totalArea ? totalArea : 1)
 
+          // const {press , point , mean , max , area , pressure} = calArr(DataArr)
+
           meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
           maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
           pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
@@ -273,7 +275,7 @@ class Home extends React.Component {
           let leftTop = [...sitData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
           let leftTopProp = parseInt(leftTop * 100 / (leftValue))
           let leftBottomProp = 100 - leftTopProp
-
+ 
           let rightTop = [...backData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
           let rightTopProp = parseInt(rightTop * 100 / (rightValue))
           let rightBottomProp = 100 - rightTopProp
@@ -379,11 +381,11 @@ class Home extends React.Component {
 
         } else if (this.state.matrixName == 'hand') {
           // wsPointData = handLine(wsPointData)
-          wsPointData[31] = 100
+          // wsPointData[31] = 100
           this.com.current?.sitData({
             wsPointData: wsPointData,
           });
-
+          // console.log(wsPointData)
           let sitData = [],
             backData = [];
           for (let i = 0; i < 32; i++) {

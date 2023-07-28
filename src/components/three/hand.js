@@ -461,8 +461,7 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function render() {
-    // console.log(333)
-    // backRenew();
+   
     sitRenew();
     if (enableControls && !isShiftPressed) {
       controls.update();

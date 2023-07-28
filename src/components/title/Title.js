@@ -61,7 +61,8 @@ class Title extends React.Component {
 
   onClick = (e) => {
     console.log('click ', e.key);
-    this.props.canvasInit()
+    if(this.props.matrixName === 'foot'){this.props.canvasInit()  }
+    
     if (e.key === 'now') {
       // this.props.changeLocal(false)
       this.props.wsSendObj({
@@ -227,7 +228,10 @@ class Title extends React.Component {
           style={{ marginRight: 20 }}
           onChange={(e) => {
             // this.props.handleChangeCom(e);
-            this.props.canvasInit()
+            if(this.props.matrixName === 'foot'){
+              this.props.canvasInit()
+            }
+          
             console.log(e);
             this.setState({ dataTime: e })
             this.props.wsSendObj({ getTime: e, index: 0 })

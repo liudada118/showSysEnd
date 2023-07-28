@@ -531,8 +531,6 @@ const Canvas = React.forwardRef((props, refs) => {
     ndataNum = ndata.reduce((a, b) => a + b, 0);
     if (ndataNum < valuelInit2) {
       ndata = new Array(backnum1 * backnum2).fill(1);
-    } else {
-      ndata = [...newData]
     }
     interp(ndata, bigArr1, backnum1, backInterp);
     //高斯滤波
@@ -608,18 +606,12 @@ const Canvas = React.forwardRef((props, refs) => {
 
   //  更新座椅数据
   function sitRenew() {
-
-
-
     // const newData = [...ndata1]
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
-
     ndata1Num = ndata1.reduce((a, b) => a + b, 0);
     if (ndata1Num < valuelInit1) {
       ndata1 = new Array(sitnum1 * sitnum2).fill(1);
-    } else {
-      ndata1 = [...newData1]
-    }
+    } 
 
 
     interp(ndata1, bigArr, sitnum1, sitInterp);

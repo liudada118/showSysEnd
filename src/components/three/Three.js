@@ -603,8 +603,6 @@ const Canvas = React.forwardRef((props, refs) => {
     ndata1Num = ndata1.reduce((a, b) => a + b, 0);
     if (ndata1Num < valuelInit1) {
       ndata1 = new Array(sitnum1 * sitnum2).fill(0);
-    } else {
-      ndata1 = [...newData1]
     }
 
     interp1016(ndata1, bigArr, sitnum1, sitnum2, sitInterp);

@@ -463,15 +463,13 @@ const Canvas = React.forwardRef((props, refs) => {
  
 
   //  更新座椅数据
-  function sitRenew() {
+  function sitRenew() { 
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
 
     ndata1Num = ndata1.reduce((a, b) => a + b, 0);
     if (ndata1Num < valuelInit1) {
       ndata1 = new Array(sitnum1 * sitnum2).fill(0);
-    } else {
-      ndata1 = [...newData1]
     }
 
     interp1016(ndata1, bigArr, sitnum1, sitnum2, sitInterp);
@@ -510,15 +508,15 @@ const Canvas = React.forwardRef((props, refs) => {
 
           if (ix >= sitIndexArr[0] && ix < sitIndexArr[1] && iy >= sitIndexArr[2] && iy < sitIndexArr[3]) {
             // rgb = [255, 0, 0];
-            rgb = jet(0, valuej2, smoothBig[l]);
+            rgb = jet(0, valuej1, smoothBig[l]);
             // scales1[l] = 2;
             // positions1[k + 1] = smoothBig[l] / value2 - 1000
           } else {
-            rgb = jetgGrey(0, valuej2, smoothBig[l]);
+            rgb = jetgGrey(0, valuej1, smoothBig[l]);
             // scales1[l] = 1;
           }
         } else {
-          rgb = jet(0, valuej2, smoothBig[l]);
+          rgb = jet(0, valuej1, smoothBig[l]);
           // scales1[l] = 1;
         }
 
