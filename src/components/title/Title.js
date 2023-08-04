@@ -61,8 +61,9 @@ class Title extends React.Component {
 
   onClick = (e) => {
     console.log('click ', e.key);
-    if(this.props.matrixName === 'foot'){this.props.canvasInit()  }
-    
+    this.props.data.current?.changeData({ meanPres: 0, maxPres: 0, point: 0, area: 0, totalPres: 0, pressure: 0 })
+    if (this.props.matrixName === 'foot') { this.props.canvasInit() }
+    this.props.data.current?.initCharts()
     if (e.key === 'now') {
       // this.props.changeLocal(false)
       this.props.wsSendObj({
@@ -77,6 +78,9 @@ class Title extends React.Component {
         history: false
       })
       this.props.changeStateData({ history: 'playback', index: 0, local: true })
+
+
+
     } else {
       this.props.changeStateData({ history: 'history', index: 0, local: true })
       // this.props.changeLocal(true)
@@ -107,21 +111,21 @@ class Title extends React.Component {
         carCurrent: 'sit'
       })
 
-      if (!this.props.numMatrixFlag) this.props.com.current?.actionSit()
+      if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionSit()
       this.props.changeStateData({ carState: 'sit' })
     } else if (e.key === 'back') {
       this.setState({
         carCurrent: 'back'
       })
-      if (!this.props.numMatrixFlag) this.props.com.current?.actionBack()
+      if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionBack()
       this.props.changeStateData({ carState: 'back' })
     } else {
       this.setState({
         carCurrent: 'all'
       })
-      if (!this.props.numMatrixFlag) this.props.com.current?.actionAll()
+      if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionAll()
       this.props.changeStateData({ carState: 'all' })
-      this.props.changeStateData({ numMatrixFlag: false })
+      this.props.changeStateData({ numMatrixFlag: 'normal' })
     }
 
   }
@@ -228,11 +232,12 @@ class Title extends React.Component {
           style={{ marginRight: 20 }}
           onChange={(e) => {
             // this.props.handleChangeCom(e);
-            if(this.props.matrixName === 'foot'){
+            if (this.props.matrixName === 'foot') {
               this.props.canvasInit()
             }
-          
+
             console.log(e);
+            this.props.changeStateData({dataTime : e})
             this.setState({ dataTime: e })
             this.props.wsSendObj({ getTime: e, index: 0 })
             if (this.props.history === 'history') {
@@ -244,6 +249,7 @@ class Title extends React.Component {
             // if (ws && ws.readyState === 1)
             //   ws.send(JSON.stringify({ sitPort: e }));
           }}
+          value={this.state.dataTime ?this.state.dataTime : null}
           options={this.props.dataArr}
         >
           {/* {this.props.dataArr.map((el) => {
@@ -296,9 +302,16 @@ class Title extends React.Component {
         <Button
           className='titleButton'
           onClick={() => {
-            const flag = this.props.numMatrixFlag
-            this.props.changeStateData({ numMatrixFlag: !flag })
-          }}>{this.props.numMatrixFlag ? '矩阵' : '2D'}</Button>
+            // const flag = this.props.numMatrixFlag
+            if (this.props.numMatrixFlag == 'normal') {
+              this.props.changeStateData({ numMatrixFlag: 'num' })
+            } else if (this.props.numMatrixFlag == 'num') {
+              this.props.changeStateData({ numMatrixFlag: 'heatmap' })
+            } else {
+              this.props.changeStateData({ numMatrixFlag: 'normal' })
+            }
+            // this.props.changeStateData({ numMatrixFlag: !flag })
+          }}>{this.props.numMatrixFlag == 'normal' ? '矩阵' : this.props.numMatrixFlag == 'num' ? '2D' : '热力图'}</Button>
         {this.props.matrixName == 'foot' ? <Button
           className='titleButton'
           onClick={() => {

@@ -16,7 +16,7 @@ import { checkRectIndex, checkRectangleIntersection, getPointCoordinate, getPoin
 
 const Canvas = React.forwardRef((props, refs) => {
 
-  const backX = 1,backY = 100,backZ = 118 , sitX = -3 , sitY = 70 , sitZ = 148 , backRotationX = -Math.PI*7/12
+  const backX = 1+4, backY = 100, backZ = 118, sitX = -3, sitY = 70, sitZ = 148, backRotationX = -Math.PI * 7 / 12
 
   console.log('canvas')
   var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper
@@ -78,11 +78,11 @@ const Canvas = React.forwardRef((props, refs) => {
   let container;
 
 
-  let controls,lastRender = 0;
+  let controls, lastRender = 0;
   const ALT_KEY = 18;
   const CTRL_KEY = 17;
   const CMD_KEY = 91;
-  const AMOUNTX = sitnum1 * sitInterp + sitOrder * 2 ;
+  const AMOUNTX = sitnum1 * sitInterp + sitOrder * 2;
   const AMOUNTY = sitnum2 * sitInterp + sitOrder * 2;
   const AMOUNTX1 = backnum1 * backInterp + backOrder * 2;
   const AMOUNTY1 = backnum2 * backInterp + backOrder * 2;
@@ -202,7 +202,7 @@ const Canvas = React.forwardRef((props, refs) => {
     document.addEventListener('pointerup', pointUp);
   }
 
-  function pointDown(event){
+  function pointDown(event) {
     if (selectHelper.isShiftPressed) {
       sitIndexArr = []
       backIndexArr = []
@@ -210,16 +210,16 @@ const Canvas = React.forwardRef((props, refs) => {
       selectStartArr = [(event.clientX), event.clientY]
 
       sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
-      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
+      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -18, y: -20, z: 0 }, width: AMOUNTX1 })
 
       sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
       backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
     }
   }
 
-  function pointMove(event){
+  function pointMove(event) {
     if (selectHelper.isShiftPressed) {
-      
+
 
       selectEndArr = [(event.clientX), event.clientY,]
 
@@ -251,14 +251,14 @@ const Canvas = React.forwardRef((props, refs) => {
 
         if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
         if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-        
+
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       }
 
     }
   }
 
-  function pointUp(event){
+  function pointUp(event) {
     if (selectHelper.isShiftPressed) {
       selectStartArr = []
       selectEndArr = []
@@ -299,14 +299,14 @@ const Canvas = React.forwardRef((props, refs) => {
       "position",
       new THREE.BufferAttribute(positions, 3)
     );
-   
+
     const spite = new THREE.TextureLoader().load("./circle.png");
     material = new THREE.PointsMaterial({
       vertexColors: true,
       transparent: true,
       //   color: 0xffffff,
       map: spite,
-      size: 1.5,
+      size: 2,
     });
     sitGeometry.setAttribute("scale", new THREE.BufferAttribute(scales, 1));
     sitGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
@@ -337,9 +337,9 @@ const Canvas = React.forwardRef((props, refs) => {
 
     for (let ix = 0; ix < AMOUNTX1; ix++) {
       for (let iy = 0; iy < AMOUNTY1; iy++) {
-        positions1[k] = ix * SEPARATION - (AMOUNTX1 * SEPARATION) / 2; // x
+        positions1[k] = ix * SEPARATION - (AMOUNTX1 * SEPARATION) / 2 - ix * 20; // x
         positions1[k + 1] = 0; // y
-        positions1[k + 2] = iy * SEPARATION - (AMOUNTY1 * SEPARATION) / 2 + iy * 20; // z
+        positions1[k + 2] = iy * SEPARATION - (AMOUNTY1 * SEPARATION) / 2 + iy*10; // z
 
         scales1[l] = 1;
         colors1[k] = 0 / 255;
@@ -362,7 +362,7 @@ const Canvas = React.forwardRef((props, refs) => {
       vertexColors: true,
       transparent: true,
       map: spite,
-      size: 1.5,
+      size: 1.6,
     });
 
     particles1 = new THREE.Points(backGeometry, material1);
@@ -405,8 +405,8 @@ const Canvas = React.forwardRef((props, refs) => {
       render();
       lastRender = timestamp;
     }
-    
-      // dataFlag = false
+
+    // dataFlag = false
     // }
     animationRequestId = requestAnimationFrame(animate);
   }
@@ -451,7 +451,7 @@ const Canvas = React.forwardRef((props, refs) => {
     );
 
     tweena.start();
-    controlsFlag = false;
+    // controlsFlag = false;
     particles1.visible = false;
     chair.visible = false;
   }
@@ -471,8 +471,8 @@ const Canvas = React.forwardRef((props, refs) => {
     );
 
     tweena.start();
-    
-    controlsFlag = false;
+
+    // controlsFlag = false; 
     particles.visible = false;
     chair.visible = false;
   }
@@ -481,10 +481,10 @@ const Canvas = React.forwardRef((props, refs) => {
     particles1.visible = true;
     particles.visible = true;
     chair.visible = true;
-    controlsFlag = true;
-  
+    // controlsFlag = true;
+
     controls.reset()
-    
+
 
     if (particles.position.z == 220) {
       const tweena = move(
@@ -526,7 +526,7 @@ const Canvas = React.forwardRef((props, refs) => {
     // console.log(wsPointData)
     // wsPointData = new Array(1024).fill(0)
     // wsPointData[1023] = 100
-    
+
     ndata = [...newData].map((a, index) => (a - valuef2 < 0 ? 0 : a));
     ndataNum = ndata.reduce((a, b) => a + b, 0);
     if (ndataNum < valuelInit2) {
@@ -535,7 +535,7 @@ const Canvas = React.forwardRef((props, refs) => {
     interp(ndata, bigArr1, backnum1, backInterp);
     //高斯滤波
 
-    let bigarr1 = [];              
+    let bigarr1 = [];
 
     bigarr1 = addSide(
       bigArr1,
@@ -611,7 +611,7 @@ const Canvas = React.forwardRef((props, refs) => {
     ndata1Num = ndata1.reduce((a, b) => a + b, 0);
     if (ndata1Num < valuelInit1) {
       ndata1 = new Array(sitnum1 * sitnum2).fill(1);
-    } 
+    }
 
 
     interp(ndata1, bigArr, sitnum1, sitInterp);
@@ -729,8 +729,8 @@ const Canvas = React.forwardRef((props, refs) => {
     if (valuel) valuel1 = valuel;
     if (valuef) valuef1 = valuef;
     if (valuelInit) valuelInit1 = valuelInit;
-
   }
+
   function sitData(prop) {
     const {
       wsPointData: wsPointData,
@@ -738,9 +738,9 @@ const Canvas = React.forwardRef((props, refs) => {
     newData1 = wsPointData;
   }
 
-  function addEvent(){
+  function addEvent() {
     document.addEventListener('pointerdown', function (event) {
-      
+
       if (selectHelper.isShiftPressed) {
         sitIndexArr = []
         backIndexArr = []
@@ -756,9 +756,9 @@ const Canvas = React.forwardRef((props, refs) => {
     });
 
     document.addEventListener('pointermove', function (event) {
-      
+
       if (selectHelper.isShiftPressed) {
-      
+
 
         selectEndArr = [(event.clientX), event.clientY,]
 
@@ -805,9 +805,9 @@ const Canvas = React.forwardRef((props, refs) => {
     });
   }
 
-  function removeEvent(){
+  function removeEvent() {
     document.removeEventListener('pointerdown', function (event) {
-      
+
       if (selectHelper.isShiftPressed) {
         sitIndexArr = []
         backIndexArr = []
@@ -823,9 +823,9 @@ const Canvas = React.forwardRef((props, refs) => {
     });
 
     document.removeEventListener('pointermove', function (event) {
-      
+
       if (selectHelper.isShiftPressed) {
-      
+
 
         selectEndArr = [(event.clientX), event.clientY,]
 
@@ -872,6 +872,22 @@ const Canvas = React.forwardRef((props, refs) => {
     });
   }
 
+  function changePointRotation({ direction, value, type }) {
+    if (type === 'back') {
+      if (direction == 'x') {
+        particles1.rotation[direction] = -Math.PI / 2 - (Math.PI * 4) / 24 - (value * 6) / 12
+      } else {
+        particles1.rotation[direction] = - (value * 6) / 12
+      }
+    } else if (type === 'sit') {
+      if (direction == 'x') {
+        particles.rotation[direction] = Math.PI / 3 - (value * 6) / 12
+      } else {
+        particles.rotation[direction] = (value * 6) / 12
+      }
+    }
+  }
+
   useImperativeHandle(refs, () => ({
     backData: backData,
     sitData: sitData,
@@ -882,6 +898,7 @@ const Canvas = React.forwardRef((props, refs) => {
     actionAll: actionAll,
     actionSit: actionSit,
     actionBack: actionBack,
+    changePointRotation
   }));
   //   视图数据
 

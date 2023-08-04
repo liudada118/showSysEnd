@@ -5,16 +5,22 @@ import { addSide, gaussBlur_1, interp } from '../../assets/util/util'
 var data = []
 var options = {
     min: 0,
-    max: 1000,
-    size: 10
+    max: localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
+    size: 13
 }
 var isShadow = true
-var canvas, context
-
+var canvas, context,
+valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
+valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
+valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2,
+valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2
 const sitnum1 = 32;
 const sitnum2 = 32;
 const sitInterp = 2;
 const sitOrder = 4;
+
+const AMOUNTX = sitnum1 * sitInterp + sitOrder * 2;
+const AMOUNTY = sitnum2 * sitInterp + sitOrder * 2;
 
 let bigArr = new Array(sitnum1 * sitInterp * sitnum2 * sitInterp).fill(1);
 let bigArrg = new Array(
@@ -42,7 +48,16 @@ export const Heatmap = React.forwardRef((porps, refs) => {
     function generateData(arr) {
         // const resData = [0, 1, 2, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 8, 8, 6, 4, 4, 9, 3, 1, 1, 1, 2, 2, 1, 1, 1, 1, 0, 2, 1, 1, 1, 2, 1, 2, 2, 2, 2, 1, 3, 1, 2, 2, 8, 16, 18, 20, 14, 29, 15, 3, 1, 3, 3, 1, 1, 2, 3, 1, 1, 2, 2, 1, 2, 3, 2, 2, 2, 2, 2, 2, 4, 2, 3, 4, 16, 14, 28, 23, 16, 13, 18, 5, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 3, 2, 3, 5, 15, 17, 24, 18, 27, 15, 41, 12, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 3, 10, 11, 11, 14, 16, 11, 35, 8, 2, 3, 6, 2, 2, 2, 2, 2, 1, 2, 2, 1, 1, 3, 2, 2, 2, 2, 1, 2, 4, 2, 4, 17, 19, 18, 17, 15, 17, 17, 16, 3, 11, 12, 10, 11, 3, 3, 5, 6, 1, 3, 3, 3, 2, 3, 3, 2, 3, 2, 2, 2, 4, 4, 5, 20, 10, 13, 18, 19, 20, 18, 20, 3, 13, 21, 23, 36, 21, 11, 6, 5, 4, 6, 5, 5, 5, 6, 5, 6, 4, 5, 5, 6, 10, 13, 12, 16, 16, 17, 20, 17, 18, 8, 10, 4, 24, 39, 48, 47, 23, 18, 14, 6, 5, 11, 6, 7, 6, 8, 7, 8, 6, 6, 8, 9, 14, 12, 15, 24, 20, 21, 15, 18, 22, 18, 9, 2, 19, 18, 16, 11, 13, 13, 12, 8, 3, 5, 4, 3, 3, 4, 4, 4, 4, 4, 4, 6, 9, 7, 11, 11, 12, 14, 11, 9, 10, 8, 6, 1, 55, 39, 32, 31, 15, 16, 17, 17, 14, 10, 14, 8, 8, 10, 8, 14, 9, 10, 12, 15, 17, 18, 22, 19, 18, 29, 27, 20, 22, 13, 7, 1, 21, 51, 42, 34, 22, 23, 27, 23, 15, 18, 14, 11, 10, 13, 10, 12, 14, 17, 20, 20, 26, 18, 25, 24, 23, 27, 19, 20, 26, 13, 9, 3, 23, 25, 24, 37, 26, 32, 30, 21, 16, 19, 23, 31, 20, 26, 20, 18, 20, 24, 27, 30, 34, 40, 46, 39, 21, 23, 22, 29, 19, 19, 6, 2, 13, 29, 30, 33, 34, 37, 30, 28, 21, 32, 32, 35, 25, 29, 26, 21, 26, 25, 25, 32, 34, 34, 38, 34, 28, 41, 32, 28, 31, 14, 8, 3, 6, 20, 30, 18, 27, 24, 31, 27, 25, 24, 36, 35, 38, 39, 31, 34, 32, 28, 32, 37, 34, 44, 39, 35, 34, 23, 22, 27, 22, 10, 6, 3, 7, 13, 29, 28, 30, 28, 29, 29, 29, 30, 33, 32, 36, 52, 45, 39, 35, 33, 45, 40, 41, 31, 45, 34, 44, 30, 30, 27, 30, 13, 7, 3, 7, 15, 25, 34, 51, 40, 45, 38, 35, 31, 38, 46, 51, 65, 50, 51, 51, 42, 45, 38, 67, 31, 43, 35, 33, 27, 23, 26, 23, 10, 11, 4, 6, 12, 15, 18, 28, 41, 32, 44, 26, 39, 48, 48, 58, 66, 51, 49, 48, 45, 48, 42, 51, 28, 39, 38, 32, 23, 23, 26, 19, 9, 6, 4, 6, 13, 20, 16, 41, 34, 29, 37, 25, 36, 38, 41, 52, 52, 49, 42, 41, 48, 47, 40, 44, 32, 40, 37, 28, 21, 25, 23, 18, 9, 6, 3, 6, 12, 14, 15, 28, 35, 32, 35, 33, 32, 39, 35, 55, 45, 42, 45, 45, 61, 46, 62, 46, 34, 36, 35, 27, 31, 19, 18, 17, 8, 5, 4, 5, 9, 12, 12, 33, 29, 32, 24, 25, 32, 34, 35, 39, 37, 36, 45, 44, 53, 33, 56, 37, 28, 31, 30, 26, 19, 20, 16, 13, 7, 8, 11, 3, 7, 9, 9, 20, 25, 31, 30, 28, 31, 32, 27, 27, 26, 31, 37, 42, 37, 46, 30, 30, 19, 26, 21, 19, 18, 15, 12, 10, 4, 4, 3, 3, 6, 7, 8, 19, 20, 26, 27, 25, 30, 24, 31, 20, 26, 26, 38, 34, 29, 30, 21, 27, 23, 25, 24, 15, 10, 14, 10, 9, 4, 3, 3, 2, 4, 5, 6, 9, 20, 24, 22, 23, 22, 18, 28, 14, 19, 18, 21, 27, 18, 19, 12, 15, 10, 13, 10, 8, 7, 7, 6, 6, 3, 3, 12, 0, 1, 2, 2, 2, 3, 4, 11, 4, 7, 7, 13, 7, 8, 7, 10, 13, 8, 6, 5, 6, 3, 3, 3, 3, 2, 2, 2, 2, 0, 1, 1, 0, 2, 3, 2, 3, 3, 5, 10, 12, 16, 11, 16, 10, 7, 8, 10, 9, 7, 6, 6, 6, 3, 4, 3, 4, 3, 3, 3, 2, 1, 1, 1, 0, 1, 1, 1, 2, 3, 4, 3, 2, 22, 12, 10, 8, 6, 7, 9, 5, 4, 3, 4, 5, 2, 3, 3, 3, 2, 1, 2, 2, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 2, 2, 10, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 2, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 3, 2, 3, 0, 7, 4, 1, 1, 4, 1, 1, 5, 2, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 7, 4, 1, 0]
 
-        interp(arr, bigArr, sitnum1, sitInterp);
+        const newArr = [...arr].map((a, index) => a > valuef1 ? a : 0)
+        let resArr
+        const newArrTotal = newArr.reduce((a, b) => a + b, 0)
+        if(newArrTotal < valuelInit1){
+            resArr = new Array(1024).fill(0)
+        }else{
+            resArr = newArr
+        }
+
+        interp(resArr, bigArr, sitnum1, sitInterp);
         // console.log(first)
         let bigArrs = addSide(
             bigArr,
@@ -57,8 +72,25 @@ export const Heatmap = React.forwardRef((porps, refs) => {
             bigArrg,
             sitnum2 * sitInterp + sitOrder * 2,
             sitnum1 * sitInterp + sitOrder * 2,
-            2
+            valueg1
         );
+
+        for (let ix = 0, l = 0; ix < AMOUNTX; ix++) {
+            for (let iy = 0; iy < AMOUNTY; iy++) {
+              const value = bigArrg[l] * 10;
+              //柔化处理smooth
+              smoothBig[l] = smoothBig[l] + (value - smoothBig[l] + 0.5) / valuel1;
+
+              let obj = {}
+              obj.x = ix * canvas.width / AMOUNTX
+              obj.y = iy * canvas.height / AMOUNTY
+              obj.value = smoothBig[ix * AMOUNTY + iy]
+              data.push(obj)
+
+              l++;
+            }
+          }
+
 
 
         data = []
@@ -67,8 +99,8 @@ export const Heatmap = React.forwardRef((porps, refs) => {
         for (let i = 0; i < count; i++) {
             for (let j = 0; j < count; j++) {
                 let obj = {}
-                obj.x = i * 400 / count
-                obj.y = j * 400 / count
+                obj.x = i * canvas.width / count
+                obj.y = j * canvas.height / count
                 obj.value = bigArrg[i * count + j]
                 data.push(obj)
             }
@@ -133,6 +165,8 @@ export const Heatmap = React.forwardRef((porps, refs) => {
         colorize(colored.data, intensity.getImageData())
 
         context.clearRect(0, 0, context.canvas.width, context.canvas.height)
+        context.fillStyle = '#666'
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height)
         // console.log(colored)
         context.putImageData(colored, 0, 0)
     }
@@ -156,16 +190,16 @@ export const Heatmap = React.forwardRef((porps, refs) => {
             jMax = (range[1] - min) / diff * 1024;
         }
 
-        var maxOpacity = options.maxOpacity || 0.8;
+        var maxOpacity = options.maxOpacity || 1;
         var range = options.range;
-        // console.log(range)
+        // console.log(pixels.length)
         for (var i = 3, len = pixels.length, j; i < len; i += 4) {
             j = pixels[i] * 4; // get gradient color from opacity value
 
             if (pixels[i] / 256 > maxOpacity) {
                 pixels[i] = 256 * maxOpacity;
             }
-
+            const value = jet()
             if (j && j >= jMin && j <= jMax) {
                 pixels[i - 3] = gradient[j];
                 pixels[i - 2] = gradient[j + 1];
@@ -173,6 +207,7 @@ export const Heatmap = React.forwardRef((porps, refs) => {
             } else {
                 pixels[i] = 0;
             }
+            pixels[i] = 256
         }
     }
 
@@ -183,37 +218,37 @@ export const Heatmap = React.forwardRef((porps, refs) => {
         g = 1.0;
         blue = 1.0;
         if (x < min) {
-          x = min;
+            x = min;
         }
         if (x > max) {
-          x = max;
+            x = max;
         }
         dv = max - min;
         if (x < min + 0.25 * dv) {
-          // red = 0;
-          // g = 0;
-          // blue = 0;
-      
-          red = 0;
-          g = (4 * (x - min)) / dv;
+            // red = 0;
+            // g = 0;
+            // blue = 0;
+
+            red = 0;
+            g = (4 * (x - min)) / dv;
         } else if (x < min + 0.5 * dv) {
-          red = 0;
-          blue = 1 + (4 * (min + 0.25 * dv - x)) / dv;
+            red = 0;
+            blue = 1 + (4 * (min + 0.25 * dv - x)) / dv;
         } else if (x < min + 0.75 * dv) {
-          red = (4 * (x - min - 0.5 * dv)) / dv;
-          blue = 0;
+            red = (4 * (x - min - 0.5 * dv)) / dv;
+            blue = 0;
         } else {
-          g = 1 + (4 * (min + 0.75 * dv - x)) / dv;
-          blue = 0;
+            g = 1 + (4 * (min + 0.75 * dv - x)) / dv;
+            blue = 0;
         }
         var rgba = new Array();
         rgba[0] = 255 * red;
-        rgba[1] = 255 * g ;
+        rgba[1] = 255 * g;
         rgba[2] = 255 * blue;
         rgba[3] = 1;
         return rgba;
-      }
-      
+    }
+
 
     function bthClickHandle(arr) {
         generateData(arr)
@@ -224,6 +259,16 @@ export const Heatmap = React.forwardRef((porps, refs) => {
         isShadow = false
     }
 
+    function sitValue(prop) {
+        const { valuej, valueg, value, valuel, valuef, valuelInit } = prop;
+        if (valuej) options.max = valuej;
+        if (valueg) valueg1 = valueg;
+        // if (value) value1 = value;
+        if (valuel) valuel1 = valuel;
+        if (valuef) valuef1 = valuef;
+        if (valuelInit) valuelInit1 = valuelInit;
+    }
+
     window.onload = function () {
         // bthClickHandle()
     }
@@ -232,10 +277,13 @@ export const Heatmap = React.forwardRef((porps, refs) => {
 
         options = options || {};
         this.gradient = options.gradient || {
+            0: "rgba(0, 0, 0, 1)",
+            0.05: "rgba(0, 0, 0, 1)",
             0.25: "rgba(0, 0, 255, 1)",
-            0.45: "rgba(0, 255, 0, 1)",
-            0.65: "rgba(255, 255, 0, 1)",
-            0.85: "rgba(255, 0, 0, 1)"
+            0.50: "rgba(0, 255, 0, 1)",
+            0.75: "rgba(255, 255, 0, 1)",
+            0.95: "rgba(255, 0, 0, 1)",
+            1: "rgba(255, 0, 0, 1)"
         };
         this.maxSize = options.maxSize || 35;
         this.minSize = options.minSize || 0;
@@ -260,7 +308,7 @@ export const Heatmap = React.forwardRef((porps, refs) => {
         this.minSize = minSize || 0;
     }
 
-    Intensity.prototype. initPalette = function () {
+    Intensity.prototype.initPalette = function () {
 
         var gradient = this.gradient;
 
@@ -279,18 +327,18 @@ export const Heatmap = React.forwardRef((porps, refs) => {
 
     }
 
-    Intensity.prototype.getColor = function (value) {
+    // Intensity.prototype.getColor = function (value) {
 
-        var imageData = this.getImageData(value);
+    //     var imageData = this.getImageData(value);
 
-        return "rgba(" + imageData[0] + ", " + imageData[1] + ", " + imageData[2] + ", " + imageData[3] / 256 + ")";
+    //     return "rgba(" + imageData[0] + ", " + imageData[1] + ", " + imageData[2] + ", " + imageData[3] / 256 + ")";
 
-    }
+    // }
 
     Intensity.prototype.getImageData = function (value) {
         // console.log(this.paletteCtx.getImageData(0, 0, 256, 1).data)
         var imageData = this.paletteCtx.getImageData(0, 0, 256, 1).data;
-       
+
         if (value === undefined) {
             return imageData;
         }
@@ -306,7 +354,7 @@ export const Heatmap = React.forwardRef((porps, refs) => {
             value = min;
         }
 
-        var index = Math.floor((value - min) / (max - min) * (256 - 1)) ;
+        var index = Math.floor((value - min) / (max - min) * (256 - 1));
 
         return [imageData[index], imageData[index + 1], imageData[index + 2], imageData[index + 3]];
     }
@@ -368,7 +416,8 @@ export const Heatmap = React.forwardRef((porps, refs) => {
 
     useImperativeHandle(refs, () => ({
         // sitData  
-
+        bthClickHandle,
+        sitValue
     }));
 
 
@@ -377,37 +426,40 @@ export const Heatmap = React.forwardRef((porps, refs) => {
 
 
         canvas = document.getElementById('heatmapcanvas')
-        canvas.width = 1000
-        canvas.height = 1000
+        canvas.width = window.innerHeight / 2
+        canvas.height = window.innerHeight / 2
         context = canvas.getContext('2d')
 
 
-        const ws = new WebSocket(" ws://localhost:19999");
-        ws.onopen = () => {
-            // connection opened
-            console.info("connect success");
-        };
-        ws.onmessage = (e) => {
-            let jsonObject = JSON.parse(e.data);
-            //处理空数组
+        // const ws = new WebSocket(" ws://localhost:19999");
+        // ws.onopen = () => {
+        //     // connection opened
+        //     console.info("connect success");
+        // };
+        // ws.onmessage = (e) => {
+        //     let jsonObject = JSON.parse(e.data);
+        //     //处理空数组
 
-            if (jsonObject.sitData != null) {
-                // sitData(jsonObject.sitData)
-                if (jsonObject.sitData.length === 1024) {
-                    bthClickHandle(jsonObject.sitData)
-                }
-            }
-        };
-        ws.onerror = (e) => {
-            // an error occurred
-        };
-        ws.onclose = (e) => {
-            // connection closed
-        };
+        //     if (jsonObject.sitData != null) {
+        //         // sitData(jsonObject.sitData)
+        //         if (jsonObject.sitData.length === 1024) {
+        //             bthClickHandle(jsonObject.sitData)
+        //         }
+        //     }
+        // };
+        // ws.onerror = (e) => {
+        //     // an error occurred
+        // };
+        // ws.onclose = (e) => {
+        //     // connection closed
+        // };
 
     }, []);
 
     return (
-        <canvas id="heatmapcanvas"></canvas>
+        <div style={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <canvas id="heatmapcanvas"></canvas>
+        </div>
+
     );
 })

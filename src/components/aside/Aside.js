@@ -36,6 +36,28 @@ const dataArr1 = [
     }
 ]
 
+const dataArrCar = [
+    {
+        color: '#2A99FF',
+        data: '平均压力',
+        eng: 'Mean Pres'
+    }, {
+        color: '#FF2A2A',
+        data: '最大压力',
+        eng: 'Max Pres'
+    },
+    {
+        color: '#FF2A2A',
+        data: '压力总和',
+        eng: 'Pressure'
+    },
+    //  {
+    //     color: '#FFA63F',
+    //     data: '压力标准差',
+    //     eng: 'Pres Standard'
+    // }
+]
+
 
 
 let myChart1, myChart2
@@ -322,12 +344,25 @@ class Aside extends React.Component {
 
     handleCharts(arr, max, index) {
         const canvas = document.getElementById('myChart1')
+        // console.log(arr, max)
         this.drawChart({ ctx: ctx1, arr, max, canvas, index })
     }
 
     handleChartsArea(arr, max, index) {
         const canvas = document.getElementById('myChart2')
         this.drawChart({ ctx: ctx2, arr, max, canvas, index })
+        // console.log(arr, max)
+    }
+
+    initCharts(){
+        const canvas = document.getElementById('myChart1')
+        if(ctx1){
+            ctx1.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        const canvas1 = document.getElementById('myChart2')
+        if(ctx2){
+            ctx2.clearRect(0, 0, canvas1.width, canvas1.height);
+        }
     }
 
     changeData(obj) {
@@ -369,7 +404,7 @@ class Aside extends React.Component {
                         <div className='pressTitle standardColor'>总体压力 Total Pres</div>
                         <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>
                         {
-                            dataArr1.map((a, index) => {
+                            dataArrCar.map((a, index) => {
                                 return (
                                     <div className='dataItem' key={a.eng}>
                                         <div className='dataItemCircle'>

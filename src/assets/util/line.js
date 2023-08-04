@@ -1,4 +1,4 @@
-export function footLine(wsPointData, flag) {
+export function footLine({ wsPointData, pressFlag, pressNumFlag }) {
     // console.log(wsPointData)
 
     let a = wsPointData.splice(0, 1 * 32)
@@ -37,9 +37,13 @@ export function footLine(wsPointData, flag) {
         rowArr.push(rowtotal)
     }
 
-    if (flag) {
+    if (pressFlag) {
         wsPointData = press(wsPointData)
     }
+    if(pressNumFlag){
+        wsPointData = calculateY(wsPointData)
+    }
+
 
 
     // wsPointData[1023] = 100
@@ -85,7 +89,7 @@ export function handLine(arr, flag) {
     if (flag) {
         wsPointData = press(wsPointData)
     }
-    wsPointData = rotateMatrixsit180(wsPointData , 32,32)
+    wsPointData = rotateMatrixsit180(wsPointData, 32, 32)
     return wsPointData
 }
 
@@ -123,7 +127,7 @@ export function zeroLine(arr) {
 }
 
 // press
-function calculateY(x) {
+export function calculateY(arr) {
     const coefficient5 = 1.0572246920183572 * Math.pow(10, -10);
     const coefficient4 = -5.855702965038056 * Math.pow(10, -8);
     const coefficient3 = 1.0252295732636972 * Math.pow(10, -5);
@@ -131,9 +135,11 @@ function calculateY(x) {
     const coefficient1 = -0.01396799876544018;
     const constant = 0.0;
 
-    const y = coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant;
-
-    return y;
+    // const y = coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant;
+    const wsPointData = arr.map((x, index) => { 
+        return coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant 
+    })
+    return wsPointData;
 }
 
 
@@ -325,7 +331,7 @@ function findGroup(arr) {
     const groupArr = findNonZeroSubarrays(arr)
     const indexArr = findNonZeroSubarraysWithIndex(arr)
 
-    const res = [{value : 1 , index : 0}], resValue = []
+    const res = [{ value: 1, index: 0 }], resValue = []
     for (let i = 0; i < groupArr.length; i++) {
         const value = groupArr[i].reduce((a, b) => a + b, 0)
         const index = findMedian(groupArr[i], indexArr[i].start, indexArr[i].end)
@@ -333,7 +339,7 @@ function findGroup(arr) {
         // resValue.push(value, index)
     }
     // console.log(resValue)
-    res.push({value : 1 , index : 31})
+    res.push({ value: 1, index: 31 })
     const index = calCenter(res)
     return index
 }
@@ -343,8 +349,8 @@ function calCenter(arr) {
     while (res.length > 1) {
         const data = []
         for (let i = 0; i < res.length - 1; i++) {
-            const value = res[i].value - (res[i].value - res[i + 1].value) * ( res[i + 1].value ) / (res[i].value + res[i + 1].value)
-            const index = res[i].index + Math.abs((res[i].index - res[i + 1].index)) * ( res[i + 1].value ) / (res[i].value + res[i + 1].value)
+            const value = res[i].value - (res[i].value - res[i + 1].value) * (res[i + 1].value) / (res[i].value + res[i + 1].value)
+            const index = res[i].index + Math.abs((res[i].index - res[i + 1].index)) * (res[i + 1].value) / (res[i].value + res[i + 1].value)
             data.push({ value, index })
 
         }

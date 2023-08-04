@@ -1,7 +1,7 @@
 import React from 'react'
 import Title from '../../components/title/Title'
 import './index.scss'
-import CanvasCar from '../../components/three/carnewTest'
+import CanvasCar from '../../components/three/carnewTest copy'
 import Canvas from '../../components/three/Three'
 import CanvasHand from '../../components/three/hand'
 import Bed from '../../components/three/Bed'
@@ -14,13 +14,14 @@ import stop from '../../assets/images/stop.png'
 import play from '../../assets/images/play.png'
 import pause from '../../assets/images/pause.png'
 import refresh from '../../assets/images/refresh.png'
-import { findMax, findMin, returnChartMax, } from '../../assets/util/util'
+import { findMax, findMin, returnChartMax, rotate90, } from '../../assets/util/util'
 import { rainbowTextColors } from "../../assets/util/color";
-import { handLine, footLine, carSitLine, carBackLine } from '../../assets/util/line';
+import { handLine, footLine, carSitLine, carBackLine, press, calculateY } from '../../assets/util/line';
 import { Select, Slider, Popover, message } from 'antd'
 import { SelectOutlined } from '@ant-design/icons'
 import { Num } from '../../components/num/Num'
 import { calFoot } from '../../assets/util/value'
+import { Heatmap } from '../../components/heatmap/canvas'
 
 let ws, ws1, xvalue = 0, zvalue = 0, sitIndexArr = new Array(4).fill(0), backIndexArr = new Array(4).fill(0), sitPress = 0, backPress = 0, ctx, ctxCircle;
 let backTotal = 0, backMean = 0, backMax = 0, backMin = 0, backPoint = 0, backArea = 0, sitTotal = 0, sitMean = 0, sitMax = 0, sitMin = 0, sitPoint = 0, sitArea = 0, clearFlag = false, lastArr = []
@@ -135,7 +136,7 @@ class Home extends React.Component {
       port: [{ value: ' ', label: ' ', }],
       portname: '',
       portnameBack: "",
-      matrixName: 'bigBed',
+      matrixName: 'car',
       length: 0,
       local: false,
       dataArr: [],
@@ -145,12 +146,15 @@ class Home extends React.Component {
       colFlag: true,
       colNum: 0,
       history: 'now',
-      numMatrixFlag: false,
+      numMatrixFlag: 'normal',
       centerFlag: false,
       carState: 'all',
       leftFlag: false,
       rightFlag: false,
-      lineFlag: false
+      lineFlag: false,
+      pressNum : false,
+      press : false,
+      dataTime : ''
     }
     this.com = React.createRef()
     this.data = React.createRef()
@@ -203,7 +207,7 @@ class Home extends React.Component {
         }
 
         if (this.state.matrixName == 'foot') {
-          const { sitData, backData, arr, realData } = footLine(wsPointData)
+          const { sitData, backData, arr, realData } = footLine({wsPointData , pressFlag : this.state.press , pressNumFlag : this.state.pressNum})
 
           arr[0] = arr[0] ? arr[0] : 0
           arr[1] = arr[1] ? arr[1] : 0
@@ -275,7 +279,7 @@ class Home extends React.Component {
           let leftTop = [...sitData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
           let leftTopProp = parseInt(leftTop * 100 / (leftValue))
           let leftBottomProp = 100 - leftTopProp
- 
+
           let rightTop = [...backData].slice(0, 16 * 16).reduce((a, b) => a + b, 0)
           let rightTopProp = parseInt(rightTop * 100 / (rightValue))
           let rightBottomProp = 100 - rightTopProp
@@ -316,10 +320,24 @@ class Home extends React.Component {
           }
 
 
+          // 数字矩阵 点图
+          // if (this.state.numMatrixFlag) {
+          //   this.com.current?.changeWsData(realData)
+          // } else {
+          //   this.com.current?.backData({
+          //     wsPointData: backData,
+          //   });
+          //   this.com.current?.sitData({
+          //     wsPointData: sitData,
+          //     arr: arrSmooth
+          //   });
+          //   this.com.current?.changeDataFlag();
+          // }
 
-          if (this.state.numMatrixFlag) {
+          // 数字矩阵 点图 热力图
+          if (this.state.numMatrixFlag == 'num') {
             this.com.current?.changeWsData(realData)
-          } else {
+          } else if (this.state.numMatrixFlag == 'normal') {
             this.com.current?.backData({
               wsPointData: backData,
             });
@@ -328,6 +346,8 @@ class Home extends React.Component {
               arr: arrSmooth
             });
             this.com.current?.changeDataFlag();
+          } else {
+            this.com.current?.bthClickHandle(realData)
           }
 
 
@@ -349,7 +369,6 @@ class Home extends React.Component {
             ctx.strokeStyle = '#01F1E3'
             ctx.lineTo(arrSmooth[0] * canvasWidth / 32, arrSmooth[1] * canvasWidth / 32);
             ctx.stroke();
-
             ctxCircle.clearRect(0, 0, canvasWidth, canvasWidth);
             ctxCircle.beginPath();
             ctxCircle.fillStyle = '#991BFA'
@@ -382,48 +401,73 @@ class Home extends React.Component {
         } else if (this.state.matrixName == 'hand') {
           // wsPointData = handLine(wsPointData)
           // wsPointData[31] = 100
-          this.com.current?.sitData({
-            wsPointData: wsPointData,
-          });
-          // console.log(wsPointData)
-          let sitData = [],
-            backData = [];
-          for (let i = 0; i < 32; i++) {
-            for (let j = 0; j < 32; j++) {
-              if (j < 16) {
-                sitData.push(wsPointData[i * 32 + j]);
-              } else {
-                backData.push(wsPointData[i * 32 + j]);
-              }
-            }
+          // console.log(this.com.current)
+
+          if(this.state.press){
+            wsPointData = press(wsPointData)
+          }
+          if(this.state.pressNum){
+            wsPointData = calculateY(wsPointData)
           }
 
-          const footLength = calFoot(sitData , 16,32)
-          console.log(footLength)
+          if (this.state.numMatrixFlag == 'normal') {
+            this.com.current?.sitData({
+              wsPointData: wsPointData,
+            });
+            // console.log(wsPointData)
+            let sitData = [],
+              backData = [];
+            for (let i = 0; i < 32; i++) {
+              for (let j = 0; j < 32; j++) {
+                if (j < 16) {
+                  sitData.push(wsPointData[i * 32 + j]);
+                } else {
+                  backData.push(wsPointData[i * 32 + j]);
+                }
+              }
+            }
+
+            const footLength = calFoot(sitData, 16, 32)
+            console.log(footLength)
+          }
 
         } else if (this.state.matrixName == 'car') {
           // wsPointData = carSitLine(wsPointData)
 
           // wsPointData[31] = 100 
 
-          if (this.state.carState == 'sit' && this.state.numMatrixFlag) {
+          if(this.state.press){
+            wsPointData = press(wsPointData)
+          }
+          if(this.state.pressNum){
+            wsPointData = calculateY(wsPointData)
+          }
+
+          if (this.state.carState == 'sit' && this.state.numMatrixFlag == 'num') {
             this.com.current?.changeWsData(wsPointData);
-          } else if (!this.state.numMatrixFlag) {
-            this.com.current?.sitData({
-              wsPointData: wsPointData,
-            });
+          } else if (this.state.carState == 'sit' && this.state.numMatrixFlag == 'heatmap') {
+            this.com.current?.bthClickHandle(wsPointData);
+          }
+
+          else  // if (this.state.numMatrixFlag === 'normal' ) 
+          {
+            if (this.state.numMatrixFlag == 'normal') {
+              this.com.current?.sitData({
+                wsPointData: wsPointData,
+              });
+            }
+
           }
 
           selectArr = []
 
           for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
             for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
-
               selectArr.push(wsPointData[i * 32 + j])
             }
           }
 
-        }else if(this.state.matrixName == 'bigBed') {
+        } else if (this.state.matrixName == 'bigBed') {
           this.com.current?.sitData({
             wsPointData: wsPointData,
           });
@@ -435,13 +479,16 @@ class Home extends React.Component {
         } else {
           DataArr = [...selectArr]
         }
-        sitPoint = DataArr.filter((a) => a > 10).length
+
+
+
+        sitPoint = DataArr.filter((a) => a > this.state.valuej1 * 0.02).length
         sitTotal = DataArr.reduce((a, b) => a + b, 0)
         sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1))
         sitMax = findMax(DataArr)
         sitMin = findMin(DataArr.filter((a) => a > 10))
         sitArea = sitPoint * 4
-        if (sitPoint < 80) {
+        if (sitPoint < 80 && (sitIndexArr.every((a) => a == 0) && backIndexArr.every((a) => a == 0))) {
           sitMean = 0
           sitMax = 0
           sitTotal = 0
@@ -573,22 +620,40 @@ class Home extends React.Component {
         backPress = 0
         let wsPointData = jsonObject.backData;
 
+        
+
         if (!Array.isArray(wsPointData)) {
           wsPointData = JSON.parse(wsPointData)
         }
 
-        if (this.state.carState == 'back' && this.state.numMatrixFlag) {
-          this.com.current?.changeWsData(wsPointData);
-        } else if (!this.state.numMatrixFlag) {
-          this.com.current?.backData({
-            wsPointData: wsPointData,
-          });
+        wsPointData = rotate90(wsPointData,32,32)
+        // console.log(wsPointData)
+        if(this.state.press){
+          wsPointData = press(wsPointData)
+        }
+        if(this.state.pressNum){
+          wsPointData = calculateY(wsPointData)
         }
 
-        const selectArr = []
+        // wsPointData[31] = 1000
+        if (this.state.carState == 'back' && this.state.numMatrixFlag == 'num') {
+          this.com.current?.changeWsData(wsPointData);
+        } else if (this.state.carState == 'back' && this.state.numMatrixFlag == 'heatmap') {
+          this.com.current?.bthClickHandle(wsPointData);
+        } else
+        // if (this.state.numMatrixFlag == 'normal') 
+        {
+          if (this.state.numMatrixFlag == 'normal')
+            this.com.current?.backData({
+              wsPointData: wsPointData,
+            });
+        }
 
-        for (let i = backIndexArr[2]; i < backIndexArr[3]; i++) {
-          for (let j = 31 - backIndexArr[1]; j < 31 - backIndexArr[0]; j++) {
+
+        // console.log(backIndexArr)
+        const selectArr = []
+        for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
+          for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
             selectArr.push(wsPointData[i * 32 + j])
           }
         }
@@ -599,6 +664,7 @@ class Home extends React.Component {
         } else {
           DataArr = [...selectArr]
         }
+        // console.log(DataArr)
 
         backTotal = DataArr.reduce((a, b) => a + b, 0)
         backPoint = DataArr.filter((a) => a > 10).length
@@ -631,12 +697,12 @@ class Home extends React.Component {
         const totalMin = Math.min(backMin, sitMin)
         const sitPressure = sitMax * 1000 / (sitArea ? sitArea : 1)
         // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
-        meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
-        maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
-        pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
-        areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
-        pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
-        pressureSmooth = parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
+        meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10) ? parseInt(meanSmooth + (totalMean - meanSmooth) / 10) : 1
+        maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10) ? parseInt(maxSmooth + (totalMax - maxSmooth) / 10) : 1
+        pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10) ? parseInt(pointSmooth + (totalPoint - pointSmooth) / 10) : 1
+        areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10) ? parseInt(areaSmooth + (totalArea - areaSmooth) / 10) : 1
+        pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10) ? parseInt(pressSmooth + (totalPress - pressSmooth) / 10) : 1
+        pressureSmooth = parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10) ? parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10) : 1
         if (sitPoint < 100) {
           pressureSmooth = 0
         }
@@ -754,7 +820,7 @@ class Home extends React.Component {
   }
 
   canvasInit1(ctx, width) {
-    ctx.clearRect(0,0,width ,width)
+    ctx.clearRect(0, 0, width, width)
     ctx.beginPath()
     // ctx.strokeStyle = '#01F1E3';
     // ctx.strokeRect(1, 1, width - 1, width - 1)
@@ -789,7 +855,7 @@ class Home extends React.Component {
 
   canvasInit() {
     this.canvasInit1(ctx, canvasWidth)
-    if(ctxCircle) ctxCircle.clearRect(0, 0, canvasWidth, canvasWidth);
+    if (ctxCircle) ctxCircle.clearRect(0, 0, canvasWidth, canvasWidth);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -1077,19 +1143,32 @@ class Home extends React.Component {
               <div className='setIcon marginB10' onClick={() => {
 
                 xvalue++
+
+                // 脚型方向旋转
                 if (xvalue < 3) {
                   if (this.com.current && this.com.current.changeGroupRotate) {
                     this.com.current?.changeGroupRotate({ x: xvalue })
                   }
-
-
                 } else {
                   xvalue = 0
                   if (this.com.current && this.com.current.changeGroupRotate) {
                     this.com.current?.changeGroupRotate({ x: xvalue })
                   }
-
                 }
+
+                // 汽车方向旋转
+
+                if (xvalue < 3) {
+                  if (this.com.current && this.com.current.changePointRotation) {
+                    this.com.current?.changePointRotation({ direction: 'x', value: xvalue, type: this.state.carState })
+                  }
+                } else {
+                  xvalue = 0
+                  if (this.com.current && this.com.current.changePointRotation) {
+                    this.com.current?.changePointRotation({ direction: 'x', value: xvalue, type: this.state.carState })
+                  }
+                }
+
               }}>
                 <img src={plus} alt="" />
               </div>
@@ -1100,25 +1179,36 @@ class Home extends React.Component {
             >
               <div className='setIcon' onClick={() => {
                 zvalue++
+                // 脚型方向旋转
                 if (zvalue < 3) {
                   if (this.com.current && this.com.current.changeGroupRotate) {
                     this.com.current?.changeGroupRotate({ z: zvalue })
                   }
-
-
                 } else {
                   zvalue = 0
                   if (this.com.current && this.com.current.changeGroupRotate) {
                     this.com.current?.changeGroupRotate({ z: zvalue })
                   }
-
                 }
+
+                // 汽车方向旋转
+                if (zvalue < 3) {
+                  if (this.com.current && this.com.current.changePointRotation) {
+                    this.com.current?.changePointRotation({ direction: 'z', value: zvalue, type: this.state.carState })
+                  }
+                } else {
+                  zvalue = 0
+                  if (this.com.current && this.com.current.changePointRotation) {
+                    this.com.current?.changePointRotation({ direction: 'z', value: zvalue, type: this.state.carState })
+                  }
+                }
+
               }}>
                 <img src={minus} alt="" />
               </div>
             </Popover>
           </div>
-          <Popover placement="top" title={'刷新'} content={content3} >
+          {this.state.matrixName == 'foot' ? <Popover placement="top" title={'刷新'} content={content3} >
             <div className="setIconItem setIconItem2">
               <div className='setIcon'>
                 <img src={refresh} alt="" onClick={() => {
@@ -1126,10 +1216,10 @@ class Home extends React.Component {
                 }} />
               </div>
             </div>
-          </Popover>
+          </Popover> : null}
 
           <div className="setIconItem setIconItem2">
-            <Popover placement="top" title={'下载'} content={content4} >
+            {this.state.matrixName == 'foot' ? <Popover placement="top" title={'下载'} content={content4} >
               <div className='setIcon marginB10' onClick={() => {
                 this.canvasText2(ctx, canvasWidth, window.innerWidth)
                 this.saveCanvasAsImage()
@@ -1137,7 +1227,7 @@ class Home extends React.Component {
               }}>
                 <img src={load} alt="" />
               </div>
-            </Popover>
+            </Popover> : null}
             {/* <div className='setIcon marginB10' onClick={() => {
               console.log('load')
               this.wsSendObj({ flag: false })
@@ -1230,6 +1320,8 @@ class Home extends React.Component {
           canvasInit={this.canvasInit.bind(this)}
           numMatrixFlag={this.state.numMatrixFlag}
           centerFlag={this.state.centerFlag}
+          data={this.data}
+          dataTime={this.state.dataTime}
         // colNum={colNum}
         // changeDateArr={changeDateArr}
         />
@@ -1240,12 +1332,13 @@ class Home extends React.Component {
         </CanvasCom>
 
 
-        {this.state.numMatrixFlag && (this.state.matrixName == 'foot' || this.state.matrixName == 'hand' || this.state.carState == 'back' || this.state.carState == 'sit') ? <Num ref={this.com} /> :
-          this.state.matrixName == 'foot' ? <CanvasCom matrixName={this.state.matrixName}><Canvas ref={this.com} changeSelect={this.changeSelect} /> </CanvasCom>
-            : this.state.matrixName == 'hand' ? <CanvasCom matrixName={this.state.matrixName}><CanvasHand ref={this.com} /></CanvasCom>
-              :this.state.matrixName == 'car' ? <CanvasCom matrixName={this.state.matrixName}>
-                <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
-              </CanvasCom> : <Bed ref={this.com}/>
+        {this.state.numMatrixFlag == 'num' && (this.state.matrixName == 'foot' || this.state.matrixName == 'hand' || this.state.carState == 'back' || this.state.carState == 'sit') ? <Num ref={this.com} /> :
+          this.state.numMatrixFlag == 'heatmap' && (this.state.matrixName == 'foot' || this.state.matrixName == 'hand' || this.state.carState == 'back' || this.state.carState == 'sit') ? <Heatmap ref={this.com} /> :
+            this.state.matrixName == 'foot' ? <CanvasCom matrixName={this.state.matrixName}><Canvas ref={this.com} changeSelect={this.changeSelect} /> </CanvasCom>
+              : this.state.matrixName == 'hand' ? <CanvasCom matrixName={this.state.matrixName}><CanvasHand ref={this.com} /></CanvasCom>
+                : this.state.matrixName == 'car' ? <CanvasCom matrixName={this.state.matrixName}>
+                  <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
+                </CanvasCom> : <Bed ref={this.com} />
         }
         {/* <Com>
           <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
@@ -1362,12 +1455,12 @@ class Home extends React.Component {
                 })
 
                 if (this.areaArr) this.data.current?.handleChartsArea(this.areaArr, this.max + 100, value + 1)
-                if (this.pressArr && this.state.matrixName == 'car') this.data.current?.handleCharts(this.pressArr, this.pressArr + 100, value + 1)
+                if (this.pressArr && this.state.matrixName == 'car') this.data.current?.handleCharts(this.pressArr, this.pressMax + 100, value + 1)
 
               }}
             >
 
-              <div style={{ border: this.state.leftFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 0, width: 20, height: '30px', backgroundColor: 'yellow', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              <div style={{ border: this.state.leftFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 0, width: 20, height: '30px', backgroundColor: '#01F1E3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 className='leftProgress'
                 onMouseDown={(e) => {
                   e.stopPropagation()
@@ -1383,7 +1476,7 @@ class Home extends React.Component {
                 {/* <div style={{height : 15 , width : 2 , backgroundColor : '#333' , marginRight : 2}}></div>
               <div style={{height : 15 , width : 2 , backgroundColor : '#333'}}></div> */}
               </div>
-              <div style={{ border: this.state.rightFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 580, width: 20, height: '30px', backgroundColor: 'yellow' }}
+              <div style={{ border: this.state.rightFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 580, width: 20, height: '30px', backgroundColor: '#01F1E3' }}
                 className='rightProgress'
                 onMouseDown={(e) => {
 
@@ -1406,12 +1499,19 @@ class Home extends React.Component {
                   position: 'absolute',
                   left: 20,
                   //  left: `${this.state.indexInit / (this.state.length - 2 == 0 ? 1 : this.state.length - 2) * 100}%`, 
-                  height: 36, width: 2, transform: `translate('-50%')`, backgroundColor: 'red'
+                  height: 36, width: 2, transform: `translate('-50%')`, backgroundColor: '#991BFA'
                 }}></div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <img src={play} style={{ width: '50px', display: this.state.playflag ? 'none' : 'unset' }}
-                onClick={() => { this.playData(true) }}
+                onClick={() => { 
+                  if(this.state.dataTime){
+                    this.playData(true)
+                  }else{
+                    message.info('请先选择回放数据时间段')
+                  }
+                  
+                 }}
                 alt="" />
               <img src={pause} style={{ width: '50px', display: this.state.playflag ? 'unset' : 'none' }}
                 onClick={() => { this.playData(false) }}
@@ -1459,8 +1559,8 @@ class Home extends React.Component {
 
         {
           this.state.matrixName == 'foot' ? <CanvasCom matrixName={this.state.matrixName}>
-            <canvas id="myCanvasTrack" width={window.innerWidth * 15 / 100} height={window.innerWidth * 15 / 100} style={{ position: 'fixed', top: '6%', right: 'calc(3% + 48px)', borderRadius : '10px' }}></canvas>
-            <canvas id="myCanvasCircle" width={window.innerWidth * 15 / 100} height={window.innerWidth * 15 / 100} style={{ position: 'fixed', top: '6%', right: 'calc(3% + 48px)', borderRadius : '10px' }}></canvas>
+            <canvas id="myCanvasTrack" width={window.innerWidth * 15 / 100} height={window.innerWidth * 15 / 100} style={{ position: 'fixed', top: '6%', right: 'calc(3% + 48px)', borderRadius: '10px' }}></canvas>
+            <canvas id="myCanvasCircle" width={window.innerWidth * 15 / 100} height={window.innerWidth * 15 / 100} style={{ position: 'fixed', top: '6%', right: 'calc(3% + 48px)', borderRadius: '10px' }}></canvas>
           </CanvasCom> : null
 
         }
@@ -1535,6 +1635,25 @@ class Home extends React.Component {
               }}></div>
           </div>
         </div> */}
+        <div style={{ position: 'fixed', bottom: '20px', color: '#fff' }}>
+          <div style={{ border: '1px solid #01F1E3' }} onClick={() => {
+            const press = this.state.press
+            this.setState({
+              press: !press
+            })
+
+          }}
+          >{this.state.press ? '分压' : '不分压' }</div>
+          <div style={{ border: '1px solid #01F1E3' }} 
+           onClick={() => {
+            const pressNum = this.state.pressNum
+            this.setState({
+              pressNum: !pressNum
+            })
+
+          }}
+          >{this.state.pressNum ? '压力算法' : '不压力算法'}</div>
+        </div>
       </div >
     )
   }
