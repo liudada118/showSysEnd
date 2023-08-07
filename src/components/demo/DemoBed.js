@@ -11,6 +11,7 @@ export default function Demo() {
     const [maxCol, setMaxCol] = useState(0)
     const [press , setPress] = useState(false)
     const [pressNum , setPressNum] = useState(false)
+    const [pressuse , setPressuse] = useState(false)
     useEffect(() => {
         ws = new WebSocket(" ws://localhost:19999");
         ws.onopen = () => {
@@ -57,50 +58,16 @@ export default function Demo() {
                     rowArr.push(rowtotal)
                 }
 
-                // wsPointData = carBackLine(wsPointData)
-
-
-                // for (let i = 1; i < 31; i++) {
-                //     if (rowArr[i + 1] > 100 && rowArr[i] < 40 && rowArr[i - 1] > 100) {
-                //         for (let j = 0; j < 32; j++) {
-                //             wsPointData[i * 32 + j] = parseInt((wsPointData[(i - 1) * 32 + j] + wsPointData[(i + 1) * 32 + j])/2)
-                //         }
-                //     }
-                // }
-
-                // for(let i = 0; i < 32; i++){
-                //     if (colArr[i + 1] > 100 && colArr[i] < 40 && colArr[i - 1] > 100) {
-                //         for (let j = 1; j < 31; j++) {
-                //             wsPointData[j * 32 + i] = parseInt((wsPointData[(j - 1) * 32 + i] + wsPointData[(j + 1) * 32 + i])/2)
-                //         }
-                //     }
-                // }
-
-
-
-                // let colArr = []
-                // for (let i = 0; i < 32; i++) {
-                //     let total = 0
-                //     for (let j = 0; j < 32; j++) {
-                //         total += wsPointData[j * 32 + i]
-                //     }
-                //     colArr.push(total)
-                // }
-
                 let max = findMax(wsPointData)
                 let maxIndex = wsPointData.indexOf(max)
-                let colNum = maxIndex % 64
+                let colNum = maxIndex % 32
                 let colTotalNum = colArr[colNum]
                 setMax(max)
                 setMaxCol(colTotalNum)
 
-                // for (let i = 0; i < 32; i++) {
-                //     for (let j = 0; j < 32; j++) {
-                //         wsPointData[j*32 + i] = parseInt((wsPointData[j*32 + i] /(1245 - colArr[i] ==0 ? 1 : 1245 - colArr[i]))*1000 )
-                //     }
-                // }
-
-
+                const total = wsPointData.reduce((a,b) => a+b , 0)
+                const length = wsPointData.filter((a,index) => a>0).length
+                setPressuse((total/length).toFixed(2))
 
                 let arr = []
                 for (let i = 0; i < 32; i++) {
@@ -133,7 +100,9 @@ export default function Demo() {
             }</div>
             <div style={{ fontSize: '30px' }}>{max}</div>
             <div style={{ fontSize: '30px' }}>{maxCol}</div>
-            <div style={{ position: 'fixed', bottom: '20px', color: '#fff' }}>
+            <div style={{ fontSize: '30px' }}>压强:{pressuse}</div>
+           
+            <div style={{ position: 'fixed', bottom: '20px', color: '#000' }}>
           <div style={{ border: '1px solid #01F1E3' }} onClick={() => {
             const press1 = press
             this.setState({
