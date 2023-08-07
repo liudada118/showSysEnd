@@ -40,7 +40,7 @@ export function footLine({ wsPointData, pressFlag, pressNumFlag }) {
     if (pressFlag) {
         wsPointData = press(wsPointData)
     }
-    if(pressNumFlag){
+    if (pressNumFlag) {
         wsPointData = calculateY(wsPointData)
     }
 
@@ -136,30 +136,49 @@ export function calculateY(arr) {
     const constant = 0.0;
 
     // const y = coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant;
-    const wsPointData = arr.map((x, index) => { 
-        return coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant 
+    const wsPointData = arr.map((x, index) => {
+        return coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant
     })
     return wsPointData;
 }
 
 
-export function press(arr , width , height) {
+export function press(arr, width, height, type = 'row') {
     let wsPointData = [...arr]
 
-    let colArr = []
-    for (let i = 0; i < height; i++) {
-        let total = 0
-        for (let j = 0; j < width; j++) {
-            total += wsPointData[j * height + i]
+    if (type == 'row') {
+        let colArr = []
+        for (let i = 0; i < height; i++) {
+            let total = 0
+            for (let j = 0; j < width; j++) {
+                total += wsPointData[i * width + j]
+            }
+            colArr.push(total)
         }
-        colArr.push(total)
-    }
-    // //////okok
-    for (let i = 0; i < height; i++) {
-        for (let j = 0; j < width; j++) {
-            wsPointData[j * height + i] = parseInt((wsPointData[j * height + i] / (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) * 1000)
+        // //////okok
+        for (let i = 0; i < height; i++) {
+            for (let j = 0; j < width; j++) {
+                wsPointData[i * width + j] = parseInt((wsPointData[i * width + j] / (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) * 1000)
+            }
+        }
+    } else {
+        let colArr = []
+        for (let i = 0; i < height; i++) {
+            let total = 0
+            for (let j = 0; j < width; j++) {
+                total += wsPointData[j * height + i]
+            }
+            colArr.push(total)
+        }
+        // //////okok
+        for (let i = 0; i < height; i++) {
+            for (let j = 0; j < width; j++) {
+                wsPointData[j * height + i] = parseInt((wsPointData[j * height + i] / (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) * 1000)
+            }
         }
     }
+
+
     //////
 
     // wsPointData = wsPointData.map((a,index) => {return calculateY(a)})
