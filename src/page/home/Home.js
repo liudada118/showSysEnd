@@ -468,6 +468,14 @@ class Home extends React.Component {
           }
 
         } else if (this.state.matrixName == 'bigBed') {
+
+          if (this.state.press) {
+            wsPointData = press(wsPointData)
+          }
+          if (this.state.pressNum) {
+            wsPointData = calculateY(wsPointData)
+          }
+
           this.com.current?.sitData({
             wsPointData: wsPointData,
           });
