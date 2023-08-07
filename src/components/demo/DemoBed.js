@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { findMax } from '../../assets/util/util'
-import { calculateY, carBackLine, press } from '../../assets/util/line'
+import { calculateY, carBackLine, press, pressNew } from '../../assets/util/line'
+import { Slider } from 'antd'
 let data = []
 
 let ws
@@ -14,6 +15,7 @@ export default function Demo() {
     const [pressuse, setPressuse] = useState(false)
     const [total, setTotal] = useState(false)
     const [length, setLength] = useState(false)
+    const [valuePress, setValuePress] = useState(localStorage.getItem('carValuePress') ? JSON.parse(localStorage.getItem('carValuePress')) : 1000)
     useEffect(() => {
         ws = new WebSocket(" ws://localhost:19999");
         ws.onopen = () => {
@@ -41,15 +43,15 @@ export default function Demo() {
                             right.push(i * 64 + 32 + j)
                         }
                     }
-                    left = press(left, 32, 32)
-                    right = press(right, 32, 32)
+                    left = pressNew({ arr: left, height: 32, width: 32, value: valuePress })
+                    right = pressNew({ arr: right, height: 32, width: 32, value: valuePress })
                     const newArr = []
                     for (let i = 0; i < 32; i++) {
                         for (let j = 0; j < 64; j++) {
-                            if( j < 32){
-                                newArr.push(left[i*32 + j])
-                            }else{
-                                newArr.push(right[i*32 + j - 32])
+                            if (j < 32) {
+                                newArr.push(left[i * 32 + j])
+                            } else {
+                                newArr.push(right[i * 32 + j - 32])
                             }
                         }
                     }
@@ -142,6 +144,20 @@ export default function Demo() {
 
                     }}
                 >{pressNum ? '压力算法' : '不压力算法'}</div>
+
+                <Slider
+                    min={1}
+                    max={10000}
+                    onChange={(value) => {
+                        localStorage.setItem("carValuePress", value);
+                        setValuePress(value)
+
+                    }}
+                    value={valuePress}
+                    step={5}
+                    // value={this.props.}
+                    style={{ width: '200px' }}
+                />
             </div>
         </>
     )
