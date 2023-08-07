@@ -9,11 +9,11 @@ export default function Demo() {
     const [data, setData] = useState([])
     const [max, setMax] = useState(0)
     const [maxCol, setMaxCol] = useState(0)
-    const [press , setPress] = useState(false)
-    const [pressNum , setPressNum] = useState(false)
-    const [pressuse , setPressuse] = useState(false)
-    const [total , setTotal] = useState(false)
-    const [length , setLength] = useState(false)
+    const [pressValue, setPressValue] = useState(false)
+    const [pressNum, setPressNum] = useState(false)
+    const [pressuse, setPressuse] = useState(false)
+    const [total, setTotal] = useState(false)
+    const [length, setLength] = useState(false)
     useEffect(() => {
         ws = new WebSocket(" ws://localhost:19999");
         ws.onopen = () => {
@@ -32,8 +32,28 @@ export default function Demo() {
 
                 // wsPointData = newArr
 
-                if (press) {
-                    wsPointData = press(wsPointData, 64, 32)
+                if (pressValue) {
+                    // wsPointData = press(wsPointData, 64, 32)
+                    let left = [], right = []
+                    for (let i = 0; i < 32; i++) {
+                        for (let j = 0; j < 32; j++) {
+                            left.push(i * 64 + j)
+                            right.push(i * 64 + 32 + j)
+                        }
+                    }
+                    left = press(left, 32, 32)
+                    right = press(right, 32, 32)
+                    const newArr = []
+                    for (let i = 0; i < 32; i++) {
+                        for (let j = 0; j < 64; j++) {
+                            if( j < 32){
+                                newArr.push(left[i*32 + j])
+                            }else{
+                                newArr.push(right[i*32 + j - 32])
+                            }
+                        }
+                    }
+                    wsPointData = newArr
                 }
                 if (pressNum) {
                     wsPointData = calculateY(wsPointData)
@@ -67,12 +87,12 @@ export default function Demo() {
                 setMax(max)
                 setMaxCol(colTotalNum)
 
-                const total = wsPointData.reduce((a,b) => a+b , 0)
-                const length = wsPointData.filter((a,index) => a>0).length
+                const total = wsPointData.reduce((a, b) => a + b, 0)
+                const length = wsPointData.filter((a, index) => a > 0).length
                 setTotal(total)
                 setLength(length)
                 setPressuse(
-                     (total / length).toFixed(2)
+                    (total / length).toFixed(2)
                 )
 
                 let arr = []
@@ -110,24 +130,24 @@ export default function Demo() {
             <div style={{ fontSize: '30px' }}>压力面积:{length}</div>
             <div style={{ fontSize: '30px' }}>压强:{pressuse}</div>
             <div style={{ position: 'fixed', bottom: '20px', color: '#000' }}>
-          <div style={{ border: '1px solid #01F1E3' }} onClick={() => {
-            const press1 = press
-            this.setState({
-              press: !press1
-            })
+                <div style={{ border: '1px solid #01F1E3' }} onClick={() => {
+                    const press1 = pressValue
+                    setPressValue({
+                        pressValue: !press1
+                    })
 
-          }}
-          >{press ? '分压' : '不分压'}</div>
-          <div style={{ border: '1px solid #01F1E3' }}
-            onClick={() => {
-              const pressNum1 = pressNum
-              this.setState({
-                pressNum: !pressNum1
-              })
+                }}
+                >{pressValue ? '分压' : '不分压'}</div>
+                <div style={{ border: '1px solid #01F1E3' }}
+                    onClick={() => {
+                        const pressNum1 = pressNum
+                        setPressNum({
+                            pressNum: !pressNum1
+                        })
 
-            }}
-          >{pressNum ? '压力算法' : '不压力算法'}</div>
-        </div>
+                    }}
+                >{pressNum ? '压力算法' : '不压力算法'}</div>
+            </div>
         </>
     )
 }
