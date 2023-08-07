@@ -4,7 +4,7 @@ import { calculateY, carBackLine, press, pressNew } from '../../assets/util/line
 import { Slider } from 'antd'
 let data = []
 
-let ws
+let ws ,pressFlag = false , pressNumFlag = false
 
 export default function Demo() {
     const [data, setData] = useState([])
@@ -34,7 +34,7 @@ export default function Demo() {
 
                 // wsPointData = newArr
 
-                if (pressValue) {
+                if (pressFlag) {
                     // wsPointData = press(wsPointData, 64, 32)
                     let left = [], right = []
                     for (let i = 0; i < 32; i++) {
@@ -57,7 +57,7 @@ export default function Demo() {
                     }
                     wsPointData = newArr
                 }
-                if (pressNum) {
+                if (pressNumFlag) {
                     wsPointData = calculateY(wsPointData)
                 }
 
@@ -135,12 +135,14 @@ export default function Demo() {
                 <div style={{ border: '1px solid #01F1E3' }} onClick={() => {
                     const press1 = pressValue
                     setPressValue(!press1)
+                    pressFlag = !pressFlag
                 }}
                 >{pressValue ? '分压' : '不分压'}</div>
                 <div style={{ border: '1px solid #01F1E3' }}
                     onClick={() => {
                         const pressNum1 = pressNum
                         setPressNum(pressNum1)
+                        pressNumFlag = !pressNumFlag
 
                     }}
                 >{pressNum ? '压力算法' : '不压力算法'}</div>
