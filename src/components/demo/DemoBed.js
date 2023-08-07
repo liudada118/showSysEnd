@@ -70,7 +70,7 @@ export default function Demo() {
                 const total = wsPointData.reduce((a,b) => a+b , 0)
                 const length = wsPointData.filter((a,index) => a>0).length
                 setTotal(total)
-                setLegnth(length)
+                setLength(length)
                 setPressuse(
                      (total / length).toFixed(2)
                 )
