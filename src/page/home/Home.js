@@ -404,7 +404,7 @@ class Home extends React.Component {
           // console.log(this.com.current)
 
           if (this.state.press) {
-            wsPointData = press(wsPointData)
+            wsPointData = press(wsPointData,32,32)
           }
           if (this.state.pressNum) {
             wsPointData = calculateY(wsPointData)
@@ -437,7 +437,7 @@ class Home extends React.Component {
           // wsPointData[31] = 100 
 
           if (this.state.press) {
-            wsPointData = press(wsPointData)
+            wsPointData = press(wsPointData ,32,32)
           }
           if (this.state.pressNum) {
             wsPointData = calculateY(wsPointData)
@@ -470,7 +470,7 @@ class Home extends React.Component {
         } else if (this.state.matrixName == 'bigBed') {
 
           if (this.state.press) {
-            wsPointData = press(wsPointData)
+            wsPointData = press(wsPointData ,64,32)
           }
           if (this.state.pressNum) {
             wsPointData = calculateY(wsPointData)
@@ -637,7 +637,7 @@ class Home extends React.Component {
         // wsPointData = rotate90(wsPointData,32,32)
         // console.log(wsPointData)
         if (this.state.press) {
-          wsPointData = press(wsPointData)
+          wsPointData = press(wsPointData,32,32)
         }
         if (this.state.pressNum) {
           wsPointData = calculateY(wsPointData)

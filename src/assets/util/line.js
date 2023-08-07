@@ -143,21 +143,21 @@ export function calculateY(arr) {
 }
 
 
-export function press(arr) {
+export function press(arr , width , height) {
     let wsPointData = [...arr]
 
     let colArr = []
-    for (let i = 0; i < 32; i++) {
+    for (let i = 0; i < height; i++) {
         let total = 0
-        for (let j = 0; j < 32; j++) {
-            total += wsPointData[j * 32 + i]
+        for (let j = 0; j < width; j++) {
+            total += wsPointData[j * height + i]
         }
         colArr.push(total)
     }
     // //////okok
-    for (let i = 0; i < 32; i++) {
-        for (let j = 0; j < 32; j++) {
-            wsPointData[j * 32 + i] = parseInt((wsPointData[j * 32 + i] / (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) * 1000)
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            wsPointData[j * height + i] = parseInt((wsPointData[j * height + i] / (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) * 1000)
         }
     }
     //////
