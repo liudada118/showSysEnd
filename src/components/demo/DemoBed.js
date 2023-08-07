@@ -12,6 +12,8 @@ export default function Demo() {
     const [press , setPress] = useState(false)
     const [pressNum , setPressNum] = useState(false)
     const [pressuse , setPressuse] = useState(false)
+    const [total , setTotal] = useState(false)
+    const [length , setLength] = useState(false)
     useEffect(() => {
         ws = new WebSocket(" ws://localhost:19999");
         ws.onopen = () => {
@@ -67,11 +69,11 @@ export default function Demo() {
 
                 const total = wsPointData.reduce((a,b) => a+b , 0)
                 const length = wsPointData.filter((a,index) => a>0).length
-                setPressuse({
-                    total,
-                    length,
-                    pressure : (total / length).toFixed(2)
-                })
+                setTotal(total)
+                setLegnth(length)
+                setPressuse(
+                     (total / length).toFixed(2)
+                )
 
                 let arr = []
                 for (let i = 0; i < 32; i++) {
@@ -104,8 +106,9 @@ export default function Demo() {
             }</div>
             <div style={{ fontSize: '30px' }}>{max}</div>
             <div style={{ fontSize: '30px' }}>{maxCol}</div>
-            <div style={{ fontSize: '30px' }}>{pressuse}</div>
-           
+            <div style={{ fontSize: '30px' }}>压力总和:{total}</div>
+            <div style={{ fontSize: '30px' }}>压力面积:{length}</div>
+            <div style={{ fontSize: '30px' }}>压强:{pressuse}</div>
             <div style={{ position: 'fixed', bottom: '20px', color: '#000' }}>
           <div style={{ border: '1px solid #01F1E3' }} onClick={() => {
             const press1 = press
