@@ -7,6 +7,7 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 // import Local from './components/foot/Num32DetectLocal'
 import Home from './page/home/Home'
 import Demo from "./components/demo/Demo";
+import DemoBed from "./components/demo/DemoBed";
 import { Heatmap } from "./components/heatmap/canvas";
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route exact path="/" element={<Home />} />
         <Route exact path="/heatmap" element={<Heatmap />} />
         <Route exact path="/num" element={<Demo />} />
+        <Route exact path="/numBed" element={<DemoBed />} />
         {/* <Route exact path="/local" element={<Local />} /> */}
         {/* <Route exact path="/back" element={<Back />} /> */}
       </Routes>
