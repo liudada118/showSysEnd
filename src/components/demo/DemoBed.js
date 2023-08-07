@@ -67,7 +67,11 @@ export default function Demo() {
 
                 const total = wsPointData.reduce((a,b) => a+b , 0)
                 const length = wsPointData.filter((a,index) => a>0).length
-                setPressuse((total/length).toFixed(2))
+                setPressuse({
+                    total,
+                    length,
+                    pressure : (total / length).toFixed(2)
+                })
 
                 let arr = []
                 for (let i = 0; i < 32; i++) {
@@ -92,15 +96,15 @@ export default function Demo() {
             <div>{
                 data.map((a, indexs) => {
                     return (
-                        <div style={{ display: 'flex' }}>{a.map((b, index) => {
-                            return <div style={{ width: '30px' }}>{b}</div>
+                        <div key={indexs} style={{ display: 'flex' }}>{a.map((b, index) => {
+                            return <div key={index} style={{ width: '30px' }}>{b}</div>
                         })}</div>
                     )
                 })
             }</div>
             <div style={{ fontSize: '30px' }}>{max}</div>
             <div style={{ fontSize: '30px' }}>{maxCol}</div>
-            <div style={{ fontSize: '30px' }}>压强:{pressuse}</div>
+            <div style={{ fontSize: '30px' }}>{pressuse}</div>
            
             <div style={{ position: 'fixed', bottom: '20px', color: '#000' }}>
           <div style={{ border: '1px solid #01F1E3' }} onClick={() => {
