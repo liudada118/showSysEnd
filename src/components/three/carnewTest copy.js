@@ -254,8 +254,12 @@ const Canvas = React.forwardRef((props, refs) => {
         const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
 
         if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-        if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-
+        if (backInterArr) {
+          backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+          // backIndexArr[2] = Math.round(backIndexArr[2]/2)
+          // backIndexArr[3] = Math.round(backIndexArr[3]/2)
+        }
+        // console.log(backIndexArr)
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       }
 

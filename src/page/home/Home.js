@@ -152,9 +152,9 @@ class Home extends React.Component {
       leftFlag: false,
       rightFlag: false,
       lineFlag: false,
-      pressNum : false,
-      press : false,
-      dataTime : ''
+      pressNum: false,
+      press: false,
+      dataTime: ''
     }
     this.com = React.createRef()
     this.data = React.createRef()
@@ -207,7 +207,7 @@ class Home extends React.Component {
         }
 
         if (this.state.matrixName == 'foot') {
-          const { sitData, backData, arr, realData } = footLine({wsPointData , pressFlag : this.state.press , pressNumFlag : this.state.pressNum})
+          const { sitData, backData, arr, realData } = footLine({ wsPointData, pressFlag: this.state.press, pressNumFlag: this.state.pressNum })
 
           arr[0] = arr[0] ? arr[0] : 0
           arr[1] = arr[1] ? arr[1] : 0
@@ -403,10 +403,10 @@ class Home extends React.Component {
           // wsPointData[31] = 100
           // console.log(this.com.current)
 
-          if(this.state.press){
+          if (this.state.press) {
             wsPointData = press(wsPointData)
           }
-          if(this.state.pressNum){
+          if (this.state.pressNum) {
             wsPointData = calculateY(wsPointData)
           }
 
@@ -436,10 +436,10 @@ class Home extends React.Component {
 
           // wsPointData[31] = 100 
 
-          if(this.state.press){
+          if (this.state.press) {
             wsPointData = press(wsPointData)
           }
-          if(this.state.pressNum){
+          if (this.state.pressNum) {
             wsPointData = calculateY(wsPointData)
           }
 
@@ -620,7 +620,7 @@ class Home extends React.Component {
         backPress = 0
         let wsPointData = jsonObject.backData;
 
-        
+
 
         if (!Array.isArray(wsPointData)) {
           wsPointData = JSON.parse(wsPointData)
@@ -628,19 +628,19 @@ class Home extends React.Component {
 
         // wsPointData = rotate90(wsPointData,32,32)
         // console.log(wsPointData)
-        if(this.state.press){
+        if (this.state.press) {
           wsPointData = press(wsPointData)
         }
-        if(this.state.pressNum){
+        if (this.state.pressNum) {
           wsPointData = calculateY(wsPointData)
         }
 
         // wsPointData[31] = 1000
         if (this.state.carState == 'back' && this.state.numMatrixFlag == 'num') {
-          wsPointData = rotate90(wsPointData,32,32)
+          wsPointData = rotate90(wsPointData, 32, 32)
           this.com.current?.changeWsData(wsPointData);
         } else if (this.state.carState == 'back' && this.state.numMatrixFlag == 'heatmap') {
-          wsPointData = rotate180(wsPointData,32,32)
+          wsPointData = rotate180(wsPointData, 32, 32)
           this.com.current?.bthClickHandle(wsPointData);
         } else
         // if (this.state.numMatrixFlag == 'normal') 
@@ -653,6 +653,8 @@ class Home extends React.Component {
 
 
         // console.log(backIndexArr)
+        // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
+        // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
         const selectArr = []
         for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
           for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
@@ -945,8 +947,15 @@ class Home extends React.Component {
 
   changeSelect = (obj, type) => {
 
-    let sit = obj.sit
-    let back = obj.back
+    let sit = [...obj.sit]
+    let back = [...obj.back]
+
+    if(back.length){
+      back[2] = Math.round(back[2] / 2)
+      back[3] = Math.round(back[3] / 2)
+    }
+   
+    // console.log(back)
     // console.log(sit , back , 'length')
     const sitIndex = sit.length ? sit.map((a, index) => {
       if (this.state.matrixName === 'foot') {
@@ -1506,14 +1515,14 @@ class Home extends React.Component {
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <img src={play} style={{ width: '50px', display: this.state.playflag ? 'none' : 'unset' }}
-                onClick={() => { 
-                  if(this.state.dataTime){
+                onClick={() => {
+                  if (this.state.dataTime) {
                     this.playData(true)
-                  }else{
+                  } else {
                     message.info('请先选择回放数据时间段')
                   }
-                  
-                 }}
+
+                }}
                 alt="" />
               <img src={pause} style={{ width: '50px', display: this.state.playflag ? 'unset' : 'none' }}
                 onClick={() => { this.playData(false) }}
@@ -1645,15 +1654,15 @@ class Home extends React.Component {
             })
 
           }}
-          >{this.state.press ? '分压' : '不分压' }</div>
-          <div style={{ border: '1px solid #01F1E3' }} 
-           onClick={() => {
-            const pressNum = this.state.pressNum
-            this.setState({
-              pressNum: !pressNum
-            })
+          >{this.state.press ? '分压' : '不分压'}</div>
+          <div style={{ border: '1px solid #01F1E3' }}
+            onClick={() => {
+              const pressNum = this.state.pressNum
+              this.setState({
+                pressNum: !pressNum
+              })
 
-          }}
+            }}
           >{this.state.pressNum ? '压力算法' : '不压力算法'}</div>
         </div>
       </div >
