@@ -27,7 +27,7 @@ export default function Demo() {
                 wsPointData = wsPointData.map((a) => a < 10 ? 0 : a)
 
 
-                wsPointData = newArr
+                // wsPointData = newArr
 
                 if (press) {
                     wsPointData = press(wsPointData, 64, 32)
