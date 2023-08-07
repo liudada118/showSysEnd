@@ -51,7 +51,8 @@ class Title extends React.Component {
       carCurrent: 'all',
       show: false,
       num: 0,
-      dataTime: ''
+      dataTime: '',
+      clickState: true
     }
   }
 
@@ -105,29 +106,38 @@ class Title extends React.Component {
   };
 
   onCarClick = (e) => {
+    if (this.state.clickState) {
+      if (e.key === 'sit') {
+        this.setState({
+          carCurrent: 'sit',
+          clickState: false
+        })
 
-    if (e.key === 'sit') {
-      this.setState({
-        carCurrent: 'sit'
-      })
-
-      if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionSit()
-      this.props.changeStateData({ carState: 'sit' })
-    } else if (e.key === 'back') {
-      this.setState({
-        carCurrent: 'back'
-      })
-      if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionBack()
-      this.props.changeStateData({ carState: 'back' })
-    } else {
-      this.setState({
-        carCurrent: 'all'
-      })
-      if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionAll()
-      this.props.changeStateData({ carState: 'all' })
-      this.props.changeStateData({ numMatrixFlag: 'normal' })
+        if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionSit()
+        this.props.changeStateData({ carState: 'sit' })
+      } else if (e.key === 'back') {
+        this.setState({
+          carCurrent: 'back',
+          clickState: false
+        })
+        if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionBack()
+        this.props.changeStateData({ carState: 'back' })
+      } else {
+        this.setState({
+          carCurrent: 'all',
+          clickState: false
+        })
+        if (this.props.numMatrixFlag == 'normal') this.props.com.current?.actionAll()
+        this.props.changeStateData({ carState: 'all' })
+        this.props.changeStateData({ numMatrixFlag: 'normal' })
+      }
     }
 
+    setTimeout(() => {
+      this.setState({
+        clickState: true
+      })
+    }, 1000);
   }
 
   changeNum = (num) => {
@@ -237,7 +247,7 @@ class Title extends React.Component {
             }
 
             console.log(e);
-            this.props.changeStateData({dataTime : e})
+            this.props.changeStateData({ dataTime: e })
             this.setState({ dataTime: e })
             this.props.wsSendObj({ getTime: e, index: 0 })
             if (this.props.history === 'history') {
@@ -249,7 +259,7 @@ class Title extends React.Component {
             // if (ws && ws.readyState === 1)
             //   ws.send(JSON.stringify({ sitPort: e }));
           }}
-          value={this.state.dataTime ?this.state.dataTime : null}
+          value={this.state.dataTime ? this.state.dataTime : null}
           options={this.props.dataArr}
         >
           {/* {this.props.dataArr.map((el) => {

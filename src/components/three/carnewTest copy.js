@@ -88,8 +88,8 @@ const Canvas = React.forwardRef((props, refs) => {
   const CMD_KEY = 91;
   const AMOUNTX = sitnum1 * sitInterp + sitOrder * 2;
   const AMOUNTY = sitnum2 * sitInterp + sitOrder * 2;
-  const AMOUNTX1 = (backnum1 * backInterp + backOrder * 2)* 2 ;
-  const AMOUNTY1 = (backnum2 * backInterp + backOrder * 2) ;
+  const AMOUNTX1 = (backnum1 * backInterp + backOrder * 2);
+  const AMOUNTY1 = (backnum2 * backInterp + backOrder * 2) * 2;
   const SEPARATION = 100;
   let group = new THREE.Group();
 
@@ -558,10 +558,13 @@ const Canvas = React.forwardRef((props, refs) => {
 
     for (let i = 0; i < 72; i++) {
       for (let j = 0; j < 72; j++) {
-        bigArrg1New[(i * 2) * 72 + j] = bigArrg1[i * 72 + j]
-        bigArrg1New[(i * 2 + 1) * 72 + j] = bigArrg1[i * 72 + j]
+        bigArrg1New[(i*2) * 72 + j*2] = bigArrg1[i * 72 + j]
+        bigArrg1New[(i*2) * 72 + (j*2 + 1)] = bigArrg1[i * 72 + j]
+        // bigArrg1New[(i * 2 + 1) * 72 + j] = bigArrg1[i * 72 + j]
       }
     }
+    // bigArrg1New = new Array(72 * 72 * 2).fill(0)
+    // bigArrg1New[72*2] = 10000
 
     // const bigArrg1New = new Array(AMOUNTY1*AMOUNTY1).fill(1)
     // console.log(backGeometry,scales1)

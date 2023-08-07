@@ -14,7 +14,7 @@ import stop from '../../assets/images/stop.png'
 import play from '../../assets/images/play.png'
 import pause from '../../assets/images/pause.png'
 import refresh from '../../assets/images/refresh.png'
-import { findMax, findMin, returnChartMax, rotate90, } from '../../assets/util/util'
+import { findMax, findMin, returnChartMax, rotate180, rotate90, } from '../../assets/util/util'
 import { rainbowTextColors } from "../../assets/util/color";
 import { handLine, footLine, carSitLine, carBackLine, press, calculateY } from '../../assets/util/line';
 import { Select, Slider, Popover, message } from 'antd'
@@ -626,7 +626,7 @@ class Home extends React.Component {
           wsPointData = JSON.parse(wsPointData)
         }
 
-        wsPointData = rotate90(wsPointData,32,32)
+        // wsPointData = rotate90(wsPointData,32,32)
         // console.log(wsPointData)
         if(this.state.press){
           wsPointData = press(wsPointData)
@@ -637,8 +637,10 @@ class Home extends React.Component {
 
         // wsPointData[31] = 1000
         if (this.state.carState == 'back' && this.state.numMatrixFlag == 'num') {
+          wsPointData = rotate90(wsPointData,32,32)
           this.com.current?.changeWsData(wsPointData);
         } else if (this.state.carState == 'back' && this.state.numMatrixFlag == 'heatmap') {
+          wsPointData = rotate180(wsPointData,32,32)
           this.com.current?.bthClickHandle(wsPointData);
         } else
         // if (this.state.numMatrixFlag == 'normal') 
