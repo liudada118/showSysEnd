@@ -132,18 +132,13 @@ export default function Demo() {
             <div style={{ position: 'fixed', bottom: '20px', color: '#000' }}>
                 <div style={{ border: '1px solid #01F1E3' }} onClick={() => {
                     const press1 = pressValue
-                    setPressValue({
-                        pressValue: !press1
-                    })
-
+                    setPressValue(!press1)
                 }}
                 >{pressValue ? '分压' : '不分压'}</div>
                 <div style={{ border: '1px solid #01F1E3' }}
                     onClick={() => {
                         const pressNum1 = pressNum
-                        setPressNum({
-                            pressNum: !pressNum1
-                        })
+                        setPressNum(pressNum1)
 
                     }}
                 >{pressNum ? '压力算法' : '不压力算法'}</div>
