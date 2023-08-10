@@ -6,7 +6,7 @@ var data = []
 var options = {
     min: 0,
     max: localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
-    size: 13
+    size: 24
 }
 var isShadow = true
 var canvas, context,
@@ -190,14 +190,17 @@ export const Heatmap = React.forwardRef((porps, refs) => {
             jMax = (range[1] - min) / diff * 1024;
         }
 
-        var maxOpacity = options.maxOpacity || 1;
+        var maxOpacity = options.maxOpacity || 10;
         var range = options.range;
         // console.log(pixels.length)
         for (var i = 3, len = pixels.length, j; i < len; i += 4) {
-            j = pixels[i] * 4; // get gradient color from opacity value
+            j = pixels[i]*4; // get gradient color from opacity value
 
             if (pixels[i] / 256 > maxOpacity) {
                 pixels[i] = 256 * maxOpacity;
+            }
+            if (pixels[i] / 256 < 0.7) {
+                pixels[i] = 256 * 0.7;
             }
             const value = jet()
             if (j && j >= jMin && j <= jMax) {
@@ -207,7 +210,7 @@ export const Heatmap = React.forwardRef((porps, refs) => {
             } else {
                 pixels[i] = 0;
             }
-            pixels[i] = 256
+            // pixels[i] = 256 *0
         }
     }
 
@@ -278,11 +281,13 @@ export const Heatmap = React.forwardRef((porps, refs) => {
         options = options || {};
         this.gradient = options.gradient || {
             0: "rgba(0, 0, 0, 1)",
-            0.05: "rgba(0, 0, 0, 1)",
-            0.25: "rgba(0, 0, 255, 1)",
-            0.50: "rgba(0, 255, 0, 1)",
-            0.75: "rgba(255, 255, 0, 1)",
-            0.95: "rgba(255, 0, 0, 1)",
+            // 0: "rgba(255, 255, 255, 1)",
+            0.05: "rgba(90, 0, 255, 1)",
+            0.28: "rgba(0, 0, 255, 1)",
+            0.42: "rgba(0, 255, 255, 1)",
+            0.56: "rgba(0, 128, 0, 1)",
+            0.70: "rgba(255, 255, 0, 1)",
+            0.84 : "rgba(255, 165, 0, 1)",
             1: "rgba(255, 0, 0, 1)"
         };
         this.maxSize = options.maxSize || 35;
@@ -426,8 +431,8 @@ export const Heatmap = React.forwardRef((porps, refs) => {
 
 
         canvas = document.getElementById('heatmapcanvas')
-        canvas.width = window.innerHeight / 2
-        canvas.height = window.innerHeight / 2
+        canvas.width = window.innerHeight *0.8
+        canvas.height = window.innerHeight *0.8
         context = canvas.getContext('2d')
 
 

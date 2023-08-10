@@ -178,6 +178,8 @@ class Home extends React.Component {
     }
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     ws = new WebSocket(" ws://127.0.0.1:19999");
+    // ws = new WebSocket("ws://192.168.31.46:1880/ws/data")
+
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -429,6 +431,8 @@ class Home extends React.Component {
 
             const footLength = calFoot(sitData, 16, 32)
             console.log(footLength)
+          }else if(this.state.numMatrixFlag == 'heatmap'){
+            this.com.current?.bthClickHandle(wsPointData)
           }
 
         } else if (this.state.matrixName == 'car') {
