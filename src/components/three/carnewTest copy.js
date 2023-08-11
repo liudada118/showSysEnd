@@ -256,8 +256,7 @@ const Canvas = React.forwardRef((props, refs) => {
         if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
         if (backInterArr) {
           backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-          // backIndexArr[2] = Math.round(backIndexArr[2]/2)
-          // backIndexArr[3] = Math.round(backIndexArr[3]/2)
+         
         }
         // console.log(backIndexArr)
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
@@ -435,6 +434,7 @@ const Canvas = React.forwardRef((props, refs) => {
     tween1.onUpdate(() => {
       particles.position.set(p1.x, p1.y, p1.z);
       if (p1.rotationx) particles.rotation.x = p1.rotationx;
+      if (p1.rotationz) particles.rotation.z = p1.rotationz;
     });
 
     return tween1;
@@ -500,6 +500,7 @@ const Canvas = React.forwardRef((props, refs) => {
           y: sitY,
           z: sitZ,
           rotationx: -Math.PI / 48,
+          rotationz : 0
         },
         1000,
         particles
@@ -515,6 +516,7 @@ const Canvas = React.forwardRef((props, refs) => {
           y: backY,
           z: backZ,
           rotationx: backRotationX,
+          rotationz : 0
         },
         1000,
         particles1
