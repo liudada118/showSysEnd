@@ -35,6 +35,7 @@ const sensorArr = [
   { label: '手部检测', value: 'hand' },
   { label: '汽车座椅', value: 'car' },
   { label: '床垫', value: 'bigBed' },
+  { label: '汽车座椅2', value: 'car10' },
 ]
 
 
@@ -170,7 +171,7 @@ class Title extends React.Component {
 
 
         <Menu className='menu' onClick={this.onClick} selectedKeys={[this.state.current]} mode="horizontal" items={navItems} />
-        {this.props.history === 'now' ? this.props.matrixName != 'car' ? <><Select
+        {this.props.history === 'now' ? this.props.matrixName != 'car' && this.props.matrixName != 'car10' ? <><Select
           // value={this.props.portname}
           style={{ marginRight: 20, width: 160 }}
           placeholder="请选择串口"
@@ -273,7 +274,7 @@ class Title extends React.Component {
         })} */}
         </Select>}
 
-        {this.props.matrixName == 'car' ?
+        {this.props.matrixName == 'car' || this.props.matrixName == 'car10' ?
 
           // <div style={{ display: 'flex' }}>
           //   <div className='aniButton' onClick={() => this.props.com.current?.actionBack()}>back</div>
@@ -309,7 +310,7 @@ class Title extends React.Component {
             }}
           >{'下载'}</Button>
         }
-        <Button
+        {this.props.matrixName != 'car10' ? <Button
           className='titleButton'
           onClick={() => {
             // const flag = this.props.numMatrixFlag
@@ -321,7 +322,19 @@ class Title extends React.Component {
               this.props.changeStateData({ numMatrixFlag: 'normal' })
             }
             // this.props.changeStateData({ numMatrixFlag: !flag })
-          }}>{this.props.numMatrixFlag == 'normal' ? '矩阵' : this.props.numMatrixFlag == 'num' ? '2D' : '热力图'}</Button>
+          }}>{this.props.numMatrixFlag == 'normal' ? '矩阵' : this.props.numMatrixFlag == 'num' ? '2D' : '热力图'}</Button> :
+          <Button
+          className='titleButton'
+            onClick={() => {
+              const flag = !this.props.pointFlag
+              this.props.changeStateData({ pointFlag: flag })
+              this.props.com.current?.changeRect(flag)
+            }}
+          >{this.props.pointFlag ? '矩形' : '点图'}</Button>
+        }
+
+
+
         {this.props.matrixName == 'foot' ? <Button
           className='titleButton'
           onClick={() => {

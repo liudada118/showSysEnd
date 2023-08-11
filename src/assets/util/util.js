@@ -369,6 +369,40 @@ export function jet(min, max, x) {
   return rgb;
 }
 
+export function jetRgb(min, max, x) {
+  let red, g, blue;
+  let dv;
+  red = 1.0;
+  g = 1.0;
+  blue = 1.0;
+  if (x < min) {
+    x = min;
+  }
+  if (x > max) {
+    x = max;
+  }
+  dv = max - min;
+  if (x < min + 0.25 * dv) {
+    // red = 0;
+    // g = 0;
+    // blue = 0;
+
+    red = 0;
+    g = (4 * (x - min)) / dv;
+  } else if (x < min + 0.5 * dv) {
+    red = 0;
+    blue = 1 + (4 * (min + 0.25 * dv - x)) / dv;
+  } else if (x < min + 0.75 * dv) {
+    red = (4 * (x - min - 0.5 * dv)) / dv;
+    blue = 0;
+  } else {
+    g = 1 + (4 * (min + 0.75 * dv - x)) / dv;
+    blue = 0;
+  }
+  
+  return {r : red , g : g , b : blue};
+}
+
 export function jetWhite(min, max, x) {
   // #4800f9  72,0,249  #1c41f9  28,65,249  #1cf993 28,249,147  #cdf91c  205,249,28
   //#1c74f9 #1cd0f9

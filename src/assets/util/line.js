@@ -503,6 +503,71 @@ function findNonZeroSubarraysWithIndex(arr) {
     return result;
 }
 
+export function rotateArray90Degrees(array) {
+    const length = array.length;
+    
+    // 计算生成二维数组的行数和列数
+    const rows = Math.sqrt(length);
+    const cols = rows;
+  
+    if (rows % 1 !== 0) {
+      console.error("输入数组长度不适合生成正方形二维数组。");
+      return;
+    }
+  
+    // 将一维数组转换为二维数组
+    const originalMatrix = [];
+    for (let i = 0; i < rows; i++) {
+      originalMatrix.push(array.slice(i * cols, (i + 1) * cols));
+    }
+  
+    // 创建一个新的旋转后的矩阵
+    const rotatedMatrix = new Array(cols).fill().map(() => []);
+  
+    // 进行矩阵转置和行翻转
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        rotatedMatrix[col][rows - 1 - row] = originalMatrix[row][col];
+      }
+    }
+  
+    // 将旋转后的矩阵转换为一维数组
+    const rotatedArray = rotatedMatrix.flat();
+    
+    return rotatedArray;
+  }
+
+ export function rotateArrayCounter90Degrees(array, rows, cols) {
+    const length = array.length;
+  
+    if (length !== rows * cols) {
+      console.error("输入数组长度与给定的行数和列数不匹配。");
+      return;
+    }
+  
+    // 将一维数组转换为二维数组
+    const originalMatrix = [];
+    for (let i = 0; i < rows; i++) {
+      originalMatrix.push(array.slice(i * cols, (i + 1) * cols));
+    }
+  
+    // 创建一个新的旋转后的矩阵
+    const rotatedMatrix = new Array(rows).fill().map(() => []);
+  
+    // 进行矩阵转置和行翻转
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        rotatedMatrix[cols - 1 - col][row] = originalMatrix[row][col];
+      }
+    }
+  
+    // 将旋转后的矩阵转换为一维数组
+    const rotatedArray = rotatedMatrix.flat();
+    
+    return rotatedArray;
+  }
+  
+
 // 示例用法
 // const arr = [1, 2, 0, 0, 3, 4, 0, 5, 6];
 // const nonZeroSubarraysWithIndex = findNonZeroSubarraysWithIndex(arr);
