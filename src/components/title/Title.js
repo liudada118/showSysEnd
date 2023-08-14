@@ -432,7 +432,7 @@ class Title extends React.Component {
                 </div>
                 <Slider
                   min={5}
-                  max={2000}
+                  max={5000}
                   onChange={(value) => {
                     localStorage.setItem("carValuej", value);
                     // this.props.setValuej1(value);

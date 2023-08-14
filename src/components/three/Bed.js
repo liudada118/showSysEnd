@@ -234,7 +234,9 @@ const Canvas = React.forwardRef((props, refs) => {
     if (selectHelper.isShiftPressed) {
       sitIndexArr = []
       backIndexArr = []
-      props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+      props.changeSelect({ sit: sitIndexArr
+        // , back: backIndexArr
+       })
       selectStartArr = [(event.clientX), event.clientY]
 
 
@@ -243,11 +245,11 @@ const Canvas = React.forwardRef((props, refs) => {
       // group.position.z =5 
 
 
-      sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: 110, z: 5 } })
-      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: 110, z: 5 }, width: AMOUNTX1 })
+      sitArr = getPointCoordinate({ particles, camera, position: { x: group.position.x, y: group.position.y, z: group.position.z } })
+      // backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: 110, z: 5 }, width: AMOUNTX1 })
 
       sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
-      backMatrix = [backArr[1].x, backArr[0].y, backArr[0].x, backArr[1].y]
+      // backMatrix = [backArr[1].x, backArr[0].y, backArr[0].x, backArr[1].y]
 
 
       // const newDiv = document.createElement('div');
@@ -301,12 +303,14 @@ const Canvas = React.forwardRef((props, refs) => {
 
       if (!controlsFlag) {
         const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
-        const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+        // const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
 
         if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-        if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+        // if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
 
-        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        props.changeSelect({ sit: sitIndexArr,
+          //  back: backIndexArr 
+          })
       }
 
     }
