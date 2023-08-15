@@ -271,9 +271,18 @@ class Aside extends React.Component {
             maxPres: 0,
             area: 0,
             pressure: 0,
-            presStan: 0
+            presStan: 0,
+            pressMult:  localStorage.getItem("valueMult")
+            ? JSON.parse(localStorage.getItem("valueMult"))
+            : 1
         }
         this.canvas = React.createRef()
+    }
+
+    changePressMult(value) {
+        this.setState({
+            pressMult: value
+        })
     }
 
     componentDidMount() {
@@ -332,7 +341,7 @@ class Aside extends React.Component {
             ctx.lineTo(gap * (index), 0);
             ctx.strokeStyle = "#01F1E3";
             ctx.lineWidth = 2;
-            ctx.setLineDash([3,3]);
+            ctx.setLineDash([3, 3]);
             ctx.stroke();
         }
 
@@ -354,13 +363,13 @@ class Aside extends React.Component {
         // console.log(arr, max)
     }
 
-    initCharts(){
+    initCharts() {
         const canvas = document.getElementById('myChart1')
-        if(ctx1){
+        if (ctx1) {
             ctx1.clearRect(0, 0, canvas.width, canvas.height);
         }
         const canvas1 = document.getElementById('myChart2')
-        if(ctx2){
+        if (ctx2) {
             ctx2.clearRect(0, 0, canvas1.width, canvas1.height);
         }
     }
@@ -399,7 +408,10 @@ class Aside extends React.Component {
                 </div>
                 <div className="asideContent">
                     <h2 className="asideTitle">Pressure Data</h2>
-                    <h1 className='pressData'>{this.state.pressure}</h1>
+                    {/* <div style={{}}> */}
+                    <span className='pressData'>{this.state.pressure*this.state.pressMult}</span> <span style={{ color: '#999' }}>{this.props.matrixName === 'bigBed' ? 'mmgH' : null}</span>
+                    {/* </div> */}
+
                     {this.props.matrixName != 'foot' ? <>
                         <div className='pressTitle standardColor'>总体压力 Total Pres</div>
                         <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>

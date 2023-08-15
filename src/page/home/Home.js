@@ -113,7 +113,7 @@ class FootCom extends React.Component {
 let totalArr = [],
   totalPointArr = [],
   wsMatrixName = "foot";
-  let startPressure = 0 ,time = 0;
+let startPressure = 0, time = 0;
 let num = 0,
   colValueFlag = false,
   meanSmooth = 0,
@@ -190,6 +190,9 @@ class Home extends React.Component {
       valuelInit1: localStorage.getItem("carValueInit")
         ? JSON.parse(localStorage.getItem("carValueInit"))
         : 2,
+      valueMult: localStorage.getItem("valueMult")
+        ? JSON.parse(localStorage.getItem("valueMult"))
+        : 1,
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
@@ -587,7 +590,7 @@ class Home extends React.Component {
           }
         } else if (this.state.matrixName == "bigBed") {
           // wsPointData[2047] = 1000
-         
+
 
           let DataArr;
           selectArr = [];
@@ -665,13 +668,13 @@ class Home extends React.Component {
           pressSmooth = (pressSmooth + (sitTotal - pressSmooth) / 10)
             ? (pressSmooth + (sitTotal - pressSmooth) / 10)
             : 1;
-           
+
           pressureSmooth = (
             pressureSmooth + (pressure - pressureSmooth) / 3
           )
             ? (pressureSmooth + (pressure - pressureSmooth) / 3)
             : 0;
-            // console.log(pressure,pressureSmooth)
+          // console.log(pressure,pressureSmooth)
           this.data.current?.changeData({
             meanPres: meanSmooth.toFixed(0),
             maxPres: maxSmooth.toFixed(0),
@@ -750,7 +753,7 @@ class Home extends React.Component {
           const lineLeft =
             20 +
             (jsonObject.index * 560) /
-              (this.state.length ? this.state.length : 1);
+            (this.state.length ? this.state.length : 1);
           const leftX = document
             .querySelector(".progress")
             .getBoundingClientRect().x;
@@ -760,11 +763,10 @@ class Home extends React.Component {
           const right = parseInt(
             document.querySelector(".rightProgress").style.left
           );
-          line.style.left = `${
-            20 +
+          line.style.left = `${20 +
             (jsonObject.index * 560) /
-              (this.state.length ? this.state.length : 1)
-          }px`;
+            (this.state.length ? this.state.length : 1)
+            }px`;
 
           document.querySelector(
             ".progressLine"
@@ -772,8 +774,8 @@ class Home extends React.Component {
             lineLeft < left + 20
               ? left + 20
               : lineLeft > right
-              ? right
-              : lineLeft
+                ? right
+                : lineLeft
           )}px`;
 
           this.setState({
@@ -1361,8 +1363,8 @@ class Home extends React.Component {
     return value < 4
       ? 0
       : value >= 4 + 64 * 2
-      ? 64 - 1
-      : Math.round((value - 4) / 2 - 1);
+        ? 64 - 1
+        : Math.round((value - 4) / 2 - 1);
   };
 
   changeSelect = (obj, type) => {
@@ -1370,23 +1372,23 @@ class Home extends React.Component {
 
     const sitIndex = sit.length
       ? sit.map((a, index) => {
-          if (this.state.matrixName === "foot") {
-            if (index == 0 || index == 1) {
-              return this.changeFootValue(a);
-            } else {
-              return this.changeValue(a);
-            }
-          } else if (this.state.matrixName === "bigBed") {
-            if(index == 0 || index == 1){
-              return this.changeBedValue(a);
-            }else{
-              return this.changeValue(a);
-            }
-          
+        if (this.state.matrixName === "foot") {
+          if (index == 0 || index == 1) {
+            return this.changeFootValue(a);
           } else {
             return this.changeValue(a);
           }
-        })
+        } else if (this.state.matrixName === "bigBed") {
+          if (index == 0 || index == 1) {
+            return this.changeBedValue(a);
+          } else {
+            return this.changeValue(a);
+          }
+
+        } else {
+          return this.changeValue(a);
+        }
+      })
       : new Array(4).fill(0);
 
     sitIndexArr = sitIndex;
@@ -1402,16 +1404,16 @@ class Home extends React.Component {
 
       const backIndex = back.length
         ? back.map((a, index) => {
-            if (this.state.matrixName === "foot") {
-              if (index == 0 || index == 1) {
-                return this.changeFootValue(a);
-              } else {
-                return this.changeValue(a);
-              }
+          if (this.state.matrixName === "foot") {
+            if (index == 0 || index == 1) {
+              return this.changeFootValue(a);
             } else {
               return this.changeValue(a);
             }
-          })
+          } else {
+            return this.changeValue(a);
+          }
+        })
         : new Array(4).fill(0);
 
       backIndexArr = backIndex;
@@ -1484,9 +1486,8 @@ class Home extends React.Component {
 
       const leftpx = this.moveValue(e.clientX - leftX - 10);
 
-      document.querySelector(".leftProgress").style.left = `${
-        leftpx > right - 20 ? right - 20 : leftpx
-      }px`;
+      document.querySelector(".leftProgress").style.left = `${leftpx > right - 20 ? right - 20 : leftpx
+        }px`;
 
       const left = parseInt(document.querySelector(".leftProgress").style.left);
 
@@ -1523,9 +1524,8 @@ class Home extends React.Component {
       var moveX = e.clientX;
 
       const rightpx = this.moveValue(e.clientX - leftX - 10);
-      document.querySelector(".rightProgress").style.left = `${
-        rightpx < left + 20 ? left + 20 : rightpx
-      }px`;
+      document.querySelector(".rightProgress").style.left = `${rightpx < left + 20 ? left + 20 : rightpx
+        }px`;
 
       const right = parseInt(
         document.querySelector(".rightProgress").style.left
@@ -1567,8 +1567,8 @@ class Home extends React.Component {
         e.clientX - leftX < left + 20
           ? left + 20
           : e.clientX - leftX > right
-          ? right
-          : e.clientX - leftX
+            ? right
+            : e.clientX - leftX
       )}px`;
 
       const lineleft = parseInt(
@@ -1608,7 +1608,7 @@ class Home extends React.Component {
     });
   }
 
-  changeCenterFlag() {}
+  changeCenterFlag() { }
 
   render() {
     return (
@@ -1619,7 +1619,7 @@ class Home extends React.Component {
               placement="top"
               title={text}
               content={content}
-              // arrow={mergedArrow}
+            // arrow={mergedArrow}
             >
               <div
                 className="setIcon marginB10"
@@ -1680,7 +1680,7 @@ class Home extends React.Component {
               placement="top"
               title={text}
               content={content1}
-              // arrow={mergedArrow}
+            // arrow={mergedArrow}
             >
               <div
                 className="setIcon"
@@ -1818,11 +1818,10 @@ class Home extends React.Component {
                   key={`${rainbowTextColors[items]}${indexs}`}
                   style={{
                     display: "flex",
-                    height: `${
-                      100 /
+                    height: `${100 /
                       rainbowTextColors.slice(0, rainbowTextColors.length - 7)
                         .length
-                    }%`,
+                      }%`,
                     alignItems: "center",
                     padding: "3px",
                     boxSizing: "border-box",
@@ -1893,20 +1892,21 @@ class Home extends React.Component {
           data={this.data}
           dataTime={this.state.dataTime}
           pointFlag={this.state.pointFlag}
-          // colNum={colNum}
-          // changeDateArr={changeDateArr}
+          valueMult={this.state.valueMult}
+        // colNum={colNum}
+        // changeDateArr={changeDateArr}
         />
         {/* </TitleCom> */}
         {/* </Com> */}
         <CanvasCom matrixName={this.state.matrixName}>
-          <Aside ref={this.data} matrixName={this.state.matrixName} />
+          <Aside ref={this.data} matrixName={this.state.matrixName}/>
         </CanvasCom>
 
         {this.state.numMatrixFlag == "num" &&
-        (this.state.matrixName == "foot" ||
-          this.state.matrixName == "hand" ||
-          this.state.carState == "back" ||
-          this.state.carState == "sit") ? (
+          (this.state.matrixName == "foot" ||
+            this.state.matrixName == "hand" ||
+            this.state.carState == "back" ||
+            this.state.carState == "sit") ? (
           <Num ref={this.com} />
         ) : this.state.numMatrixFlag == "heatmap" &&
           (this.state.matrixName == "foot" ||
@@ -2061,8 +2061,8 @@ class Home extends React.Component {
                   e.clientX - leftX < left + 20
                     ? left + 20
                     : e.clientX - leftX > right
-                    ? right
-                    : e.clientX - leftX
+                      ? right
+                      : e.clientX - leftX
                 )}px`;
 
                 const lineleft = parseInt(
@@ -2344,14 +2344,14 @@ class Home extends React.Component {
         <div style={{ position: "fixed", right: "25%", bottom: "20px" }}>
           {this.state.newArr.length
             ? this.state.newArr.map((a, indexs) => {
-                return (
-                  <div style={{ display: "flex", color: "#fff" }}>
-                    {a.map((b, index) => {
-                      return <div style={{ width: 30 }}>{b}</div>;
-                    })}
-                  </div>
-                );
-              })
+              return (
+                <div style={{ display: "flex", color: "#fff" }}>
+                  {a.map((b, index) => {
+                    return <div style={{ width: 30 }}>{b}</div>;
+                  })}
+                </div>
+              );
+            })
             : null}
         </div>
       </div>

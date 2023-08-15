@@ -646,6 +646,40 @@ class Title extends React.Component {
                   style={{ width: '200px' }}
                 />
               </div>
+              <div
+                className="progerssSlide"
+                style={{
+                  display: "flex",
+
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#468493",
+                    minWidth: "80px",
+                    textAlign: "left",
+                  }}
+                >
+                  压强倍数
+                </div>
+                <Slider
+                  min={0.5}
+                  max={3}
+                  onChange={(value) => {
+                    localStorage.setItem("valueMult", value);
+                    // this.props.setValuelInit1(value);
+                    this.props.changeStateData({valueMult : value})
+                    if(this.props.data.current){
+                      this.props.data.current.changePressMult(value)
+                    }
+                  }}
+                  value={this.props.valueMult}
+                  step={0.1}
+                  // value={this.props.}
+                  style={{ width: '200px' }}
+                />
+              </div>
             </div>
           </div> : <div></div>
         }
