@@ -314,6 +314,7 @@ class Title extends React.Component {
         {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {
           const flag = this.props.pressChart
           this.props.changeStateData({ pressChart: !flag })
+          // this.props.initPressCtx()
         }}>压力曲线</Button> : null}
 
         {this.props.matrixName != 'car10' ? <Button

@@ -231,7 +231,7 @@ class Home extends React.Component {
     document.documentElement.style.fontSize = `${window.innerWidth / 120}px`;
 
     var c2 = document.getElementById("myChartBig");
-    console.log(c2,'c2')
+    console.log(c2, 'c2')
     if (c2) ctxbig = c2.getContext("2d");
 
     if (document.getElementById("myCanvasTrack")) {
@@ -1342,11 +1342,17 @@ class Home extends React.Component {
     wsMatrixName = e;
   };
 
+  // initPressCtx(){
+  //   var c2 = document.getElementById("myChartBig");
+  //   console.log(c2, 'c2')
+  //   if (c2) ctxbig = c2.getContext("2d");
+  // }
+
   handleChartsBody(arr, max, index) {
-    console.log('handleChartsBody')
+
     const canvas = document.getElementById('myChartBig')
-    console.log(canvas ,ctxbig )
-    if (canvas) {
+    // console.log(canvas , ctxbig)
+    if (canvas && ctxbig) {
       this.drawChart({ ctx: ctxbig, arr, max, canvas, index })
     }
 
@@ -1969,6 +1975,7 @@ class Home extends React.Component {
           colFlag={this.state.colFlag}
           changeStateData={this.changeStateData}
           setColValueFlag={this.setColValueFlag}
+          // initPressCtx={this.initPressCtx.bind(this)}
           canvasInit={this.canvasInit.bind(this)}
           numMatrixFlag={this.state.numMatrixFlag}
           centerFlag={this.state.centerFlag}
@@ -1976,6 +1983,7 @@ class Home extends React.Component {
           dataTime={this.state.dataTime}
           pointFlag={this.state.pointFlag}
           valueMult={this.state.valueMult}
+          pressChart={this.state.pressChart}
         // colNum={colNum}
         // changeDateArr={changeDateArr}
         />
@@ -2012,7 +2020,7 @@ class Home extends React.Component {
         ) : this.state.matrixName == "bigBed" ? (
           <CanvasCom matrixName={this.state.matrixName}>
             {" "}
-            <Bed ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)} changeSelect={this.changeSelect} />
+            <Bed ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)}  changeSelect={this.changeSelect} />
           </CanvasCom>
         ) : (
           <CanvasCom matrixName={this.state.matrixName}>
@@ -2025,10 +2033,10 @@ class Home extends React.Component {
 
         {/* 全床压力曲线 */}
         {this.state.matrixName === 'bigBed' ?
-         <div style={{ position: "fixed", width: '60%', right: "20%", bottom: "100px" }}>
-          <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas>
-        </div> 
-        : null}
+          <div style={{ position: "fixed", visibility : this.state.pressChart ? 'unset' : 'hidden', width: '60%', right: "20%", bottom: "100px" }}>
+            <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas>
+          </div>
+          : null}
 
         {this.state.local ? (
           // <div style={{ position: "fixed", bottom: 0, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -2119,7 +2127,7 @@ class Home extends React.Component {
               </div>
             </div> */}
 
-          
+
 
             {/* 新进度条 */}
 
@@ -2451,7 +2459,7 @@ class Home extends React.Component {
         </div>
 
 
-        
+
 
       </div>
     );

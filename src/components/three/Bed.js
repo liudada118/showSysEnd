@@ -510,7 +510,7 @@ const Canvas = React.forwardRef((props, refs) => {
       }
       bodyArr.push(parseInt(num / 32))
     }
-    console.log(bodyArr)
+    // console.log(bodyArr)
     props.handleChartsBody(bodyArr, ymax1)
 
     let k = 0,
