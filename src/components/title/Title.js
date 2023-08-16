@@ -310,6 +310,12 @@ class Title extends React.Component {
             }}
           >{'下载'}</Button>
         }
+
+        {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {
+          const flag = this.props.pressChart
+          this.props.changeStateData({ pressChart: !flag })
+        }}>压力曲线</Button> : null}
+
         {this.props.matrixName != 'car10' ? <Button
           className='titleButton'
           onClick={() => {
@@ -331,6 +337,7 @@ class Title extends React.Component {
               this.props.com.current?.changeRect(flag)
             }}
           >{this.props.pointFlag ? '矩形' : '点图'}</Button>
+          
         }
 
 
@@ -642,6 +649,52 @@ class Title extends React.Component {
                   }}
                   value={this.props.valuelInit1}
                   step={500}
+                  // value={this.props.}
+                  style={{ width: '200px' }}
+                />
+              </div>
+              <div
+                className="progerssSlide"
+                style={{
+                  display: "flex",
+
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#468493",
+                    minWidth: "80px",
+                    textAlign: "left",
+                  }}
+                >
+                  yMax
+                </div>
+                <Slider
+                  min={1}
+                  max={1000}
+                  onChange={(value) => {
+                    localStorage.setItem("ymax", value);
+                    // this.props.setValuelInit1(value);
+                    this.props.changeStateData({ ymax: value })
+
+                    if (this.props.com.current) {
+                      if (this.props.com.current.sitValue) {
+                        this.props.com.current.sitValue({
+                          ymax: value,
+                        });
+                      }
+                      if (this.props.com.current.backValue) {
+                        this.props.com.current.backValue({
+                          ymax: value,
+                        });
+                      }
+                    }
+
+
+                  }}
+                  value={this.props.ymax}
+                  step={10}
                   // value={this.props.}
                   style={{ width: '200px' }}
                 />

@@ -167,7 +167,7 @@ const content4 = (
     <p>下载轨迹图</p>
   </div>
 );
-
+let ctxbig
 class Home extends React.Component {
   constructor() {
     super();
@@ -216,8 +216,9 @@ class Home extends React.Component {
       press: false,
       dataTime: "",
       pointFlag: false,
+      pressChart: false,
       newArr: [],
-      yMax : 200
+      ymax: 200
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -228,6 +229,10 @@ class Home extends React.Component {
   componentDidMount() {
     console.log(window.innerWidth, document.documentElement.style);
     document.documentElement.style.fontSize = `${window.innerWidth / 120}px`;
+
+    var c2 = document.getElementById("myChartBig");
+    console.log(c2,'c2')
+    if (c2) ctxbig = c2.getContext("2d");
 
     if (document.getElementById("myCanvasTrack")) {
       var c = document.getElementById("myCanvasTrack");
@@ -601,7 +606,7 @@ class Home extends React.Component {
           for (let i = 0; i < 64; i++) {
             let num = 0
             for (let j = 0; j < 32; j++) {
-              num += wsPointData[j*64+i]
+              num += wsPointData[j * 64 + i]
             }
             bodyArr.push(parseInt(num / 32))
           }
@@ -647,9 +652,7 @@ class Home extends React.Component {
 
           // console.log(pressure , total / length)
 
-          sitPoint = DataArr.filter(
-            (a) => a > this.state.valuej1 * 0.02
-          ).length;
+          sitPoint = length
           sitTotal = DataArr.reduce((a, b) => a + b, 0);
           sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
           sitMax = findMax(DataArr);
@@ -818,11 +821,11 @@ class Home extends React.Component {
               jsonObject.index
             );
           }
-          console.log(this.bodyArr , 'body')
-          if (this.bodyArr && this.state.matrixName == "bigBed"){
+          console.log(this.bodyArr, 'body')
+          if (this.bodyArr && this.state.matrixName == "bigBed") {
             this.data.current?.handleChartsBody(this.bodyArr, 200);
           }
-            
+
 
         }
 
@@ -1339,6 +1342,61 @@ class Home extends React.Component {
     wsMatrixName = e;
   };
 
+  handleChartsBody(arr, max, index) {
+    console.log('handleChartsBody')
+    const canvas = document.getElementById('myChartBig')
+    console.log(canvas ,ctxbig )
+    if (canvas) {
+      this.drawChart({ ctx: ctxbig, arr, max, canvas, index })
+    }
+
+    // console.log(arr, max)
+  }
+
+  drawChart({ ctx, arr, max, canvas, index }) {
+    // 清空画布
+    const data = arr.map((a) => a * 150 / max)
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 计算数据点之间的间距
+    var gap = canvas.width / (data.length + 1);
+
+    // 绘制曲线
+    ctx.beginPath();
+    ctx.setLineDash([]);
+    ctx.moveTo(gap, canvas.height - data[0]);
+
+    for (var i = 1; i < data.length - 2; i++) {
+      var xMid = (gap * (i + 1) + gap * (i + 2)) / 2;
+      var yMid = (canvas.height - data[i + 1] + canvas.height - data[i + 2]) / 2;
+      ctx.quadraticCurveTo(gap * (i + 1), canvas.height - data[i + 1], xMid, yMid);
+    }
+
+    // 连接最后两个数据点
+    ctx.quadraticCurveTo(
+      gap * (data.length - 1),
+      canvas.height - data[data.length - 1],
+      gap * data.length,
+      canvas.height - data[data.length - 1]
+    );
+
+    // 设置曲线样式
+    ctx.strokeStyle = "#991BFA";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (index != null) {
+      ctx.beginPath();
+      ctx.moveTo(gap * (index), canvas.height);
+      ctx.lineTo(gap * (index), 0);
+      ctx.strokeStyle = "#01F1E3";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+    }
+
+  }
   // changeDateArr = (matrixName) => {
   //   if (matrixName == 'foot') {
   //     const dataArr = localStorage.getItem('dataArr')
@@ -1895,6 +1953,7 @@ class Home extends React.Component {
           valuel1={this.state.valuel1}
           valuej1={this.state.valuej1}
           valuelInit1={this.state.valuelInit1}
+          ymax={this.state.ymax}
           ref={this.title}
           com={this.com}
           port={this.state.port}
@@ -1953,7 +2012,7 @@ class Home extends React.Component {
         ) : this.state.matrixName == "bigBed" ? (
           <CanvasCom matrixName={this.state.matrixName}>
             {" "}
-            <Bed ref={this.com} changeSelect={this.changeSelect} />
+            <Bed ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)} changeSelect={this.changeSelect} />
           </CanvasCom>
         ) : (
           <CanvasCom matrixName={this.state.matrixName}>
@@ -1963,6 +2022,13 @@ class Home extends React.Component {
         {/* <Com>
           <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
         </Com> */}
+
+        {/* 全床压力曲线 */}
+        {this.state.matrixName === 'bigBed' ?
+         <div style={{ position: "fixed", width: '60%', right: "20%", bottom: "100px" }}>
+          <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas>
+        </div> 
+        : null}
 
         {this.state.local ? (
           // <div style={{ position: "fixed", bottom: 0, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -2053,6 +2119,8 @@ class Home extends React.Component {
               </div>
             </div> */}
 
+          
+
             {/* 新进度条 */}
 
             <div
@@ -2111,9 +2179,9 @@ class Home extends React.Component {
                     this.pressMax + 100,
                     value + 1
                   );
-                if (this.bodyArr && this.state.matrixName == "bigBed"){
-                    this.data.current?.handleChartsBody(this.bodyArr, 200);
-                  }
+                if (this.bodyArr && this.state.matrixName == "bigBed") {
+                  this.data.current?.handleChartsBody(this.bodyArr, 200);
+                }
               }}
             >
               <div
@@ -2344,7 +2412,7 @@ class Home extends React.Component {
               }}></div>
           </div>
         </div> */}
-        <div style={{ position: "fixed", bottom: "20px", color: "#fff" }}>
+        {/* <div style={{ position: "fixed", bottom: "20px", color: "#fff" }}>
           <div
             style={{ border: "1px solid #01F1E3" }}
             onClick={() => {
@@ -2367,7 +2435,7 @@ class Home extends React.Component {
           >
             {this.state.pressNum ? "压力算法" : "不压力算法"}
           </div>
-        </div>
+        </div> */}
         <div style={{ position: "fixed", right: "25%", bottom: "20px" }}>
           {this.state.newArr.length
             ? this.state.newArr.map((a, indexs) => {
@@ -2381,6 +2449,10 @@ class Home extends React.Component {
             })
             : null}
         </div>
+
+
+        
+
       </div>
     );
   }

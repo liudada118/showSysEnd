@@ -40,6 +40,7 @@ var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getIte
   value1 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
   valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
   valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
+  ymax1 = localStorage.getItem('ymax') ? JSON.parse(localStorage.getItem('ymax')) : 200,
   valuej2 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
   valueg2 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
   value2 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
@@ -493,6 +494,25 @@ const Canvas = React.forwardRef((props, refs) => {
       valueg1
     );
 
+    let bodyArr = []
+          // for (let i = 0; i < 64; i++) {
+          //   let num = 0
+          //   for (let j = 0; j < 32; j++) {
+          //     num += wsPointData[j * 64 + i]
+          //   }
+          //   bodyArr.push(parseInt(num / 32))
+          // }
+
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+      let num = 0
+      for (let iy = 0; iy < AMOUNTY; iy++) {
+        num += bigArrg[iy * AMOUNTX + ix]
+      }
+      bodyArr.push(parseInt(num / 32))
+    }
+    console.log(bodyArr)
+    props.handleChartsBody(bodyArr, ymax1)
+
     let k = 0,
       l = 0;
 
@@ -604,14 +624,14 @@ const Canvas = React.forwardRef((props, refs) => {
   // 座椅数据
   function sitValue(prop) {
 
-    const { valuej, valueg, value, valuel, valuef, valuelInit } = prop;
+    const { valuej, valueg, value, valuel, valuef, valuelInit,ymax } = prop;
     if (valuej) valuej1 = valuej;
     if (valueg) valueg1 = valueg;
     if (value) value1 = value;
     if (valuel) valuel1 = valuel;
     if (valuef) valuef1 = valuef;
     if (valuelInit) valuelInit1 = valuelInit;
-
+    if (ymax) ymax1 = ymax;
 
   }
   function sitData(prop) {

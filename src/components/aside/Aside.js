@@ -372,7 +372,10 @@ class Aside extends React.Component {
     handleChartsBody(arr, max, index) {
         console.log('handleChartsBody')
         const canvas = document.getElementById('myChart3')
-        this.drawChart({ ctx: ctx3, arr, max, canvas, index })
+        if(canvas){
+            this.drawChart({ ctx: ctx3, arr, max, canvas, index })
+        }
+       
         // console.log(arr, max)
     }
 
@@ -470,9 +473,9 @@ class Aside extends React.Component {
                         }
                     </>}
                 </div>
-                {this.props.matrixName === 'bigBed' ? <div className="asideContent" style={{padding : 0}}>
+                {/* {this.props.matrixName === 'bigBed' ? <div className="asideContent" style={{padding : 0}}>
                     <canvas id="myChart3" style={{ height: '150px', width: '100%' }}></canvas>
-                </div> : null}
+                </div> : null} */}
             </div>
         )
     }
