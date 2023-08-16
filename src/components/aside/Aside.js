@@ -470,7 +470,7 @@ class Aside extends React.Component {
                         }
                     </>}
                 </div>
-                {this.props.matrixName === 'bigBed' ? <div className="asideContent">
+                {this.props.matrixName === 'bigBed' ? <div className="asideContent" style={{padding : 0}}>
                     <canvas id="myChart3" style={{ height: '150px', width: '100%' }}></canvas>
                 </div> : null}
             </div>
