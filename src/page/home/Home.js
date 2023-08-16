@@ -2007,7 +2007,7 @@ class Home extends React.Component {
           <Heatmap ref={this.com} />
         ) : this.state.matrixName == "foot" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            <Canvas ref={this.com} changeSelect={this.changeSelect} />{" "}
+            <Canvas ref={this.com} changeSelect={this.changeSelect} />
           </CanvasCom>
         ) : this.state.matrixName == "hand" ? (
           <CanvasCom matrixName={this.state.matrixName}>
@@ -2019,8 +2019,7 @@ class Home extends React.Component {
           </CanvasCom>
         ) : this.state.matrixName == "bigBed" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            {" "}
-            <Bed ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)}  changeSelect={this.changeSelect} />
+            <Bed ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)} changeSelect={this.changeSelect} />
           </CanvasCom>
         ) : (
           <CanvasCom matrixName={this.state.matrixName}>
@@ -2033,7 +2032,7 @@ class Home extends React.Component {
 
         {/* 全床压力曲线 */}
         {this.state.matrixName === 'bigBed' ?
-          <div style={{ position: "fixed", visibility : this.state.pressChart ? 'unset' : 'hidden', width: '60%', right: "20%", bottom: "100px" }}>
+          <div style={{ position: "fixed", visibility: this.state.pressChart ? 'unset' : 'hidden', width: '60%', right: "20%", bottom: "100px" }}>
             <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas>
           </div>
           : null}
@@ -2052,83 +2051,6 @@ class Home extends React.Component {
               flexDirection: "column",
             }}
           >
-            {/* 旧进度条 */}
-            {/* <div style={{ width: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', position: 'relative' }}>
-              <Slider
-
-                min={0}
-                max={this.state.length - 2}
-                onChange={(value) => {
-                  localStorage.setItem("localValuej", value);
-                  console.log(value)
-
-                  this.setState({
-                    index: value
-                  })
-                  if (ws && ws.readyState === 1) {
-                    ws.send(JSON.stringify({ value }))
-                  }
-                }}
-                value={this.state.index}
-                step={1}
-                style={{ width: '100%' }}
-              />
-
-
-
-
-
-
-
-              <div>
-                <img src={play} style={{ width: '50px', display: this.state.playflag ? 'none' : 'unset' }}
-                  onClick={() => { this.playData(true) }}
-                  alt="" />
-                <img src={pause} style={{ width: '50px', display: this.state.playflag ? 'unset' : 'none' }}
-                  onClick={() => { this.playData(false) }}
-                  alt="" />
-                <div style={{ position: 'absolute', bottom: 0, right: '20%' }}>
-                  <Select
-                    defaultValue="1.0X"
-                    style={{
-                      width: 80,
-                    }}
-                    onChange={(e) => {
-                      console.log(e)
-                      this.wsSendObj({ speed: e })
-                    }}
-
-                    // dropdownMatchSelectWidth={false}
-                    placement={'topLeft'}
-                    options={[
-                      {
-                        value: 0.25,
-                        label: '0.25X',
-                      },
-                      {
-                        value: 0.5,
-                        label: '0.5X',
-                      },
-                      {
-                        value: 1,
-                        label: '1.0X',
-                      },
-                      {
-                        value: 1.5,
-                        label: '1.5X',
-                      },
-                      {
-                        value: 2,
-                        label: '2.0X',
-                      },
-                    ]}
-                  />
-                </div>
-              </div>
-            </div> */}
-
-
-
             {/* 新进度条 */}
 
             <div
