@@ -280,7 +280,7 @@ class Title extends React.Component {
           //   <div className='aniButton' onClick={() => this.props.com.current?.actionBack()}>back</div>
           //   <div className='aniButton' onClick={() => this.props.com.current?.actionSit()}>sit</div>
           //   <div className='aniButton' onClick={() => this.props.com.current?.actionAll()}>all</div>
-          // </div> 
+          // </div>
           <Menu className='menu' onClick={this.onCarClick} selectedKeys={[this.state.carCurrent]} mode="horizontal" items={carItems} />
           : null}
         {!this.props.local ?
@@ -317,6 +317,14 @@ class Title extends React.Component {
           // this.props.initPressCtx()
         }}>压力曲线</Button> : null}
 
+        {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {
+
+          if(this.props.com.current){
+            this.props.com.current.logData()
+          }
+          // this.props.initPressCtx()
+        }}>打印曲线</Button> : null}
+
         {this.props.matrixName != 'car10' ? <Button
           className='titleButton'
           onClick={() => {
@@ -338,7 +346,7 @@ class Title extends React.Component {
               this.props.com.current?.changeRect(flag)
             }}
           >{this.props.pointFlag ? '矩形' : '点图'}</Button>
-          
+
         }
 
 
@@ -360,7 +368,7 @@ class Title extends React.Component {
           this.setState({
             show: !show
           })
-          // setShow(!show) 
+          // setShow(!show)
         }} className='optionImg' src={option} alt="" />
         {
           this.state.show ? <div className='slideContent' style={{ position: 'absolute', width: '300px', padding: '20px', backgroundColor: 'rgba(21,18,42,0.8)', borderRadius: '20px', right: 0, zIndex: 100 }}>

@@ -612,8 +612,8 @@ class Home extends React.Component {
           }
           this.bodyArr = bodyArr
           // console.log(this.bodyArr , this.state.local)
-          if (this.state.matrixName == "bigBed" && !this.state.local)
-            this.data.current?.handleChartsBody(bodyArr, 200);
+          // if (this.state.matrixName == "bigBed" && !this.state.local)
+          //   this.data.current?.handleChartsBody(bodyArr, 200);
 
           this.com.current?.sitData({
             wsPointData: wsPointData,
@@ -822,9 +822,9 @@ class Home extends React.Component {
             );
           }
           console.log(this.bodyArr, 'body')
-          if (this.bodyArr && this.state.matrixName == "bigBed") {
-            this.data.current?.handleChartsBody(this.bodyArr, 200);
-          }
+          // if (this.bodyArr && this.state.matrixName == "bigBed") {
+          //   this.data.current?.handleChartsBody(this.bodyArr, 200);
+          // }
 
 
         }
@@ -2055,13 +2055,13 @@ class Home extends React.Component {
             {/* 旧进度条 */}
             {/* <div style={{ width: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', position: 'relative' }}>
               <Slider
-                
+
                 min={0}
                 max={this.state.length - 2}
                 onChange={(value) => {
                   localStorage.setItem("localValuej", value);
                   console.log(value)
-                
+
                   this.setState({
                     index: value
                   })
@@ -2075,7 +2075,7 @@ class Home extends React.Component {
               />
 
 
-            
+
 
 
 
@@ -2187,9 +2187,9 @@ class Home extends React.Component {
                     this.pressMax + 100,
                     value + 1
                   );
-                if (this.bodyArr && this.state.matrixName == "bigBed") {
-                  this.data.current?.handleChartsBody(this.bodyArr, 200);
-                }
+                // if (this.bodyArr && this.state.matrixName == "bigBed") {
+                //   this.data.current?.handleChartsBody(this.bodyArr, 200);
+                // }
               }}
             >
               <div
@@ -2391,7 +2391,7 @@ class Home extends React.Component {
                 e.stopPropagation()
               }}
             >
-              
+
             </div>
             <div style={{ border: this.state.rightFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 580, width: 20, height: '30px', backgroundColor: 'yellow' }}
               className='rightProgress'
@@ -2415,7 +2415,7 @@ class Home extends React.Component {
               style={{
                 position: 'absolute',
                 left: 20,
-               
+
                 height: 36, width: 2, transform: `translate('-50%')`, backgroundColor: 'red'
               }}></div>
           </div>

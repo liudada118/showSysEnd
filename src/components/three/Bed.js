@@ -72,15 +72,15 @@ const Canvas = React.forwardRef((props, refs) => {
     bigArrg1 = new Array(
       (backnum1 * backInterp + 2 * backOrder) *
       (backnum2 * backInterp + 2 * backOrder)
-    ).fill(1),
+    ).fill(0),
     bigArrg1new = new Array(
       (backnum1 * backInterp + 2 * backOrder) *
       (backnum2 * backInterp + 2 * backOrder)
-    ).fill(1),
+    ).fill(0),
     smoothBig1 = new Array(
       (backnum1 * backInterp + 2 * backOrder) *
       (backnum2 * backInterp + 2 * backOrder)
-    ).fill(1),
+    ).fill(0),
     ndata1Num,
     ndataNum;
 
@@ -88,21 +88,21 @@ const Canvas = React.forwardRef((props, refs) => {
   let bigArrg = new Array(
     (sitnum1 * sitInterp + sitOrder * 2) *
     (sitnum2 * sitInterp + sitOrder * 2)
-  ).fill(1),
+  ).fill(0),
     bigArrgnew = new Array(
       (sitnum1 * sitInterp + sitOrder * 2) *
       (sitnum2 * sitInterp + sitOrder * 2)
-    ).fill(1),
+    ).fill(0),
     smoothBig = new Array(
       (sitnum1 * sitInterp + sitOrder * 2) *
       (sitnum2 * sitInterp + sitOrder * 2)
-    ).fill(1);
+    ).fill(0);
   let i = 0;
   let ws,
     wsPointData,
     ws1
 
-
+let bodyArr
   let container, stats;
 
   let camera, scene, renderer;
@@ -157,7 +157,7 @@ const Canvas = React.forwardRef((props, refs) => {
     initPoint();
     // scene.add(group);
     // group.rotation.x = Math.PI / 3
-    group.position.x = 3  
+    group.position.x = 3
     group.position.y = 110
     group.position.z = 5
     scene.add(group);
@@ -243,7 +243,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
       // group.position.x = -10
       // group.position.y = 110
-      // group.position.z =5 
+      // group.position.z =5
 
 
       sitArr = getPointCoordinate({ particles, camera, position: { x: group.position.x, y: group.position.y, z: group.position.z } })
@@ -310,7 +310,7 @@ const Canvas = React.forwardRef((props, refs) => {
         // if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
 
         props.changeSelect({ sit: sitIndexArr,
-          //  back: backIndexArr 
+          //  back: backIndexArr
           })
       }
 
@@ -378,13 +378,13 @@ const Canvas = React.forwardRef((props, refs) => {
 
     // particles.rotation.x = Math.PI / 4;
     // particles.rotation.y = 0; //-Math.PI / 2;
-    // particles.rotation.y = Math.PI 
+    // particles.rotation.y = Math.PI
     // particles.rotation.z = Math.PI
     // scene.add(particles);
     group.add(particles);
 
 
-    // 
+    //
     // const position = particles.geometry.attributes.position;
 
     // const screenCoordinates = [];
@@ -417,7 +417,7 @@ const Canvas = React.forwardRef((props, refs) => {
     //   //getPositionFromMatrix()方法已经删除,使用setFromMatrixPosition()替换, setFromMatrixPosition方法将返回从矩阵中的元素得到的新的向量值的向量
     //   vector.setFromMatrixPosition(point.matrixWorld);
 
-    //   //projectOnVector方法在将当前三维向量(x,y,z)投影一个向量到另一个向量,参数vector(x,y,z). 
+    //   //projectOnVector方法在将当前三维向量(x,y,z)投影一个向量到另一个向量,参数vector(x,y,z).
     //   vector.project(camera);
 
     //   vector.x = (vector.x * widthHalf) + widthHalf;
@@ -427,7 +427,7 @@ const Canvas = React.forwardRef((props, refs) => {
     // console.log(group)
   }
   // 初始化靠背
- 
+
 
   function initPoint() {
     const geometry = new THREE.PlaneGeometry(2, 2);
@@ -465,10 +465,10 @@ const Canvas = React.forwardRef((props, refs) => {
 
 
   //  更新靠背数据
- 
+
 
   //  更新座椅数据
-  function sitRenew() { 
+  function sitRenew() {
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
 
@@ -494,11 +494,11 @@ const Canvas = React.forwardRef((props, refs) => {
       valueg1
     );
 
-    let bodyArr = []
+    bodyArr = []
           // for (let i = 0; i < 64; i++) {
           //   let num = 0
           //   for (let j = 0; j < 32; j++) {
-          //     num += wsPointData[j * 64 + i]
+          //     num += ndata1[j * 64 + i]
           //   }
           //   bodyArr.push(parseInt(num / 32))
           // }
@@ -506,11 +506,11 @@ const Canvas = React.forwardRef((props, refs) => {
     for (let ix = 0; ix < AMOUNTX; ix++) {
       let num = 0
       for (let iy = 0; iy < AMOUNTY; iy++) {
-        num += bigArrg[iy * AMOUNTX + ix]
+        num += bigArrg[ix * AMOUNTY + iy]
       }
-      bodyArr.push(parseInt(num / 32))
+      bodyArr.push(parseInt(num / AMOUNTY))
     }
-    // console.log(bodyArr)
+
     props.handleChartsBody(bodyArr, ymax1)
 
     let k = 0,
@@ -599,6 +599,10 @@ const Canvas = React.forwardRef((props, refs) => {
     renderer.render(scene, camera);
   }
 
+  function logData(){
+    console.log(JSON.stringify(bodyArr))
+  }
+
   //   靠背数据
   function backData(prop) {
     const {
@@ -607,7 +611,7 @@ const Canvas = React.forwardRef((props, refs) => {
     newData = wsPointData
 
     // 修改线序 坐垫
-    
+
   }
   function backValue(prop) {
     const { valuej, valueg, value, valuel, valuef, valuelInit } = prop;
@@ -618,7 +622,7 @@ const Canvas = React.forwardRef((props, refs) => {
     if (valuef) valuef2 = valuef;
 
     if (valuelInit) valuelInit2 = valuelInit;
-    
+
 
   }
   // 座椅数据
@@ -644,7 +648,7 @@ const Canvas = React.forwardRef((props, refs) => {
     if (arr) cooArr = arr
     newData1 = wsPointData;
 
-    
+
 
   }
 
@@ -703,7 +707,7 @@ const Canvas = React.forwardRef((props, refs) => {
     sitData: sitData,
     changeDataFlag: changeDataFlag,
     sitValue,
-    
+    logData,
     sitRenew,
     changeGroupRotate,
     reset,
@@ -770,7 +774,7 @@ const Canvas = React.forwardRef((props, refs) => {
   return (
     <div>
       <div
-      
+
         id={`canvas`}
       ></div>
     </div>
