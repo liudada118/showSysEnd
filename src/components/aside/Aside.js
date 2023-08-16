@@ -259,7 +259,7 @@ class Com extends React.Component {
 const arr = ['meanPres', 'maxPres', 'totalPres', 'presStan']
 const arrArea = ['point', 'area',]
 const footArr = ['meanPres', 'maxPres', 'point', 'area',]
-let ctx1, ctx2
+let ctx1, ctx2,ctx3
 class Aside extends React.Component {
     constructor() {
         super()
@@ -272,9 +272,9 @@ class Aside extends React.Component {
             area: 0,
             pressure: 0,
             presStan: 0,
-            pressMult:  localStorage.getItem("valueMult")
-            ? JSON.parse(localStorage.getItem("valueMult"))
-            : 1
+            pressMult: localStorage.getItem("valueMult")
+                ? JSON.parse(localStorage.getItem("valueMult"))
+                : 1
         }
         this.canvas = React.createRef()
     }
@@ -292,6 +292,9 @@ class Aside extends React.Component {
 
         var c1 = document.getElementById("myChart2");
         if (c1) ctx2 = c1.getContext("2d");
+
+        var c2 = document.getElementById("myChart3");
+        if (c2) ctx3 = c2.getContext("2d");
     }
 
     componentDidUpdate() {
@@ -300,6 +303,9 @@ class Aside extends React.Component {
 
         var c1 = document.getElementById("myChart2");
         if (c1) ctx2 = c1.getContext("2d");
+
+        var c2 = document.getElementById("myChart3");
+        if (c2) ctx3 = c2.getContext("2d");
     }
 
     drawChart({ ctx, arr, max, canvas, index }) {
@@ -363,6 +369,13 @@ class Aside extends React.Component {
         // console.log(arr, max)
     }
 
+    handleChartsBody(arr, max, index) {
+        console.log('handleChartsBody')
+        const canvas = document.getElementById('myChart3')
+        this.drawChart({ ctx: ctx3, arr, max, canvas, index })
+        // console.log(arr, max)
+    }
+
     initCharts() {
         const canvas = document.getElementById('myChart1')
         if (ctx1) {
@@ -371,6 +384,11 @@ class Aside extends React.Component {
         const canvas1 = document.getElementById('myChart2')
         if (ctx2) {
             ctx2.clearRect(0, 0, canvas1.width, canvas1.height);
+        }
+
+        const canvas2 = document.getElementById('myChart3')
+        if (ctx3) {
+            ctx3.clearRect(0, 0, canvas2.width, canvas2.height);
         }
     }
 
@@ -406,10 +424,10 @@ class Aside extends React.Component {
                             }
                         </> </> : <Com> <CanvasDemo ref={this.canvas} /></Com>}
                 </div>
-                <div className="asideContent">
+                <div className="asideContent firstAside">
                     <h2 className="asideTitle">Pressure Data</h2>
                     {/* <div style={{}}> */}
-                    <span className='pressData'>{this.state.pressure*this.state.pressMult}</span> <span style={{ color: '#999' }}>{this.props.matrixName === 'bigBed' ? 'mmgH' : null}</span>
+                    <span className='pressData'>{(this.state.pressure * this.state.pressMult).toFixed(2)}</span> <span style={{ color: '#999' }}>{this.props.matrixName === 'bigBed' ? 'mmgH' : null}</span>
                     {/* </div> */}
 
                     {this.props.matrixName != 'foot' ? <>
@@ -452,6 +470,9 @@ class Aside extends React.Component {
                         }
                     </>}
                 </div>
+                {this.props.matrixName === 'bigBed' ? <div className="asideContent">
+                    <canvas id="myChart3" style={{ height: '150px', width: '100%' }}></canvas>
+                </div> : null}
             </div>
         )
     }

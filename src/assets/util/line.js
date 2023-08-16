@@ -151,9 +151,12 @@ export function calculateY(arr) {
 }
 
 export function calculatePressure(x) {
-  const coefficient2 = 0.005472;
-  const coefficient1 = -0.536858;
-  const constant = 16.352656;
+  if(x < 40){
+    return 0
+  }
+  const coefficient2 = -0.005051;
+  const coefficient1 = 1.198526;
+  const constant = -38.228519;
 
   // const y = coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant;
 

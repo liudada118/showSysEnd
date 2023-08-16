@@ -217,6 +217,7 @@ class Home extends React.Component {
       dataTime: "",
       pointFlag: false,
       newArr: [],
+      yMax : 200
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -596,6 +597,19 @@ class Home extends React.Component {
           selectArr = [];
           wsPointData = pressBed(wsPointData, 1500);
 
+          let bodyArr = []
+          for (let i = 0; i < 64; i++) {
+            let num = 0
+            for (let j = 0; j < 32; j++) {
+              num += wsPointData[j*64+i]
+            }
+            bodyArr.push(parseInt(num / 32))
+          }
+          this.bodyArr = bodyArr
+          // console.log(this.bodyArr , this.state.local)
+          if (this.state.matrixName == "bigBed" && !this.state.local)
+            this.data.current?.handleChartsBody(bodyArr, 200);
+
           this.com.current?.sitData({
             wsPointData: wsPointData,
           });
@@ -782,6 +796,8 @@ class Home extends React.Component {
             index: jsonObject.index,
           });
 
+          console.log('index')
+
           if (this.areaArr) {
             this.data.current?.handleChartsArea(
               this.areaArr,
@@ -795,13 +811,19 @@ class Home extends React.Component {
               });
             }
           }
-          if (this.pressArr && this.state.matrixName == "car") {
+          if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed")) {
             this.data.current?.handleCharts(
               this.pressArr,
               this.pressMax + 100,
               jsonObject.index
             );
           }
+          console.log(this.bodyArr , 'body')
+          if (this.bodyArr && this.state.matrixName == "bigBed"){
+            this.data.current?.handleChartsBody(this.bodyArr, 200);
+          }
+            
+
         }
 
         // if(jsonObject.index == this.indexArr[0])
@@ -816,7 +838,7 @@ class Home extends React.Component {
 
       if (jsonObject.pressArr != null) {
         const max = findMax(jsonObject.pressArr);
-        if (this.state.matrixName == "car") {
+        if (this.state.matrixName == "car" || this.state.matrixName == "bigBed") {
           this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
           this.pressMax = max;
           this.pressArr = jsonObject.pressArr;
@@ -1590,7 +1612,9 @@ class Home extends React.Component {
         );
       }
 
-      if (this.pressArr && this.state.matrixName == "car") {
+      console.log('line')
+
+      if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed")) {
         this.data.current?.handleCharts(
           this.pressArr,
           this.pressMax + 100,
@@ -1899,7 +1923,7 @@ class Home extends React.Component {
         {/* </TitleCom> */}
         {/* </Com> */}
         <CanvasCom matrixName={this.state.matrixName}>
-          <Aside ref={this.data} matrixName={this.state.matrixName}/>
+          <Aside ref={this.data} matrixName={this.state.matrixName} />
         </CanvasCom>
 
         {this.state.numMatrixFlag == "num" &&
@@ -2081,12 +2105,15 @@ class Home extends React.Component {
                     this.max + 100,
                     value + 1
                   );
-                if (this.pressArr && this.state.matrixName == "car")
+                if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed"))
                   this.data.current?.handleCharts(
                     this.pressArr,
                     this.pressMax + 100,
                     value + 1
                   );
+                if (this.bodyArr && this.state.matrixName == "bigBed"){
+                    this.data.current?.handleChartsBody(this.bodyArr, 200);
+                  }
               }}
             >
               <div
