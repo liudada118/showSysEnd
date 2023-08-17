@@ -46,7 +46,6 @@ export default function ProgressCom(props) {
     }
 
     const changeLeftProgress = (e) => {
-        console.log(leftFlag)
         // 当进度条左边被按住调节起始的时间时
         if (leftFlag) {
             const leftX = document.querySelector(".progress").getBoundingClientRect().x;
@@ -57,8 +56,10 @@ export default function ProgressCom(props) {
             document.querySelector(".leftProgress").style.left = `${leftpx > right - 20 ? right - 20 : leftpx}px`;
 
             const left = parseInt(document.querySelector(".leftProgress").style.left);
-
+            
             const lineleft = parseInt(document.querySelector(".progressLine").style.left);
+
+            console.log(lineleft , e.clientX - leftX + 10,document.querySelector(".progressLine").style.left)
 
             if (lineleft < e.clientX - leftX + 10) {
                 document.querySelector(".progressLine").style.left = `${moveValue(left + 20)}px`;
@@ -239,6 +240,7 @@ export default function ProgressCom(props) {
                 <div
                     // ref={this.line}
                     className="progressLine"
+                    style={{ left: 20}}
                     onMouseDown={(e) => {
                         setLineFlag(true)
                     }}
@@ -254,7 +256,7 @@ export default function ProgressCom(props) {
 
 
                     onClick={() => {
-                        if (dataTime) {
+                        if (props.dataTime) {
                             playData(true);
                         } else {
                             message.info("请先选择回放数据时间段");

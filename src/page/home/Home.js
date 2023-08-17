@@ -805,7 +805,6 @@ class Home extends React.Component {
             index: jsonObject.index,
           });
 
-          console.log('index')
 
           if (this.areaArr) {
             this.data.current?.handleChartsArea(
@@ -1325,9 +1324,6 @@ class Home extends React.Component {
       // connection closed
     };
 
-    window.addEventListener("mousemove", this.changeLeftProgress.bind(this));
-
-    window.addEventListener("mouseup", this.changeLeftProgressFalse.bind(this));
   }
 
   canvasText1(ctx, width, htmlWidth) {
@@ -1542,21 +1538,6 @@ class Home extends React.Component {
     }
 
   }
-  // changeDateArr = (matrixName) => {
-  //   if (matrixName == 'foot') {
-  //     const dataArr = localStorage.getItem('dataArr')
-  //     const arr = dataArr ? JSON.parse(dataArr) : []
-  //     this.setState({ dataArr: arr })
-  //   } else if (matrixName == 'hand') {
-  //     const dataArr = localStorage.getItem('handArr')
-  //     const arr = dataArr ? JSON.parse(dataArr) : []
-  //     this.setState({ dataArr: arr })
-  //   } else if (matrixName == 'car') {
-  //     const dataArr = localStorage.getItem('carArr')
-  //     const arr = dataArr ? JSON.parse(dataArr) : []
-  //     this.setState({ dataArr: arr })
-  //   }
-  // }
 
   changeLocal = (value) => {
     this.setState({ local: value });
@@ -1675,167 +1656,7 @@ class Home extends React.Component {
     link.click();
   }
 
-  moveValue(value) {
-    return value < 0 ? 0 : value > 580 ? 580 : value;
-  }
 
-  thrott(fun) {
-    if (!this.timer) {
-      this.timer = setTimeout(() => {
-        fun();
-        this.timer = null;
-      }, 100);
-    }
-  }
-
-  changePxToValue(value, type) {
-    let res;
-
-    if (type === "line") {
-      res = Math.floor(((value - 20) / 560) * (this.state.length - 1));
-    } else {
-      res = Math.floor((value / 580) * (this.state.length - 1));
-    }
-    return res;
-  }
-
-  changeLeftProgress(e) {
-    if (this.state.leftFlag) {
-      const leftX = document
-        .querySelector(".progress")
-        .getBoundingClientRect().x;
-      const right = parseInt(
-        document.querySelector(".rightProgress").style.left
-      );
-      var moveX = e.clientX;
-
-      const leftpx = this.moveValue(e.clientX - leftX - 10);
-
-      document.querySelector(".leftProgress").style.left = `${leftpx > right - 20 ? right - 20 : leftpx
-        }px`;
-
-      const left = parseInt(document.querySelector(".leftProgress").style.left);
-
-      const lineleft = parseInt(
-        document.querySelector(".progressLine").style.left
-      );
-
-      if (lineleft < e.clientX - leftX + 10) {
-        document.querySelector(".progressLine").style.left = `${this.moveValue(
-          left + 20
-        )}px`;
-        let value = this.changePxToValue(left, "line");
-        this.thrott(() => {
-          this.wsSendObj({
-            value,
-          });
-        });
-      }
-      let arr = [this.changePxToValue(left), this.changePxToValue(right)];
-
-      this.thrott(() => {
-        this.wsSendObj({
-          indexArr: arr,
-        });
-      });
-    }
-
-    if (this.state.rightFlag) {
-      const leftX = document
-        .querySelector(".progress")
-        .getBoundingClientRect().x;
-      const left = parseInt(document.querySelector(".leftProgress").style.left);
-
-      var moveX = e.clientX;
-
-      const rightpx = this.moveValue(e.clientX - leftX - 10);
-      document.querySelector(".rightProgress").style.left = `${rightpx < left + 20 ? left + 20 : rightpx
-        }px`;
-
-      const right = parseInt(
-        document.querySelector(".rightProgress").style.left
-      );
-      const lineleft = parseInt(
-        document.querySelector(".progressLine").style.left
-      );
-      if (lineleft > e.clientX - leftX - 10) {
-        document.querySelector(".progressLine").style.left = `${this.moveValue(
-          right
-        )}px`;
-        let value = this.changePxToValue(right, "line");
-        this.thrott(() => {
-          this.wsSendObj({
-            value,
-          });
-        });
-      }
-
-      let arr = [this.changePxToValue(left), this.changePxToValue(right)];
-
-      this.thrott(() => {
-        this.wsSendObj({
-          indexArr: arr,
-        });
-      });
-    }
-
-    if (this.state.lineFlag) {
-      const leftX = document
-        .querySelector(".progress")
-        .getBoundingClientRect().x;
-      var moveX = e.clientX;
-      const left = parseInt(document.querySelector(".leftProgress").style.left);
-      const right = parseInt(
-        document.querySelector(".rightProgress").style.left
-      );
-      document.querySelector(".progressLine").style.left = `${this.moveValue(
-        e.clientX - leftX < left + 20
-          ? left + 20
-          : e.clientX - leftX > right
-            ? right
-            : e.clientX - leftX
-      )}px`;
-
-      const lineleft = parseInt(
-        document.querySelector(".progressLine").style.left
-      );
-
-      let value = this.changePxToValue(lineleft, "line");
-      this.thrott(() => {
-        this.wsSendObj({
-          value,
-        });
-      });
-
-      if (this.areaArr) {
-        this.data.current?.handleChartsArea(
-          this.areaArr,
-          this.max + 100,
-          value + 1
-        );
-      }
-
-      console.log('line')
-
-      if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed")) {
-        this.data.current?.handleCharts(
-          this.pressArr,
-          this.pressMax + 100,
-          value + 1
-        );
-      }
-    }
-  }
-
-  changeLeftProgressFalse() {
-    this.setState({
-      leftFlag: false,
-      rightFlag: false,
-      lineFlag: false,
-    });
-  }
-
-  changeCenterFlag() { }
 
   render() {
     return (
@@ -2114,7 +1935,6 @@ class Home extends React.Component {
           colFlag={this.state.colFlag}
           changeStateData={this.changeStateData}
           setColValueFlag={this.setColValueFlag}
-          // initPressCtx={this.initPressCtx.bind(this)}
           canvasInit={this.canvasInit.bind(this)}
           numMatrixFlag={this.state.numMatrixFlag}
           centerFlag={this.state.centerFlag}
@@ -2123,11 +1943,8 @@ class Home extends React.Component {
           pointFlag={this.state.pointFlag}
           valueMult={this.state.valueMult}
           pressChart={this.state.pressChart}
-        // colNum={colNum}
-        // changeDateArr={changeDateArr}
         />
-        {/* </TitleCom> */}
-        {/* </Com> */}
+ 
         <CanvasCom matrixName={this.state.matrixName}>
           <Aside ref={this.data} matrixName={this.state.matrixName} />
         </CanvasCom>
@@ -2176,8 +1993,18 @@ class Home extends React.Component {
           </div>
           : null}
 
+        {/* 进度条 */}
         {this.state.local ?
-          <ProgressCom matrixName={this.state.matrixName} data={this.data} areaArr={this.areaArr} pressArr={this.pressArr} length={this.state.length} wsSendObj={this.wsSendObj} />
+          <ProgressCom
+            dataTime={this.state.dataTime}
+            matrixName={this.state.matrixName}
+            data={this.data}
+            areaArr={this.areaArr}
+            pressArr={this.pressArr}
+            length={this.state.length}
+            max={this.max}
+            pressMax={this.pressMax}
+            wsSendObj={this.wsSendObj} />
           : null}
 
         {this.state.matrixName == "foot" ? (
@@ -2207,76 +2034,6 @@ class Home extends React.Component {
           </CanvasCom>
         ) : null}
 
-        {/* <div style={{ position: "fixed", bottom: 15, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{
-            width: 600, display: 'flex', justifyContent: 'center',
-            flexDirection: 'column',
-            position: 'relative',
-            border: '1px #01F1E3 solid',
-            height: '30px'
-          }}
-            className='progress'
-
-            onClick={(e) => {
-              const leftX = document.querySelector('.progress').getBoundingClientRect().x
-              const left = parseInt(document.querySelector('.leftProgress').style.left)
-              const right = parseInt(document.querySelector('.rightProgress').style.left)
-              document.querySelector('.progressLine').style.left = `${this.moveValue(e.clientX - leftX < left + 20 ? left + 20 : e.clientX - leftX > right ? right : e.clientX - leftX)}px`
-
-              const lineleft = parseInt(document.querySelector('.progressLine').style.left)
-
-              let value = this.changePxToValue(lineleft, 'line')
-              console.log(lineleft, value)
-
-              this.wsSendObj({
-                value
-              })
-
-            }}
-          >
-
-            <div style={{ border: this.state.leftFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 0, width: 20, height: '30px', backgroundColor: 'yellow', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              className='leftProgress'
-              onMouseDown={(e) => {
-                e.stopPropagation()
-                console.log('down')
-                this.setState({
-                  leftFlag: true
-                })
-              }}
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
-            >
-
-            </div>
-            <div style={{ border: this.state.rightFlag ? '1px solid #991BFA' : '0px', position: 'absolute', left: 580, width: 20, height: '30px', backgroundColor: 'yellow' }}
-              className='rightProgress'
-              onMouseDown={(e) => {
-                console.log('down')
-                this.setState({
-                  rightFlag: true
-                })
-              }}
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
-            ></div>
-            <div ref={this.line} className='progressLine'
-              onMouseDown={(e) => {
-                console.log('down')
-                this.setState({
-                  lineFlag: true
-                })
-              }}
-              style={{
-                position: 'absolute',
-                left: 20,
-
-                height: 36, width: 2, transform: `translate('-50%')`, backgroundColor: 'red'
-              }}></div>
-          </div>
-        </div> */}
         {/* <div style={{ position: "fixed", bottom: "20px", color: "#fff" }}>
           <div
             style={{ border: "1px solid #01F1E3" }}
