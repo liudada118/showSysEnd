@@ -257,13 +257,14 @@ class Home extends React.Component {
       //处理空数组
       sitDataFlag = false;
       if (jsonObject.sitData != null) {
-        if (colValueFlag) {
+
+        if(this.state.matrixName != 'car10'){if (colValueFlag) {
           num++;
 
           this.title.current?.changeNum(num);
         } else {
           num = 0;
-        }
+        }}
         // console.log(num)
 
         let selectArr;
@@ -753,14 +754,17 @@ class Home extends React.Component {
         // const arr = []
         const arr = jsonObject.timeArr.map((a, index) => a.date);
 
-        let obj = [];
-        arr.forEach((a, index) => {
-          obj.push({
-            value: a,
-            label: a,
+        if(this.state.matrixName != 'car10'){
+          let obj = [];
+          arr.forEach((a, index) => {
+            obj.push({
+              value: a,
+              label: a,
+            });
           });
-        });
-        this.setState({ dataArr: obj });
+          this.setState({ dataArr: obj });
+        }
+        
       }
 
       if (jsonObject.index != null) {
@@ -821,7 +825,7 @@ class Home extends React.Component {
               jsonObject.index
             );
           }
-          console.log(this.bodyArr, 'body')
+      
           // if (this.bodyArr && this.state.matrixName == "bigBed") {
           //   this.data.current?.handleChartsBody(this.bodyArr, 200);
           // }
@@ -868,6 +872,15 @@ class Home extends React.Component {
       let jsonObject = JSON.parse(e.data);
 
       if (jsonObject.backData != null && this.state.matrixName == "car") {
+
+        if(this.state.matrixName == 'car10'){if (colValueFlag) {
+          num++;
+
+          this.title.current?.changeNum(num);
+        } else {
+          num = 0;
+        }}
+
         backPress = 0;
         let wsPointData = jsonObject.backData;
 
@@ -1018,12 +1031,22 @@ class Home extends React.Component {
       }
 
       if (jsonObject.backData != null && this.state.matrixName == "car10") {
+
+        if(this.state.matrixName == 'car10'){if (colValueFlag) {
+          num++;
+
+          this.title.current?.changeNum(num);
+        } else {
+          num = 0;
+        }}
         backPress = 0;
         let wsPointData = jsonObject.backData;
 
         if (!Array.isArray(wsPointData)) {
           wsPointData = JSON.parse(wsPointData);
         }
+
+    
 
         const numData = rotateArrayCounter90Degrees([...wsPointData], 10, 10);
 
@@ -1177,6 +1200,116 @@ class Home extends React.Component {
         const max1 = findMax(totalPointArr);
         if (this.state.matrixName == "car10" && !this.state.local)
           this.data.current?.handleChartsArea(totalPointArr, max1 + 10);
+      }
+
+      if (jsonObject.timeArr != null) {
+        // const arr = []
+        console.log(jsonObject.timeArr)
+        const arr = jsonObject.timeArr.map((a, index) => a.date);
+
+        let obj = [];
+        arr.forEach((a, index) => {
+          obj.push({
+            value: a,
+            label: a,
+          });
+        });
+        this.setState({ dataArr: obj });
+        
+      }
+
+      if (jsonObject.length != null) {
+        this.setState({
+          length: jsonObject.length,
+        });
+      }
+      if (jsonObject.time != null) {
+        this.setState({
+          time: jsonObject.time,
+        });
+      }
+
+      if (jsonObject.index != null) {
+        if (jsonObject.index <= this.state.length) {
+          const line = document.querySelector(".progressLine");
+
+          const lineLeft =
+            20 +
+            (jsonObject.index * 560) /
+            (this.state.length ? this.state.length : 1);
+          const leftX = document
+            .querySelector(".progress")
+            .getBoundingClientRect().x;
+          const left = parseInt(
+            document.querySelector(".leftProgress").style.left
+          );
+          const right = parseInt(
+            document.querySelector(".rightProgress").style.left
+          );
+          line.style.left = `${20 +
+            (jsonObject.index * 560) /
+            (this.state.length ? this.state.length : 1)
+            }px`;
+
+          document.querySelector(
+            ".progressLine"
+          ).style.left = `${this.moveValue(
+            lineLeft < left + 20
+              ? left + 20
+              : lineLeft > right
+                ? right
+                : lineLeft
+          )}px`;
+
+          this.setState({
+            index: jsonObject.index,
+          });
+
+          if (this.areaArr) {
+            this.data.current?.handleChartsArea(
+              this.areaArr,
+              this.max + 100,
+              jsonObject.index
+            );
+            if (jsonObject.index == this.areaArr.length) {
+              this.wsSendObj({ play: false });
+              this.setState({
+                playflag: false,
+              });
+            }
+          }
+          if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed"|| this.state.matrixName == "car10")) {
+            this.data.current?.handleCharts(
+              this.pressArr,
+              this.pressMax + 100,
+              jsonObject.index
+            );
+          }
+       
+          // if (this.bodyArr && this.state.matrixName == "bigBed") {
+          //   this.data.current?.handleChartsBody(this.bodyArr, 200);
+          // }
+
+
+        }
+
+        // if(jsonObject.index == this.indexArr[0])
+      }
+
+      if (jsonObject.areaArr != null) {
+        const max = findMax(jsonObject.areaArr);
+        this.data.current?.handleChartsArea(jsonObject.areaArr, max + 100);
+        this.max = max;
+        this.areaArr = jsonObject.areaArr;
+      }
+
+      if (jsonObject.pressArr != null) {
+        const max = findMax(jsonObject.pressArr);
+        if (this.state.matrixName == "car" || this.state.matrixName == "bigBed"|| this.state.matrixName == "car10") {
+          this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
+          this.pressMax = max;
+          this.pressArr = jsonObject.pressArr;
+        }
       }
     };
     ws1.onerror = (e) => {
@@ -2366,7 +2499,7 @@ class Home extends React.Component {
             {this.state.pressNum ? "压力算法" : "不压力算法"}
           </div>
         </div> */}
-        <div style={{ position: "fixed", right: "25%", bottom: "20px" }}>
+        {/* <div style={{ position: "fixed", right: "25%", bottom: "20px" }}>
           {this.state.newArr.length
             ? this.state.newArr.map((a, indexs) => {
               return (
@@ -2378,7 +2511,7 @@ class Home extends React.Component {
               );
             })
             : null}
-        </div>
+        </div> */}
 
 
 

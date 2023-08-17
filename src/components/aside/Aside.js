@@ -381,7 +381,7 @@ class Aside extends React.Component {
 
     initCharts() {
         const canvas = document.getElementById('myChart1')
-        if (ctx1) {
+        if (ctx1 && canvas) {
             ctx1.clearRect(0, 0, canvas.width, canvas.height);
         }
         const canvas1 = document.getElementById('myChart2')
