@@ -7,13 +7,13 @@ import Canvas from "../../components/three/Three";
 import CanvasHand from "../../components/three/hand";
 import Bed from "../../components/three/Bed";
 import Aside from "../../components/aside/Aside";
+import ProgressCom from "../../components/progress/Progress";
 import plus from "../../assets/images/Plus.png";
 import minus from "../../assets/images/Minus.png";
 import icon from "../../assets/images/Icon.png";
 import load from "../../assets/images/load.png";
 import stop from "../../assets/images/stop.png";
-import play from "../../assets/images/play.png";
-import pause from "../../assets/images/pause.png";
+
 import refresh from "../../assets/images/refresh.png";
 import {
   findMax,
@@ -258,13 +258,15 @@ class Home extends React.Component {
       sitDataFlag = false;
       if (jsonObject.sitData != null) {
 
-        if(this.state.matrixName != 'car10'){if (colValueFlag) {
-          num++;
+        if (this.state.matrixName != 'car10') {
+          if (colValueFlag) {
+            num++;
 
-          this.title.current?.changeNum(num);
-        } else {
-          num = 0;
-        }}
+            this.title.current?.changeNum(num);
+          } else {
+            num = 0;
+          }
+        }
         // console.log(num)
 
         let selectArr;
@@ -754,7 +756,7 @@ class Home extends React.Component {
         // const arr = []
         const arr = jsonObject.timeArr.map((a, index) => a.date);
 
-        if(this.state.matrixName != 'car10'){
+        if (this.state.matrixName != 'car10') {
           let obj = [];
           arr.forEach((a, index) => {
             obj.push({
@@ -764,7 +766,7 @@ class Home extends React.Component {
           });
           this.setState({ dataArr: obj });
         }
-        
+
       }
 
       if (jsonObject.index != null) {
@@ -825,7 +827,7 @@ class Home extends React.Component {
               jsonObject.index
             );
           }
-      
+
           // if (this.bodyArr && this.state.matrixName == "bigBed") {
           //   this.data.current?.handleChartsBody(this.bodyArr, 200);
           // }
@@ -873,13 +875,15 @@ class Home extends React.Component {
 
       if (jsonObject.backData != null && this.state.matrixName == "car") {
 
-        if(this.state.matrixName == 'car10'){if (colValueFlag) {
-          num++;
+        if (this.state.matrixName == 'car10') {
+          if (colValueFlag) {
+            num++;
 
-          this.title.current?.changeNum(num);
-        } else {
-          num = 0;
-        }}
+            this.title.current?.changeNum(num);
+          } else {
+            num = 0;
+          }
+        }
 
         backPress = 0;
         let wsPointData = jsonObject.backData;
@@ -1032,13 +1036,15 @@ class Home extends React.Component {
 
       if (jsonObject.backData != null && this.state.matrixName == "car10") {
 
-        if(this.state.matrixName == 'car10'){if (colValueFlag) {
-          num++;
+        if (this.state.matrixName == 'car10') {
+          if (colValueFlag) {
+            num++;
 
-          this.title.current?.changeNum(num);
-        } else {
-          num = 0;
-        }}
+            this.title.current?.changeNum(num);
+          } else {
+            num = 0;
+          }
+        }
         backPress = 0;
         let wsPointData = jsonObject.backData;
 
@@ -1046,7 +1052,7 @@ class Home extends React.Component {
           wsPointData = JSON.parse(wsPointData);
         }
 
-    
+
 
         const numData = rotateArrayCounter90Degrees([...wsPointData], 10, 10);
 
@@ -1215,7 +1221,7 @@ class Home extends React.Component {
           });
         });
         this.setState({ dataArr: obj });
-        
+
       }
 
       if (jsonObject.length != null) {
@@ -1278,14 +1284,14 @@ class Home extends React.Component {
               });
             }
           }
-          if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed"|| this.state.matrixName == "car10")) {
+          if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "car10")) {
             this.data.current?.handleCharts(
               this.pressArr,
               this.pressMax + 100,
               jsonObject.index
             );
           }
-       
+
           // if (this.bodyArr && this.state.matrixName == "bigBed") {
           //   this.data.current?.handleChartsBody(this.bodyArr, 200);
           // }
@@ -1305,7 +1311,7 @@ class Home extends React.Component {
 
       if (jsonObject.pressArr != null) {
         const max = findMax(jsonObject.pressArr);
-        if (this.state.matrixName == "car" || this.state.matrixName == "bigBed"|| this.state.matrixName == "car10" ) {
+        if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "car10") {
           this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
           this.pressMax = max;
           this.pressArr = jsonObject.pressArr;
@@ -2170,213 +2176,9 @@ class Home extends React.Component {
           </div>
           : null}
 
-        {this.state.local ? (
-          // <div style={{ position: "fixed", bottom: 0, width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-
-          <div
-            style={{
-              position: "fixed",
-              bottom: 15,
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "column",
-            }}
-          >
-            {/* 新进度条 */}
-
-            <div
-              style={{
-                width: 600,
-                display: "flex",
-                justifyContent: "center",
-                //  alignItems: 'center',
-                flexDirection: "column",
-                position: "relative",
-                border: "1px #01F1E3 solid",
-                borderRadius: "8px",
-                overflow: "hidden",
-                height: "30px",
-              }}
-              className="progress"
-              onClick={(e) => {
-                const leftX = document
-                  .querySelector(".progress")
-                  .getBoundingClientRect().x;
-                const left = parseInt(
-                  document.querySelector(".leftProgress").style.left
-                );
-                const right = parseInt(
-                  document.querySelector(".rightProgress").style.left
-                );
-                document.querySelector(
-                  ".progressLine"
-                ).style.left = `${this.moveValue(
-                  e.clientX - leftX < left + 20
-                    ? left + 20
-                    : e.clientX - leftX > right
-                      ? right
-                      : e.clientX - leftX
-                )}px`;
-
-                const lineleft = parseInt(
-                  document.querySelector(".progressLine").style.left
-                );
-
-                let value = this.changePxToValue(lineleft, "line");
-
-                this.wsSendObj({
-                  value,
-                });
-
-                if (this.areaArr)
-                  this.data.current?.handleChartsArea(
-                    this.areaArr,
-                    this.max + 100,
-                    value + 1
-                  );
-                if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed"))
-                  this.data.current?.handleCharts(
-                    this.pressArr,
-                    this.pressMax + 100,
-                    value + 1
-                  );
-                // if (this.bodyArr && this.state.matrixName == "bigBed") {
-                //   this.data.current?.handleChartsBody(this.bodyArr, 200);
-                // }
-              }}
-            >
-              <div
-                style={{
-                  border: this.state.leftFlag ? "1px solid #991BFA" : "0px",
-                  position: "absolute",
-                  left: 0,
-                  width: 20,
-                  height: "30px",
-                  backgroundColor: "#01F1E3",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                className="leftProgress"
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-
-                  this.setState({
-                    leftFlag: true,
-                  });
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                {/* <div style={{height : 15 , width : 2 , backgroundColor : '#333' , marginRight : 2}}></div>
-              <div style={{height : 15 , width : 2 , backgroundColor : '#333'}}></div> */}
-              </div>
-              <div
-                style={{
-                  border: this.state.rightFlag ? "1px solid #991BFA" : "0px",
-                  position: "absolute",
-                  left: 580,
-                  width: 20,
-                  height: "30px",
-                  backgroundColor: "#01F1E3",
-                }}
-                className="rightProgress"
-                onMouseDown={(e) => {
-                  this.setState({
-                    rightFlag: true,
-                  });
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              ></div>
-              <div
-                ref={this.line}
-                className="progressLine"
-                onMouseDown={(e) => {
-                  this.setState({
-                    lineFlag: true,
-                  });
-                }}
-                style={{
-                  position: "absolute",
-                  left: 20,
-                  //  left: `${this.state.indexInit / (this.state.length - 2 == 0 ? 1 : this.state.length - 2) * 100}%`,
-                  height: 36,
-                  width: 2,
-                  transform: `translate('-50%')`,
-                  backgroundColor: "#991BFA",
-                }}
-              ></div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img
-                src={play}
-                style={{
-                  width: "50px",
-                  display: this.state.playflag ? "none" : "unset",
-                }}
-                onClick={() => {
-                  if (this.state.dataTime) {
-                    this.playData(true);
-                  } else {
-                    message.info("请先选择回放数据时间段");
-                  }
-                }}
-                alt=""
-              />
-              <img
-                src={pause}
-                style={{
-                  width: "50px",
-                  display: this.state.playflag ? "unset" : "none",
-                }}
-                onClick={() => {
-                  this.playData(false);
-                }}
-                alt=""
-              />
-              <div style={{ position: "absolute", right: "40%" }}>
-                <Select
-                  defaultValue="1.0X"
-                  style={{
-                    width: 80,
-                  }}
-                  onChange={(e) => {
-                    this.wsSendObj({ speed: e });
-                  }}
-                  // dropdownMatchSelectWidth={false}
-                  placement={"topLeft"}
-                  options={[
-                    {
-                      value: 0.25,
-                      label: "0.25X",
-                    },
-                    {
-                      value: 0.5,
-                      label: "0.5X",
-                    },
-                    {
-                      value: 1,
-                      label: "1.0X",
-                    },
-                    {
-                      value: 1.5,
-                      label: "1.5X",
-                    },
-                    {
-                      value: 2,
-                      label: "2.0X",
-                    },
-                  ]}
-                />
-              </div>
-            </div>
-          </div>
-        ) : null}
+        {this.state.local ?
+          <ProgressCom matrixName={this.state.matrixName} data={this.data} areaArr={this.areaArr} pressArr={this.pressArr} length={this.state.length} wsSendObj={this.wsSendObj} />
+          : null}
 
         {this.state.matrixName == "foot" ? (
           <CanvasCom matrixName={this.state.matrixName}>
