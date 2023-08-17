@@ -25,10 +25,8 @@ import {
   press,
   calculateY,
   rotateArrayCounter90Degrees,
-  pressBed,
-  objChange,
-  calPress,
   calculatePressure,
+  objChange,
 } from "../../assets/util/line";
 import { Popover, message } from "antd";
 import { SelectOutlined } from "@ant-design/icons";
@@ -36,6 +34,7 @@ import { Num } from "../../components/num/Num";
 import { calFoot } from "../../assets/util/value";
 import { Heatmap } from "../../components/heatmap/canvas";
 import FootTrack from "../../components/footTrack/footTrack";
+import { sitTypeEvent } from "./util";
 
 let ws,
   ws1,
@@ -204,6 +203,7 @@ class Home extends React.Component {
     this.title = React.createRef();
     this.line = React.createRef();
     this.track = React.createRef();
+    this.progress = React.createRef();
   }
 
   componentDidMount() {
@@ -246,442 +246,446 @@ class Home extends React.Component {
           wsPointData = JSON.parse(wsPointData);
         }
 
-        if (this.state.matrixName == "foot") {
-          const { sitData, backData, arr, realData } = footLine({
-            wsPointData,
-            pressFlag: this.state.press,
-            pressNumFlag: this.state.pressNum,
-          });
-
-          arr[0] = arr[0] ? arr[0] : 0;
-          arr[1] = arr[1] ? arr[1] : 0;
-          for (let i = 0; i < arrSmooth.length; i++) {
-            arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i]) / 4;
-          }
-
-          // console.log(arr)
-          selectArr = [];
-
-          for (let j = sitIndexArr[2]; j <= sitIndexArr[3]; j++) {
-            for (let i = sitIndexArr[0]; i <= sitIndexArr[1]; i++) {
-              selectArr.push(sitData[j * 16 + i]);
-            }
-          }
-
-          for (let j = backIndexArr[2]; j <= backIndexArr[3]; j++) {
-            for (let i = backIndexArr[0]; i <= backIndexArr[1]; i++) {
-              selectArr.push(backData[j * 16 + i]);
-            }
-          }
-
-          let DataArr;
-          if (
-            sitIndexArr.every((a) => a == 0) &&
-            backIndexArr.every((a) => a == 0)
-          ) {
-            DataArr = [...realData];
-          } else {
-            DataArr = [...selectArr];
-          }
-
-          // initData()
-
-          // 脚型渲染页面
-
-          let totalPress = DataArr.reduce((a, b) => a + b, 0);
-          let totalPoint = DataArr.filter((a) => a > 10).length;
-          let totalMean = parseInt(totalPress / (totalPoint ? totalPoint : 1));
-          let totalMax = findMax(DataArr);
-          // backMin = findMin(realData.filter((a) => a > 10))
-
-          let totalArea = totalPoint * 4;
-          const sitPressure = (totalMax * 1000) / (totalArea ? totalArea : 1);
-
-          // const {press , point , mean , max , area , pressure} = calArr(DataArr)
-
-          meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10);
-          maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10);
-          pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10);
-          areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10);
-          pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10);
-
-          pressureSmooth = parseInt(
-            pressureSmooth + (sitPressure - pressureSmooth) / 10
-          );
-
-          const leftValue = sitData.reduce((a, b) => a + b, 0);
-          const rightValue = backData.reduce((a, b) => a + b, 0);
-
-          let leftProp = parseInt((leftValue * 100) / (leftValue + rightValue));
-          let rightProp = 100 - leftProp;
-
-          let leftTop = [...sitData]
-            .slice(0, 16 * 16)
-            .reduce((a, b) => a + b, 0);
-          let leftTopProp = parseInt((leftTop * 100) / leftValue);
-          let leftBottomProp = 100 - leftTopProp;
-
-          let rightTop = [...backData]
-            .slice(0, 16 * 16)
-            .reduce((a, b) => a + b, 0);
-          let rightTopProp = parseInt((rightTop * 100) / rightValue);
-          let rightBottomProp = 100 - rightTopProp;
-
-          const total = DataArr.reduce((a, b) => a + b, 0);
-          totalSmooth = parseInt(totalSmooth + (total - totalSmooth) / 10);
-          leftPropSmooth = parseInt(
-            leftPropSmooth + (leftProp - leftPropSmooth) / 10
-          );
-          leftValueSmooth = parseInt(
-            leftValueSmooth + (leftValue - leftValueSmooth) / 10
-          );
-          rightValueSmooth = parseInt(
-            rightValueSmooth + (rightValue - rightValueSmooth) / 10
-          );
-          leftTopPropSmooth = parseInt(
-            leftTopPropSmooth + (leftTopProp - leftTopPropSmooth) / 10
-          );
-          rightTopPropSmooth = parseInt(
-            rightTopPropSmooth + (rightTopProp - rightTopPropSmooth) / 10
-          );
-          rightPropSmooth = 100 - leftPropSmooth;
-          leftBottomPropSmooth = 100 - leftTopPropSmooth;
-          rightBottomPropSmooth = 100 - rightTopPropSmooth;
-
-          if (
-            totalPoint < 10 &&
-            sitIndexArr.every((a) => a == 0) &&
-            backIndexArr.every((a) => a == 0)
-          ) {
-            meanSmooth = 0;
-            maxSmooth = 0;
-            pointSmooth = 0;
-            areaSmooth = 0;
-            pressSmooth = 0;
-            pressureSmooth = 0;
-            totalSmooth = 0;
-            leftValueSmooth = 0;
-            rightValueSmooth = 0;
-            leftPropSmooth = 0;
-            rightPropSmooth = 0;
-            leftTopPropSmooth = 0;
-            leftBottomPropSmooth = 0;
-            rightTopPropSmooth = 0;
-            rightBottomPropSmooth = 0;
-            arrSmooth = [16, 16];
-            leftProp = 50;
-            rightProp = 50;
-            totalPoint = 0;
-          }
-
-          // 数字矩阵 点图
-          // if (this.state.numMatrixFlag) {
-          //   this.com.current?.changeWsData(realData)
-          // } else {
-          //   this.com.current?.backData({
-          //     wsPointData: backData,
-          //   });
-          //   this.com.current?.sitData({
-          //     wsPointData: sitData,
-          //     arr: arrSmooth
-          //   });
-          //   this.com.current?.changeDataFlag();
-          // }
-
-          // 数字矩阵 点图 热力图
-          if (this.state.numMatrixFlag == "num") {
-            this.com.current?.changeWsData(realData);
-          } else if (this.state.numMatrixFlag == "normal") {
-            this.com.current?.backData({
-              wsPointData: backData,
-            });
-            this.com.current?.sitData({
-              wsPointData: sitData,
-              arr: arrSmooth,
-            });
-            this.com.current?.changeDataFlag();
-          } else {
-            this.com.current?.bthClickHandle(realData);
-          }
-
-          this.data.current?.changeData({
-            meanPres: meanSmooth,
-            maxPres: maxSmooth,
-            point: pointSmooth,
-            area: areaSmooth,
-            totalPres: pressSmooth,
-            pressure: pressureSmooth,
-          });
-
-          this.data.current?.canvas.current.initCanvasrotate1(
-            (rightProp - 50) / 100
-          );
-
-          this.data.current?.canvas.current.changeState({
-            total: totalSmooth,
-            leftValue: leftValueSmooth,
-            rightValue: rightValueSmooth,
-            leftProp: leftPropSmooth,
-            rightProp: rightPropSmooth,
-          });
-
-          // 打开脚型轨迹图
-          if (this.state.centerFlag) {
-            this.track.current?.circleMove({ arrSmooth, rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
-          }
-
-          if (totalArr.length < 20) {
-            totalArr.push(totalPress);
-          } else {
-            totalArr.shift();
-            totalArr.push(totalPress);
-          }
-
-          if (!this.state.local) {
-            if (totalPointArr.length < 20) {
-              totalPointArr.push(totalPoint);
-            } else {
-              totalPointArr.shift();
-              totalPointArr.push(totalPoint);
-            }
-
-            const max1 = findMax(totalPointArr);
-            this.data.current?.handleChartsArea(totalPointArr, max1 + 100);
-          }
-        } else if (this.state.matrixName == "hand") {
-          // wsPointData = handLine(wsPointData)
-          // wsPointData[31] = 100
-          // console.log(this.com.current)
-
-          if (this.state.press) {
-            wsPointData = press(wsPointData, 32, 32);
-          }
-          if (this.state.pressNum) {
-            wsPointData = calculateY(wsPointData);
-          }
-
-          if (this.state.numMatrixFlag == "normal") {
-            this.com.current?.sitData({
-              wsPointData: wsPointData,
-            });
-            // console.log(wsPointData)
-            let sitData = [],
-              backData = [];
-            for (let i = 0; i < 32; i++) {
-              for (let j = 0; j < 32; j++) {
-                if (j < 16) {
-                  sitData.push(wsPointData[i * 32 + j]);
-                } else {
-                  backData.push(wsPointData[i * 32 + j]);
-                }
-              }
-            }
-
-            const footLength = calFoot(sitData, 16, 32);
-            console.log(footLength);
-          } else if (this.state.numMatrixFlag == "heatmap") {
-            this.com.current?.bthClickHandle(wsPointData);
-          }
-        } else if (this.state.matrixName == "car") {
-          // wsPointData = carSitLine(wsPointData)
-
-          // wsPointData[31] = 100
-
-          if (this.state.press) {
-            wsPointData = press(wsPointData, 32, 32);
-          }
-          if (this.state.pressNum) {
-            wsPointData = calculateY(wsPointData);
-          }
-
-          if (
-            this.state.carState == "sit" &&
-            this.state.numMatrixFlag == "num"
-          ) {
-            this.com.current?.changeWsData(wsPointData);
-          } else if (
-            this.state.carState == "sit" &&
-            this.state.numMatrixFlag == "heatmap"
-          ) {
-            this.com.current?.bthClickHandle(wsPointData);
-          } // if (this.state.numMatrixFlag === 'normal' )
-          else {
-            if (this.state.numMatrixFlag == "normal") {
-              this.com.current?.sitData({
-                wsPointData: wsPointData,
-              });
-            }
-          }
-
-          selectArr = [];
-
-          for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
-            for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
-              selectArr.push(wsPointData[i * 32 + j]);
-            }
-          }
-
-          let DataArr;
-
-          if (sitIndexArr.every((a) => a == 0)) {
-            DataArr = [...wsPointData];
-          } else {
-            DataArr = [...selectArr];
-          }
-
-          // 框选后或者无框选的数据
-          const total = DataArr.reduce((a, b) => a + b, 0);
-          const length = DataArr.filter((a, index) => a > 0).length;
-
-          sitPoint = DataArr.filter(
-            (a) => a > this.state.valuej1 * 0.02
-          ).length;
-          sitTotal = DataArr.reduce((a, b) => a + b, 0);
-          sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
-          sitMax = findMax(DataArr);
-          sitMin = findMin(DataArr.filter((a) => a > 10));
-          sitArea = sitPoint * 4;
-          if (
-            sitPoint < 80 &&
-            sitIndexArr.every((a) => a == 0) &&
-            backIndexArr.every((a) => a == 0)
-          ) {
-            sitMean = 0;
-            sitMax = 0;
-            sitTotal = 0;
-            sitPoint = 0;
-            sitArea = 0;
-          }
-        } else if (this.state.matrixName == "bigBed") {
-          // wsPointData[2047] = 1000
+        sitTypeEvent[this.state.matrixName]({that : this , wsPointData})
 
 
-          let DataArr;
-          selectArr = [];
-          wsPointData = pressBed(wsPointData, 1500);
 
-          let bodyArr = []
-          for (let i = 0; i < 64; i++) {
-            let num = 0
-            for (let j = 0; j < 32; j++) {
-              num += wsPointData[j * 64 + i]
-            }
-            bodyArr.push(parseInt(num / 32))
-          }
-          this.bodyArr = bodyArr
-          // console.log(this.bodyArr , this.state.local)
-          // if (this.state.matrixName == "bigBed" && !this.state.local)
-          //   this.data.current?.handleChartsBody(bodyArr, 200);
+        // if (this.state.matrixName == "foot") {
+        //   const { sitData, backData, arr, realData } = footLine({
+        //     wsPointData,
+        //     pressFlag: this.state.press,
+        //     pressNumFlag: this.state.pressNum,
+        //   });
 
-          this.com.current?.sitData({
-            wsPointData: wsPointData,
-          });
+        //   arr[0] = arr[0] ? arr[0] : 0;
+        //   arr[1] = arr[1] ? arr[1] : 0;
+        //   for (let i = 0; i < arrSmooth.length; i++) {
+        //     arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i]) / 4;
+        //   }
 
-          for (let i = sitIndexArr[2]; i < sitIndexArr[3]; i++) {
-            for (let j = sitIndexArr[0]; j < sitIndexArr[1]; j++) {
-              selectArr.push(wsPointData[i * 64 + j]);
-            }
-          }
+        //   // console.log(arr)
+        //   selectArr = [];
 
-          if (sitIndexArr.every((a) => a == 0)) {
-            DataArr = [...wsPointData];
-          } else {
-            DataArr = [...selectArr];
-          }
+        //   for (let j = sitIndexArr[2]; j <= sitIndexArr[3]; j++) {
+        //     for (let i = sitIndexArr[0]; i <= sitIndexArr[1]; i++) {
+        //       selectArr.push(sitData[j * 16 + i]);
+        //     }
+        //   }
 
-          // 框选后或者无框选的数据
-          const total = DataArr.reduce((a, b) => a + b, 0);
-          const length = DataArr.filter((a, index) => a > 0).length;
+        //   for (let j = backIndexArr[2]; j <= backIndexArr[3]; j++) {
+        //     for (let i = backIndexArr[0]; i <= backIndexArr[1]; i++) {
+        //       selectArr.push(backData[j * 16 + i]);
+        //     }
+        //   }
 
-          const newPressure = total / length;
-          // setRealPress(newPressure);
-          let pressure = calculatePressure(total / length)
-          const change = objChange(newPressure, startPressure, 4);
-          if (change) {
-            startPressure = newPressure;
-            time = 0;
-          } else {
-            time++;
-            pressure = calculatePressure(calPress(startPressure, newPressure, time));
-            if (time > 240 * 13) {
-              time = 240 * 13;
-            }
-          }
+        //   let DataArr;
+        //   if (
+        //     sitIndexArr.every((a) => a == 0) &&
+        //     backIndexArr.every((a) => a == 0)
+        //   ) {
+        //     DataArr = [...realData];
+        //   } else {
+        //     DataArr = [...selectArr];
+        //   }
 
-          // console.log(pressure , total / length)
+        //   // initData()
 
-          sitPoint = length
-          sitTotal = DataArr.reduce((a, b) => a + b, 0);
-          sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
-          sitMax = findMax(DataArr);
-          sitMin = findMin(DataArr.filter((a) => a > 10));
-          sitArea = sitPoint * 4;
-          if (
-            sitPoint < 80 &&
-            sitIndexArr.every((a) => a == 0) &&
-            backIndexArr.every((a) => a == 0)
-          ) {
-            sitMean = 0;
-            sitMax = 0;
-            sitTotal = 0;
-            sitPoint = 0;
-            sitArea = 0;
-          }
+        //   // 脚型渲染页面
 
-          meanSmooth = (meanSmooth + (sitMean - meanSmooth) / 10)
-            ? (meanSmooth + (sitMean - meanSmooth) / 10)
-            : 1;
-          maxSmooth = (maxSmooth + (sitMax - maxSmooth) / 10)
-            ? (maxSmooth + (sitMax - maxSmooth) / 10)
-            : 1;
-          pointSmooth = (pointSmooth + (sitPoint - pointSmooth) / 10)
-            ? (pointSmooth + (sitPoint - pointSmooth) / 10)
-            : 1;
-          areaSmooth = (areaSmooth + (sitArea - areaSmooth) / 10)
-            ? (areaSmooth + (sitArea - areaSmooth) / 10)
-            : 1;
-          pressSmooth = (pressSmooth + (sitTotal - pressSmooth) / 10)
-            ? (pressSmooth + (sitTotal - pressSmooth) / 10)
-            : 1;
+        //   let totalPress = DataArr.reduce((a, b) => a + b, 0);
+        //   let totalPoint = DataArr.filter((a) => a > 10).length;
+        //   let totalMean = parseInt(totalPress / (totalPoint ? totalPoint : 1));
+        //   let totalMax = findMax(DataArr);
+        //   // backMin = findMin(realData.filter((a) => a > 10))
 
-          pressureSmooth = (
-            pressureSmooth + (pressure - pressureSmooth) / 3
-          )
-            ? (pressureSmooth + (pressure - pressureSmooth) / 3)
-            : 0;
-          // console.log(pressure,pressureSmooth)
-          this.data.current?.changeData({
-            meanPres: meanSmooth.toFixed(0),
-            maxPres: maxSmooth.toFixed(0),
-            point: pointSmooth.toFixed(0),
-            area: areaSmooth.toFixed(0),
-            totalPres: pressSmooth.toFixed(0),
-            pressure: pressureSmooth.toFixed(2),
-          });
+        //   let totalArea = totalPoint * 4;
+        //   const sitPressure = (totalMax * 1000) / (totalArea ? totalArea : 1);
 
-          if (totalArr.length < 20) {
-            totalArr.push(sitTotal);
-          } else {
-            totalArr.shift();
-            totalArr.push(sitTotal);
-          }
+        //   // const {press , point , mean , max , area , pressure} = calArr(DataArr)
 
-          const max = findMax(totalArr);
+        //   meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10);
+        //   maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10);
+        //   pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10);
+        //   areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10);
+        //   pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10);
 
-          if (this.state.matrixName == "bigBed" && !this.state.local)
-            this.data.current?.handleCharts(totalArr, max + 1000);
+        //   pressureSmooth = parseInt(
+        //     pressureSmooth + (sitPressure - pressureSmooth) / 10
+        //   );
 
-          if (totalPointArr.length < 20) {
-            totalPointArr.push(sitPoint);
-          } else {
-            totalPointArr.shift();
-            totalPointArr.push(sitPoint);
-          }
+        //   const leftValue = sitData.reduce((a, b) => a + b, 0);
+        //   const rightValue = backData.reduce((a, b) => a + b, 0);
 
-          const max1 = findMax(totalPointArr);
-          if (this.state.matrixName == "bigBed" && !this.state.local)
-            this.data.current?.handleChartsArea(totalPointArr, max1 + 100);
-        }
+        //   let leftProp = parseInt((leftValue * 100) / (leftValue + rightValue));
+        //   let rightProp = 100 - leftProp;
+
+        //   let leftTop = [...sitData]
+        //     .slice(0, 16 * 16)
+        //     .reduce((a, b) => a + b, 0);
+        //   let leftTopProp = parseInt((leftTop * 100) / leftValue);
+        //   let leftBottomProp = 100 - leftTopProp;
+
+        //   let rightTop = [...backData]
+        //     .slice(0, 16 * 16)
+        //     .reduce((a, b) => a + b, 0);
+        //   let rightTopProp = parseInt((rightTop * 100) / rightValue);
+        //   let rightBottomProp = 100 - rightTopProp;
+
+        //   const total = DataArr.reduce((a, b) => a + b, 0);
+        //   totalSmooth = parseInt(totalSmooth + (total - totalSmooth) / 10);
+        //   leftPropSmooth = parseInt(
+        //     leftPropSmooth + (leftProp - leftPropSmooth) / 10
+        //   );
+        //   leftValueSmooth = parseInt(
+        //     leftValueSmooth + (leftValue - leftValueSmooth) / 10
+        //   );
+        //   rightValueSmooth = parseInt(
+        //     rightValueSmooth + (rightValue - rightValueSmooth) / 10
+        //   );
+        //   leftTopPropSmooth = parseInt(
+        //     leftTopPropSmooth + (leftTopProp - leftTopPropSmooth) / 10
+        //   );
+        //   rightTopPropSmooth = parseInt(
+        //     rightTopPropSmooth + (rightTopProp - rightTopPropSmooth) / 10
+        //   );
+        //   rightPropSmooth = 100 - leftPropSmooth;
+        //   leftBottomPropSmooth = 100 - leftTopPropSmooth;
+        //   rightBottomPropSmooth = 100 - rightTopPropSmooth;
+
+        //   if (
+        //     totalPoint < 10 &&
+        //     sitIndexArr.every((a) => a == 0) &&
+        //     backIndexArr.every((a) => a == 0)
+        //   ) {
+        //     meanSmooth = 0;
+        //     maxSmooth = 0;
+        //     pointSmooth = 0;
+        //     areaSmooth = 0;
+        //     pressSmooth = 0;
+        //     pressureSmooth = 0;
+        //     totalSmooth = 0;
+        //     leftValueSmooth = 0;
+        //     rightValueSmooth = 0;
+        //     leftPropSmooth = 0;
+        //     rightPropSmooth = 0;
+        //     leftTopPropSmooth = 0;
+        //     leftBottomPropSmooth = 0;
+        //     rightTopPropSmooth = 0;
+        //     rightBottomPropSmooth = 0;
+        //     arrSmooth = [16, 16];
+        //     leftProp = 50;
+        //     rightProp = 50;
+        //     totalPoint = 0;
+        //   }
+
+        //   // 数字矩阵 点图
+        //   // if (this.state.numMatrixFlag) {
+        //   //   this.com.current?.changeWsData(realData)
+        //   // } else {
+        //   //   this.com.current?.backData({
+        //   //     wsPointData: backData,
+        //   //   });
+        //   //   this.com.current?.sitData({
+        //   //     wsPointData: sitData,
+        //   //     arr: arrSmooth
+        //   //   });
+        //   //   this.com.current?.changeDataFlag();
+        //   // }
+
+        //   // 数字矩阵 点图 热力图
+        //   if (this.state.numMatrixFlag == "num") {
+        //     this.com.current?.changeWsData(realData);
+        //   } else if (this.state.numMatrixFlag == "normal") {
+        //     this.com.current?.backData({
+        //       wsPointData: backData,
+        //     });
+        //     this.com.current?.sitData({
+        //       wsPointData: sitData,
+        //       arr: arrSmooth,
+        //     });
+        //     this.com.current?.changeDataFlag();
+        //   } else {
+        //     this.com.current?.bthClickHandle(realData);
+        //   }
+
+        //   this.data.current?.changeData({
+        //     meanPres: meanSmooth,
+        //     maxPres: maxSmooth,
+        //     point: pointSmooth,
+        //     area: areaSmooth,
+        //     totalPres: pressSmooth,
+        //     pressure: pressureSmooth,
+        //   });
+
+        //   this.data.current?.canvas.current.initCanvasrotate1(
+        //     (rightProp - 50) / 100
+        //   );
+
+        //   this.data.current?.canvas.current.changeState({
+        //     total: totalSmooth,
+        //     leftValue: leftValueSmooth,
+        //     rightValue: rightValueSmooth,
+        //     leftProp: leftPropSmooth,
+        //     rightProp: rightPropSmooth,
+        //   });
+
+        //   // 打开脚型轨迹图
+        //   if (this.state.centerFlag) {
+        //     this.track.current?.circleMove({ arrSmooth, rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
+        //   }
+
+        //   if (totalArr.length < 20) {
+        //     totalArr.push(totalPress);
+        //   } else {
+        //     totalArr.shift();
+        //     totalArr.push(totalPress);
+        //   }
+
+        //   if (!this.state.local) {
+        //     if (totalPointArr.length < 20) {
+        //       totalPointArr.push(totalPoint);
+        //     } else {
+        //       totalPointArr.shift();
+        //       totalPointArr.push(totalPoint);
+        //     }
+
+        //     const max1 = findMax(totalPointArr);
+        //     this.data.current?.handleChartsArea(totalPointArr, max1 + 100);
+        //   }
+        // } else if (this.state.matrixName == "hand") {
+        //   // wsPointData = handLine(wsPointData)
+        //   // wsPointData[31] = 100
+        //   // console.log(this.com.current)
+
+        //   if (this.state.press) {
+        //     wsPointData = press(wsPointData, 32, 32);
+        //   }
+        //   if (this.state.pressNum) {
+        //     wsPointData = calculateY(wsPointData);
+        //   }
+
+        //   if (this.state.numMatrixFlag == "normal") {
+        //     this.com.current?.sitData({
+        //       wsPointData: wsPointData,
+        //     });
+        //     // console.log(wsPointData)
+        //     let sitData = [],
+        //       backData = [];
+        //     for (let i = 0; i < 32; i++) {
+        //       for (let j = 0; j < 32; j++) {
+        //         if (j < 16) {
+        //           sitData.push(wsPointData[i * 32 + j]);
+        //         } else {
+        //           backData.push(wsPointData[i * 32 + j]);
+        //         }
+        //       }
+        //     }
+
+        //     const footLength = calFoot(sitData, 16, 32);
+        //     console.log(footLength);
+        //   } else if (this.state.numMatrixFlag == "heatmap") {
+        //     this.com.current?.bthClickHandle(wsPointData);
+        //   }
+        // } else if (this.state.matrixName == "car") {
+        //   // wsPointData = carSitLine(wsPointData)
+
+        //   // wsPointData[31] = 100
+
+        //   if (this.state.press) {
+        //     wsPointData = press(wsPointData, 32, 32);
+        //   }
+        //   if (this.state.pressNum) {
+        //     wsPointData = calculateY(wsPointData);
+        //   }
+
+        //   if (
+        //     this.state.carState == "sit" &&
+        //     this.state.numMatrixFlag == "num"
+        //   ) {
+        //     this.com.current?.changeWsData(wsPointData);
+        //   } else if (
+        //     this.state.carState == "sit" &&
+        //     this.state.numMatrixFlag == "heatmap"
+        //   ) {
+        //     this.com.current?.bthClickHandle(wsPointData);
+        //   } // if (this.state.numMatrixFlag === 'normal' )
+        //   else {
+        //     if (this.state.numMatrixFlag == "normal") {
+        //       this.com.current?.sitData({
+        //         wsPointData: wsPointData,
+        //       });
+        //     }
+        //   }
+
+        //   selectArr = [];
+
+        //   for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
+        //     for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
+        //       selectArr.push(wsPointData[i * 32 + j]);
+        //     }
+        //   }
+
+        //   let DataArr;
+
+        //   if (sitIndexArr.every((a) => a == 0)) {
+        //     DataArr = [...wsPointData];
+        //   } else {
+        //     DataArr = [...selectArr];
+        //   }
+
+        //   // 框选后或者无框选的数据
+        //   const total = DataArr.reduce((a, b) => a + b, 0);
+        //   const length = DataArr.filter((a, index) => a > 0).length;
+
+        //   sitPoint = DataArr.filter(
+        //     (a) => a > this.state.valuej1 * 0.02
+        //   ).length;
+        //   sitTotal = DataArr.reduce((a, b) => a + b, 0);
+        //   sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
+        //   sitMax = findMax(DataArr);
+        //   sitMin = findMin(DataArr.filter((a) => a > 10));
+        //   sitArea = sitPoint * 4;
+        //   if (
+        //     sitPoint < 80 &&
+        //     sitIndexArr.every((a) => a == 0) &&
+        //     backIndexArr.every((a) => a == 0)
+        //   ) {
+        //     sitMean = 0;
+        //     sitMax = 0;
+        //     sitTotal = 0;
+        //     sitPoint = 0;
+        //     sitArea = 0;
+        //   }
+        // } else if (this.state.matrixName == "bigBed") {
+        //   // wsPointData[2047] = 1000
+
+
+        //   let DataArr;
+        //   selectArr = [];
+        //   wsPointData = pressBed(wsPointData, 1500);
+
+        //   let bodyArr = []
+        //   for (let i = 0; i < 64; i++) {
+        //     let num = 0
+        //     for (let j = 0; j < 32; j++) {
+        //       num += wsPointData[j * 64 + i]
+        //     }
+        //     bodyArr.push(parseInt(num / 32))
+        //   }
+        //   this.bodyArr = bodyArr
+        //   // console.log(this.bodyArr , this.state.local)
+        //   // if (this.state.matrixName == "bigBed" && !this.state.local)
+        //   //   this.data.current?.handleChartsBody(bodyArr, 200);
+
+        //   this.com.current?.sitData({
+        //     wsPointData: wsPointData,
+        //   });
+
+        //   for (let i = sitIndexArr[2]; i < sitIndexArr[3]; i++) {
+        //     for (let j = sitIndexArr[0]; j < sitIndexArr[1]; j++) {
+        //       selectArr.push(wsPointData[i * 64 + j]);
+        //     }
+        //   }
+
+        //   if (sitIndexArr.every((a) => a == 0)) {
+        //     DataArr = [...wsPointData];
+        //   } else {
+        //     DataArr = [...selectArr];
+        //   }
+
+        //   // 框选后或者无框选的数据
+        //   const total = DataArr.reduce((a, b) => a + b, 0);
+        //   const length = DataArr.filter((a, index) => a > 0).length;
+
+        //   const newPressure = total / length;
+        //   // setRealPress(newPressure);
+        //   let pressure = calculatePressure(total / length)
+        //   const change = objChange(newPressure, startPressure, 4);
+        //   if (change) {
+        //     startPressure = newPressure;
+        //     time = 0;
+        //   } else {
+        //     time++;
+        //     pressure = calculatePressure(calPress(startPressure, newPressure, time));
+        //     if (time > 240 * 13) {
+        //       time = 240 * 13;
+        //     }
+        //   }
+
+        //   // console.log(pressure , total / length)
+
+        //   sitPoint = length
+        //   sitTotal = DataArr.reduce((a, b) => a + b, 0);
+        //   sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
+        //   sitMax = findMax(DataArr);
+        //   sitMin = findMin(DataArr.filter((a) => a > 10));
+        //   sitArea = sitPoint * 4;
+        //   if (
+        //     sitPoint < 80 &&
+        //     sitIndexArr.every((a) => a == 0) &&
+        //     backIndexArr.every((a) => a == 0)
+        //   ) {
+        //     sitMean = 0;
+        //     sitMax = 0;
+        //     sitTotal = 0;
+        //     sitPoint = 0;
+        //     sitArea = 0;
+        //   }
+
+        //   meanSmooth = (meanSmooth + (sitMean - meanSmooth) / 10)
+        //     ? (meanSmooth + (sitMean - meanSmooth) / 10)
+        //     : 1;
+        //   maxSmooth = (maxSmooth + (sitMax - maxSmooth) / 10)
+        //     ? (maxSmooth + (sitMax - maxSmooth) / 10)
+        //     : 1;
+        //   pointSmooth = (pointSmooth + (sitPoint - pointSmooth) / 10)
+        //     ? (pointSmooth + (sitPoint - pointSmooth) / 10)
+        //     : 1;
+        //   areaSmooth = (areaSmooth + (sitArea - areaSmooth) / 10)
+        //     ? (areaSmooth + (sitArea - areaSmooth) / 10)
+        //     : 1;
+        //   pressSmooth = (pressSmooth + (sitTotal - pressSmooth) / 10)
+        //     ? (pressSmooth + (sitTotal - pressSmooth) / 10)
+        //     : 1;
+
+        //   pressureSmooth = (
+        //     pressureSmooth + (pressure - pressureSmooth) / 3
+        //   )
+        //     ? (pressureSmooth + (pressure - pressureSmooth) / 3)
+        //     : 0;
+        //   // console.log(pressure,pressureSmooth)
+        //   this.data.current?.changeData({
+        //     meanPres: meanSmooth.toFixed(0),
+        //     maxPres: maxSmooth.toFixed(0),
+        //     point: pointSmooth.toFixed(0),
+        //     area: areaSmooth.toFixed(0),
+        //     totalPres: pressSmooth.toFixed(0),
+        //     pressure: pressureSmooth.toFixed(2),
+        //   });
+
+        //   if (totalArr.length < 20) {
+        //     totalArr.push(sitTotal);
+        //   } else {
+        //     totalArr.shift();
+        //     totalArr.push(sitTotal);
+        //   }
+
+        //   const max = findMax(totalArr);
+
+        //   if (this.state.matrixName == "bigBed" && !this.state.local)
+        //     this.data.current?.handleCharts(totalArr, max + 1000);
+
+        //   if (totalPointArr.length < 20) {
+        //     totalPointArr.push(sitPoint);
+        //   } else {
+        //     totalPointArr.shift();
+        //     totalPointArr.push(sitPoint);
+        //   }
+
+        //   const max1 = findMax(totalPointArr);
+        //   if (this.state.matrixName == "bigBed" && !this.state.local)
+        //     this.data.current?.handleChartsArea(totalPointArr, max1 + 100);
+        // }
       }
 
       if (jsonObject.port != null) {
@@ -725,71 +729,7 @@ class Home extends React.Component {
       }
 
       if (jsonObject.index != null) {
-        if (jsonObject.index <= this.state.length) {
-          const line = document.querySelector(".progressLine");
-
-          const lineLeft =
-            20 +
-            (jsonObject.index * 560) /
-            (this.state.length ? this.state.length : 1);
-          const leftX = document
-            .querySelector(".progress")
-            .getBoundingClientRect().x;
-          const left = parseInt(
-            document.querySelector(".leftProgress").style.left
-          );
-          const right = parseInt(
-            document.querySelector(".rightProgress").style.left
-          );
-          line.style.left = `${20 +
-            (jsonObject.index * 560) /
-            (this.state.length ? this.state.length : 1)
-            }px`;
-
-          document.querySelector(
-            ".progressLine"
-          ).style.left = `${this.moveValue(
-            lineLeft < left + 20
-              ? left + 20
-              : lineLeft > right
-                ? right
-                : lineLeft
-          )}px`;
-
-          this.setState({
-            index: jsonObject.index,
-          });
-
-
-          if (this.areaArr) {
-            this.data.current?.handleChartsArea(
-              this.areaArr,
-              this.max + 100,
-              jsonObject.index
-            );
-            if (jsonObject.index == this.areaArr.length) {
-              this.wsSendObj({ play: false });
-              this.setState({
-                playflag: false,
-              });
-            }
-          }
-          if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed")) {
-            this.data.current?.handleCharts(
-              this.pressArr,
-              this.pressMax + 100,
-              jsonObject.index
-            );
-          }
-
-          // if (this.bodyArr && this.state.matrixName == "bigBed") {
-          //   this.data.current?.handleChartsBody(this.bodyArr, 200);
-          // }
-
-
-        }
-
-        // if(jsonObject.index == this.indexArr[0])
+        this.progress.current?.changeIndex(jsonObject.index )
       }
 
       if (jsonObject.areaArr != null) {
@@ -1190,70 +1130,7 @@ class Home extends React.Component {
       }
 
       if (jsonObject.index != null) {
-        if (jsonObject.index <= this.state.length) {
-          const line = document.querySelector(".progressLine");
-
-          const lineLeft =
-            20 +
-            (jsonObject.index * 560) /
-            (this.state.length ? this.state.length : 1);
-          const leftX = document
-            .querySelector(".progress")
-            .getBoundingClientRect().x;
-          const left = parseInt(
-            document.querySelector(".leftProgress").style.left
-          );
-          const right = parseInt(
-            document.querySelector(".rightProgress").style.left
-          );
-          line.style.left = `${20 +
-            (jsonObject.index * 560) /
-            (this.state.length ? this.state.length : 1)
-            }px`;
-
-          document.querySelector(
-            ".progressLine"
-          ).style.left = `${this.moveValue(
-            lineLeft < left + 20
-              ? left + 20
-              : lineLeft > right
-                ? right
-                : lineLeft
-          )}px`;
-
-          this.setState({
-            index: jsonObject.index,
-          });
-
-          if (this.areaArr) {
-            this.data.current?.handleChartsArea(
-              this.areaArr,
-              this.max + 100,
-              jsonObject.index
-            );
-            if (jsonObject.index == this.areaArr.length) {
-              this.wsSendObj({ play: false });
-              this.setState({
-                playflag: false,
-              });
-            }
-          }
-          if (this.pressArr && (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "car10")) {
-            this.data.current?.handleCharts(
-              this.pressArr,
-              this.pressMax + 100,
-              jsonObject.index
-            );
-          }
-
-          // if (this.bodyArr && this.state.matrixName == "bigBed") {
-          //   this.data.current?.handleChartsBody(this.bodyArr, 200);
-          // }
-
-
-        }
-
-        // if(jsonObject.index == this.indexArr[0])
+        this.progress.current?.changeIndex(jsonObject.index )
       }
 
       if (jsonObject.areaArr != null) {
@@ -1781,6 +1658,7 @@ class Home extends React.Component {
         {/* 进度条 */}
         {this.state.local ?
           <ProgressCom
+            ref = {this.progress}
             dataTime={this.state.dataTime}
             matrixName={this.state.matrixName}
             data={this.data}

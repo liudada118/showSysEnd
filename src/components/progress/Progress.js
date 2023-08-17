@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useImperativeHandle, useState } from 'react'
 import './progress.scss'
 import { Select, message } from 'antd'
-import { moveValue , changePxToValue} from './util'
+import { moveValue, changePxToValue } from './util'
 import play from "../../assets/images/play.png";
 import pause from "../../assets/images/pause.png";
 
@@ -28,7 +28,7 @@ const playOptions = [
     },
 ]
 let timer
-export default function ProgressCom(props) {
+const ProgressCom = React.forwardRef((props, refs) => {
 
     const [playFlag, setPlayFlag] = useState(false)
     const [leftFlag, setLeftFlag] = useState(false)
@@ -56,21 +56,21 @@ export default function ProgressCom(props) {
             document.querySelector(".leftProgress").style.left = `${leftpx > right - 20 ? right - 20 : leftpx}px`;
 
             const left = parseInt(document.querySelector(".leftProgress").style.left);
-            
+
             const lineleft = parseInt(document.querySelector(".progressLine").style.left);
 
-            console.log(lineleft , e.clientX - leftX + 10,document.querySelector(".progressLine").style.left)
+            console.log(lineleft, e.clientX - leftX + 10, document.querySelector(".progressLine").style.left)
 
             if (lineleft < e.clientX - leftX + 10) {
                 document.querySelector(".progressLine").style.left = `${moveValue(left + 20)}px`;
-                let value = changePxToValue({value : left, type : "line", length : props.length});
+                let value = changePxToValue({ value: left, type: "line", length: props.length });
                 thrott(() => {
                     props.wsSendObj({
                         value,
                     });
                 });
             }
-            let arr = [changePxToValue({value : left , length : props.length }), changePxToValue({value : right , length : props.length})];
+            let arr = [changePxToValue({ value: left, length: props.length }), changePxToValue({ value: right, length: props.length })];
 
             thrott(() => {
                 props.wsSendObj({
@@ -95,7 +95,7 @@ export default function ProgressCom(props) {
 
             if (lineleft > e.clientX - leftX - 10) {
                 document.querySelector(".progressLine").style.left = `${moveValue(right)}px`;
-                let value = changePxToValue({value : right, type : "line" , length : props.length});
+                let value = changePxToValue({ value: right, type: "line", length: props.length });
                 thrott(() => {
                     props.wsSendObj({
                         value,
@@ -103,7 +103,7 @@ export default function ProgressCom(props) {
                 });
             }
 
-            let arr = [changePxToValue({value : left , length : props.length}), changePxToValue({value : right , length : props.length})];
+            let arr = [changePxToValue({ value: left, length: props.length }), changePxToValue({ value: right, length: props.length })];
 
             thrott(() => {
                 props.wsSendObj({
@@ -122,7 +122,7 @@ export default function ProgressCom(props) {
 
             const lineleft = parseInt(document.querySelector(".progressLine").style.left);
 
-            let value = changePxToValue({value : lineleft, type : "line", length : props.length});
+            let value = changePxToValue({ value: lineleft, type: "line", length: props.length });
             thrott(() => {
                 props.wsSendObj({
                     value,
@@ -164,12 +164,58 @@ export default function ProgressCom(props) {
             window.removeEventListener("mousemove", changeLeftProgress)
             window.removeEventListener("mouseup", changeLeftProgressFalse)
         }
-    }, [playFlag,leftFlag,rightFlag,lineFlag])
+    }, [playFlag, leftFlag, rightFlag, lineFlag])
 
     const playData = (value) => {
-        props.wsSendObj({play: value})
+        props.wsSendObj({ play: value })
         setPlayFlag(value)
     };
+
+    const changeIndex = (value) => {
+        if (value <= props.length) {
+            const line = document.querySelector(".progressLine");
+
+            const lineLeft = 20 + (value * 560) / (props.length ? props.length : 1);
+            const leftX = document.querySelector(".progress").getBoundingClientRect().x;
+            const left = parseInt(document.querySelector(".leftProgress").style.left);
+            const right = parseInt(document.querySelector(".rightProgress").style.left);
+            line.style.left = `${20 + (value * 560) / (props.length ? props.length : 1)}px`;
+
+            const lineLocaltion = moveValue(lineLeft < left + 20 ? left + 20 : lineLeft > right ? right : lineLeft)
+            document.querySelector(".progressLine").style.left = `${lineLocaltion}px`;
+
+            // this.setState({
+            //   index: value,
+            // });
+
+
+            if (props.areaArr) {
+                props.data.current?.handleChartsArea(
+                    props.areaArr,
+                    props.max + 100,
+                    value
+                );
+                if (value == props.areaArr.length) {
+                    props.wsSendObj({ play: false });
+
+                    setPlayFlag(false)
+                }
+            }
+            if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed")) {
+                props.data.current?.handleCharts(
+                    props.pressArr,
+                    props.pressMax + 100,
+                    value
+                );
+            }
+
+            // if (this.bodyArr && this.state.matrixName == "bigBed") {
+            //   this.data.current?.handleChartsBody(this.bodyArr, 200);
+            // }
+
+
+        }
+    }
 
 
     /**
@@ -189,7 +235,7 @@ export default function ProgressCom(props) {
 
         const lineleft = parseInt(document.querySelector(".progressLine").style.left);
 
-        let value = changePxToValue({value : lineleft, type : "line" ,length : props.length});
+        let value = changePxToValue({ value: lineleft, type: "line", length: props.length });
 
         // 向后端索要当前帧的数据
         props.wsSendObj({ value });
@@ -200,6 +246,11 @@ export default function ProgressCom(props) {
             props.data.current?.handleCharts(props.pressArr, props.pressMax + 100, value + 1);
         }
     }
+
+    useImperativeHandle(refs, () => ({
+        changeIndex
+    }));
+
 
     return (
         <div
@@ -240,7 +291,7 @@ export default function ProgressCom(props) {
                 <div
                     // ref={this.line}
                     className="progressLine"
-                    style={{ left: 20}}
+                    style={{ left: 20 }}
                     onMouseDown={(e) => {
                         setLineFlag(true)
                     }}
@@ -291,4 +342,5 @@ export default function ProgressCom(props) {
             </div>
         </div>
     )
-}
+})
+export default ProgressCom
