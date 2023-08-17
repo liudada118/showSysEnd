@@ -10,38 +10,32 @@ import Aside from "../../components/aside/Aside";
 import ProgressCom from "../../components/progress/Progress";
 import plus from "../../assets/images/Plus.png";
 import minus from "../../assets/images/Minus.png";
-import icon from "../../assets/images/Icon.png";
 import load from "../../assets/images/load.png";
-import stop from "../../assets/images/stop.png";
 
 import refresh from "../../assets/images/refresh.png";
 import {
   findMax,
   findMin,
-  returnChartMax,
   rotate180,
   rotate90,
 } from "../../assets/util/util";
 import { rainbowTextColors } from "../../assets/util/color";
 import {
-  handLine,
   footLine,
-  carSitLine,
-  carBackLine,
   press,
   calculateY,
-  rotateArray90Degrees,
   rotateArrayCounter90Degrees,
   pressBed,
   objChange,
   calPress,
   calculatePressure,
 } from "../../assets/util/line";
-import { Select, Slider, Popover, message } from "antd";
+import { Popover, message } from "antd";
 import { SelectOutlined } from "@ant-design/icons";
 import { Num } from "../../components/num/Num";
 import { calFoot } from "../../assets/util/value";
 import { Heatmap } from "../../components/heatmap/canvas";
+import FootTrack from "../../components/footTrack/footTrack";
 
 let ws,
   ws1,
@@ -94,21 +88,6 @@ class CanvasCom extends React.Component {
   }
 }
 
-class FootCom extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  shouldComponentUpdate(nextProps, nextState) {
-    return (
-      this.props.matrixName != nextProps.matrixName ||
-      this.props.centerFlag != nextProps.centerFlag
-    );
-  }
-  render() {
-    console.log(this.props);
-    return <>{this.props.children}</>;
-  }
-}
 
 let totalArr = [],
   totalPointArr = [],
@@ -196,7 +175,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "bigBed",
+      matrixName: "foot",
       length: 0,
       local: false,
       dataArr: [],
@@ -224,6 +203,7 @@ class Home extends React.Component {
     this.data = React.createRef();
     this.title = React.createRef();
     this.line = React.createRef();
+    this.track = React.createRef();
   }
 
   componentDidMount() {
@@ -234,15 +214,6 @@ class Home extends React.Component {
     console.log(c2, 'c2')
     if (c2) ctxbig = c2.getContext("2d");
 
-    if (document.getElementById("myCanvasTrack")) {
-      var c = document.getElementById("myCanvasTrack");
-      ctx = c.getContext("2d");
-      var c1 = document.getElementById("myCanvasCircle");
-      ctxCircle = c1.getContext("2d");
-      canvasWidth = c.getBoundingClientRect().width;
-      console.log(ctx.width, ctx.height);
-      this.canvasInit1(ctx, canvasWidth);
-    }
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     ws = new WebSocket(" ws://127.0.0.1:19999");
     // ws = new WebSocket("ws://192.168.31.46:1880/ws/data")
@@ -454,25 +425,9 @@ class Home extends React.Component {
             rightProp: rightPropSmooth,
           });
 
+          // 打开脚型轨迹图
           if (this.state.centerFlag) {
-            ctx.strokeStyle = "#01F1E3";
-            ctx.lineTo(
-              (arrSmooth[0] * canvasWidth) / 32,
-              (arrSmooth[1] * canvasWidth) / 32
-            );
-            ctx.stroke();
-            ctxCircle.clearRect(0, 0, canvasWidth, canvasWidth);
-            ctxCircle.beginPath();
-            ctxCircle.fillStyle = "#991BFA";
-            ctxCircle.arc(
-              (arrSmooth[0] * canvasWidth) / 32,
-              (arrSmooth[1] * canvasWidth) / 32,
-              5,
-              0,
-              2 * Math.PI
-            );
-            ctxCircle.fill();
-            this.canvasText2(ctxCircle, canvasWidth, window.innerWidth);
+            this.track.current?.circleMove({ arrSmooth, rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
           }
 
           if (totalArr.length < 20) {
@@ -1326,147 +1281,10 @@ class Home extends React.Component {
 
   }
 
-  canvasText1(ctx, width, htmlWidth) {
-    ctx.clearRect(260, 110, 35, 35);
-    ctx.fillStyle = "#333";
-    ctx.fillRect(260, 110, 35, 35);
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#fff";
-    ctx.fillText(rightTopPropSmooth, 265, 140);
-
-    ctx.clearRect(260, 155, 35, 35);
-    ctx.fillStyle = "#333";
-    ctx.fillRect(260, 155, 35, 35);
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#fff";
-    ctx.fillText(rightBottomPropSmooth, 265, 175);
-
-    ctx.clearRect(5, 110, 35, 35);
-    ctx.fillStyle = "#333";
-    ctx.fillRect(5, 110, 35, 35);
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#fff";
-    ctx.fillText(leftTopPropSmooth, 5, 140);
-
-    ctx.clearRect(5, 155, 35, 35);
-    ctx.fillStyle = "#333";
-    ctx.fillRect(5, 155, 35, 35);
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#fff";
-    ctx.fillText(leftBottomPropSmooth, 5, 175);
-
-    ctx.clearRect(110, 260, 35, 35);
-    ctx.fillStyle = "#333";
-    ctx.fillRect(110, 260, 36, 36);
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#fff";
-    ctx.fillText(leftPropSmooth, leftPropSmooth < 10 ? 135 : 120, 290);
-
-    ctx.clearRect(155, 260, 35, 35);
-    ctx.fillStyle = "#333";
-    ctx.fillRect(155, 260, 35, 35);
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#fff";
-    ctx.fillText(rightPropSmooth, 155, 290);
-  }
-
-  canvasText2(ctx, width, htmlWidth) {
-    ctx.font = `${htmlWidth / 100}px Arial`;
-    ctx.fillStyle = "#fff";
-    ctx.fillText(rightTopPropSmooth, (265 * width) / 300, (140 * width) / 300);
-
-    ctx.font = `${htmlWidth / 100}px Arial`;
-    ctx.fillStyle = "#fff";
-    ctx.fillText(
-      rightBottomPropSmooth,
-      (265 * width) / 300,
-      (175 * width) / 300
-    );
-
-    ctx.font = `${htmlWidth / 100}px Arial`;
-    ctx.fillStyle = "#fff";
-    ctx.fillText(leftTopPropSmooth, (5 * width) / 300, (140 * width) / 300);
-
-    ctx.font = `${htmlWidth / 100}px Arial`;
-    ctx.fillStyle = "#fff";
-    ctx.fillText(leftBottomPropSmooth, (5 * width) / 300, (175 * width) / 300);
-
-    ctx.font = `${htmlWidth / 100}px Arial`;
-    ctx.fillStyle = "#fff";
-    ctx.fillText(
-      leftPropSmooth,
-      leftPropSmooth < 10 ? (135 * width) / 300 : (120 * width) / 300,
-      (290 * width) / 300
-    );
-
-    ctx.font = `${htmlWidth / 100}px Arial`;
-    ctx.fillStyle = "#fff";
-    ctx.fillText(rightPropSmooth, (155 * width) / 300, (290 * width) / 300);
-  }
-
-  canvasInit1(ctx, width) {
-    ctx.clearRect(0, 0, width, width);
-    ctx.beginPath();
-    // ctx.strokeStyle = '#01F1E3';
-    // ctx.strokeRect(1, 1, width - 1, width - 1)
-    ctx.fillStyle = "#191932";
-    ctx.fillRect(1, 1, width - 1, width - 1);
-
-    ctx.beginPath();
-    ctx.strokeStyle = "#5A5A89";
-    for (let i = 0; i < 9; i++) {
-      ctx.moveTo(1, ((i + 1) * 30 * width) / 300);
-      ctx.lineTo(width - 1, ((i + 1) * 30 * width) / 300);
-    }
-
-    for (let i = 0; i < 9; i++) {
-      ctx.moveTo(((i + 1) * 30 * width) / 300, 1);
-      ctx.lineTo(((i + 1) * 30 * width) / 300, width - 1);
-    }
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo((1 * width) / 300, (150 * width) / 300);
-    ctx.lineTo((299 * width) / 300, (150 * width) / 300);
-    ctx.moveTo((150 * width) / 300, (1 * width) / 300);
-    ctx.lineTo((150 * width) / 300, (299 * width) / 300);
-    ctx.stroke();
-
-    ctx.strokeStyle = "#01F1E3";
-    ctx.moveTo((150 * width) / 300, (150 * width) / 300);
-  }
-
-  canvasInit() {
-    this.canvasInit1(ctx, canvasWidth);
-    if (ctxCircle) ctxCircle.clearRect(0, 0, canvasWidth, canvasWidth);
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.state.matrixName != prevState.matrixName) {
-      if (document.getElementById("myCanvasTrack")) {
-        var c = document.getElementById("myCanvasTrack");
-        ctx = c.getContext("2d");
-        var c1 = document.getElementById("myCanvasCircle");
-        ctxCircle = c1.getContext("2d");
-        canvasWidth = c.getBoundingClientRect().width;
-        console.log(ctx.width, ctx.height);
-        this.canvasInit1(ctx, canvasWidth);
-      }
-    }
-  }
 
   wsSendObj = (obj) => {
     if (ws && ws.readyState === 1) {
       ws.send(JSON.stringify(obj));
-    }
-  };
-
-  playData = (value) => {
-    if (ws && ws.readyState === 1) {
-      ws.send(JSON.stringify({ play: value }));
-      // setPlayflag(value)
-      this.setState({
-        playflag: value,
-      });
     }
   };
 
@@ -1476,12 +1294,6 @@ class Home extends React.Component {
     this.setState({ matrixName: e });
     wsMatrixName = e;
   };
-
-  // initPressCtx(){
-  //   var c2 = document.getElementById("myChartBig");
-  //   console.log(c2, 'c2')
-  //   if (c2) ctxbig = c2.getContext("2d");
-  // }
 
   handleChartsBody(arr, max, index) {
 
@@ -1634,30 +1446,6 @@ class Home extends React.Component {
     colValueFlag = value;
   };
 
-  saveCanvasAsImage() {
-    ctx.beginPath();
-    ctx.fillStyle = "#991BFA";
-    ctx.arc(
-      (arrSmooth[0] * 300) / 32,
-      (arrSmooth[1] * 300) / 32,
-      5,
-      0,
-      2 * Math.PI
-    );
-    ctx.fill();
-
-    const canvas = document.getElementById("myCanvasTrack");
-    const dataURL = canvas.toDataURL("image/png");
-
-    // 创建一个虚拟链接来下载保存的图片
-    const link = document.createElement("a");
-    link.href = dataURL;
-    link.download = "canvas_image.png";
-    link.click();
-  }
-
-
-
   render() {
     return (
       <div className="home">
@@ -1667,7 +1455,6 @@ class Home extends React.Component {
               placement="top"
               title={text}
               content={content}
-            // arrow={mergedArrow}
             >
               <div
                 className="setIcon marginB10"
@@ -1791,7 +1578,7 @@ class Home extends React.Component {
                     src={refresh}
                     alt=""
                     onClick={() => {
-                      this.canvasInit1(ctx, canvasWidth);
+                      this.track.current?.canvasInit()
                     }}
                   />
                 </div>
@@ -1805,9 +1592,7 @@ class Home extends React.Component {
                 <div
                   className="setIcon marginB10"
                   onClick={() => {
-                    this.canvasText2(ctx, canvasWidth, window.innerWidth);
-                    this.saveCanvasAsImage();
-                    this.canvasInit1(ctx, canvasWidth);
+                    this.track.current?.loadImg({ arrSmooth,rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
                   }}
                 >
                   <img src={load} alt="" />
@@ -1922,6 +1707,7 @@ class Home extends React.Component {
           ymax={this.state.ymax}
           ref={this.title}
           com={this.com}
+          track={this.track}
           port={this.state.port}
           portname={this.state.portname}
           portnameBack={this.state.portnameBack}
@@ -1935,7 +1721,6 @@ class Home extends React.Component {
           colFlag={this.state.colFlag}
           changeStateData={this.changeStateData}
           setColValueFlag={this.setColValueFlag}
-          canvasInit={this.canvasInit.bind(this)}
           numMatrixFlag={this.state.numMatrixFlag}
           centerFlag={this.state.centerFlag}
           data={this.data}
@@ -1944,7 +1729,7 @@ class Home extends React.Component {
           valueMult={this.state.valueMult}
           pressChart={this.state.pressChart}
         />
- 
+
         <CanvasCom matrixName={this.state.matrixName}>
           <Aside ref={this.data} matrixName={this.state.matrixName} />
         </CanvasCom>
@@ -2006,31 +1791,10 @@ class Home extends React.Component {
             pressMax={this.pressMax}
             wsSendObj={this.wsSendObj} />
           : null}
-
+        {/* 脚型重心画图 */}
         {this.state.matrixName == "foot" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            <canvas
-              id="myCanvasTrack"
-              width={(window.innerWidth * 15) / 100}
-              height={(window.innerWidth * 15) / 100}
-              style={{
-                position: "fixed",
-                top: "6%",
-                right: "calc(3% + 48px)",
-                borderRadius: "10px",
-              }}
-            ></canvas>
-            <canvas
-              id="myCanvasCircle"
-              width={(window.innerWidth * 15) / 100}
-              height={(window.innerWidth * 15) / 100}
-              style={{
-                position: "fixed",
-                top: "6%",
-                right: "calc(3% + 48px)",
-                borderRadius: "10px",
-              }}
-            ></canvas>
+            <FootTrack ref={this.track} />
           </CanvasCom>
         ) : null}
 

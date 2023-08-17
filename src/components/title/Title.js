@@ -64,7 +64,7 @@ class Title extends React.Component {
   onClick = (e) => {
     console.log('click ', e.key);
     this.props.data.current?.changeData({ meanPres: 0, maxPres: 0, point: 0, area: 0, totalPres: 0, pressure: 0 })
-    if (this.props.matrixName === 'foot') { this.props.canvasInit() }
+    if (this.props.matrixName === 'foot') { this.props.track.current?.canvasInit() }
     this.props.data.current?.initCharts()
     if (e.key === 'now') {
       // this.props.changeLocal(false)
@@ -244,7 +244,7 @@ class Title extends React.Component {
           onChange={(e) => {
             // this.props.handleChangeCom(e);
             if (this.props.matrixName === 'foot') {
-              this.props.canvasInit()
+              this.props.track.current?.canvasInit()
             }
 
             console.log(e);
@@ -358,7 +358,7 @@ class Title extends React.Component {
             this.props.changeStateData({ centerFlag: !flag })
             this.props.com.current?.changeCenterFlag(flag)
             if (flag) {
-              this.props.canvasInit()
+              this.props.track.current?.canvasInit()
             }
           }}>{!this.props.centerFlag ? '重心' : '隐藏'}</Button> : null}
       </div>
