@@ -161,6 +161,9 @@ class Title extends React.Component {
             console.log(e);
             this.props.wsSendObj({ file: e })
             this.props.changeMatrix(e)
+            if(e === 'bigBed'){
+              this.props.initBigCtx()
+            }
             // this.props.changeDateArr(e.info)
             // if (ws && ws.readyState === 1)
             //   ws.send(JSON.stringify({ sitPort: e }));
@@ -314,7 +317,7 @@ class Title extends React.Component {
         {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {
           const flag = this.props.pressChart
           this.props.changeStateData({ pressChart: !flag })
-          // this.props.initPressCtx()
+          this.props.initBigCtx()
         }}>压力曲线</Button> : null}
 
         {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {

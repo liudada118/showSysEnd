@@ -246,7 +246,7 @@ class Home extends React.Component {
           wsPointData = JSON.parse(wsPointData);
         }
 
-        sitTypeEvent[this.state.matrixName]({that : this , wsPointData})
+        sitTypeEvent[this.state.matrixName]({ that: this, wsPointData })
 
 
 
@@ -729,7 +729,7 @@ class Home extends React.Component {
       }
 
       if (jsonObject.index != null) {
-        this.progress.current?.changeIndex(jsonObject.index )
+        this.progress.current?.changeIndex(jsonObject.index)
       }
 
       if (jsonObject.areaArr != null) {
@@ -1130,7 +1130,7 @@ class Home extends React.Component {
       }
 
       if (jsonObject.index != null) {
-        this.progress.current?.changeIndex(jsonObject.index )
+        this.progress.current?.changeIndex(jsonObject.index)
       }
 
       if (jsonObject.areaArr != null) {
@@ -1173,7 +1173,7 @@ class Home extends React.Component {
   };
 
   handleChartsBody(arr, max, index) {
-
+    // console.log(first)
     const canvas = document.getElementById('myChartBig')
     // console.log(canvas , ctxbig)
     if (canvas && ctxbig) {
@@ -1181,6 +1181,12 @@ class Home extends React.Component {
     }
 
     // console.log(arr, max)
+  }
+
+  initBigCtx() {
+    var c2 = document.getElementById("myChartBig");
+    console.log(c2, 'c2')
+    if (c2) ctxbig = c2.getContext("2d");
   }
 
   drawChart({ ctx, arr, max, canvas, index }) {
@@ -1469,7 +1475,7 @@ class Home extends React.Component {
                 <div
                   className="setIcon marginB10"
                   onClick={() => {
-                    this.track.current?.loadImg({ arrSmooth,rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
+                    this.track.current?.loadImg({ arrSmooth, rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
                   }}
                 >
                   <img src={load} alt="" />
@@ -1575,6 +1581,7 @@ class Home extends React.Component {
         </div>
 
         <Title
+          initBigCtx={this.initBigCtx}
           valueg1={this.state.valueg1}
           value1={this.state.value1}
           valuef1={this.state.valuef1}
@@ -1650,7 +1657,7 @@ class Home extends React.Component {
 
         {/* 全床压力曲线 */}
         {this.state.matrixName === 'bigBed' ?
-          <div style={{ position: "fixed", visibility: this.state.pressChart ? 'unset' : 'hidden', width: '60%', right: "20%", bottom: "100px" }}>
+          <div style={{ position: "fixed", visibility: this.state.pressChart ?  'hidden':'unset' , width: '60%', right: "20%", bottom: "100px" }}>
             <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas>
           </div>
           : null}
@@ -1658,7 +1665,7 @@ class Home extends React.Component {
         {/* 进度条 */}
         {this.state.local ?
           <ProgressCom
-            ref = {this.progress}
+            ref={this.progress}
             dataTime={this.state.dataTime}
             matrixName={this.state.matrixName}
             data={this.data}

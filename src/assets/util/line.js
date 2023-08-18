@@ -463,8 +463,10 @@ export function graCenter(matrix, width, height) {
   }
   // const x = findMedian(rowTotal, 0, 32)
   // const y = findMedian(cloumnTotal, 0, 32)
-  const x = findGroup(rowTotal);
-  const y = findGroup(cloumnTotal);
+  let x = findGroup(rowTotal);
+  let y = findGroup(cloumnTotal);
+  x = x ? x : 0
+  y = y ? y : 0
   return [y, x];
 }
 

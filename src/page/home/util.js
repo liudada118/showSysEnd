@@ -54,13 +54,10 @@ export const sitTypeEvent = {
       pressNumFlag: that.state.pressNum,
     });
 
-    arr[0] = arr[0] ? arr[0] : 0;
-    arr[1] = arr[1] ? arr[1] : 0;
     for (let i = 0; i < arrSmooth.length; i++) {
       arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i]) / 4;
     }
 
-    // console.log(arr)
     selectArr = [];
 
     for (let j = sitIndexArr[2]; j <= sitIndexArr[3]; j++) {
@@ -106,9 +103,7 @@ export const sitTypeEvent = {
     areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10);
     pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10);
 
-    pressureSmooth = parseInt(
-      pressureSmooth + (sitPressure - pressureSmooth) / 10
-    );
+    pressureSmooth = parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10);
 
     const leftValue = sitData.reduce((a, b) => a + b, 0);
     const rightValue = backData.reduce((a, b) => a + b, 0);
@@ -116,15 +111,11 @@ export const sitTypeEvent = {
     let leftProp = parseInt((leftValue * 100) / (leftValue + rightValue));
     let rightProp = 100 - leftProp;
 
-    let leftTop = [...sitData]
-      .slice(0, 16 * 16)
-      .reduce((a, b) => a + b, 0);
+    let leftTop = [...sitData].slice(0, 16 * 16).reduce((a, b) => a + b, 0);
     let leftTopProp = parseInt((leftTop * 100) / leftValue);
     let leftBottomProp = 100 - leftTopProp;
 
-    let rightTop = [...backData]
-      .slice(0, 16 * 16)
-      .reduce((a, b) => a + b, 0);
+    let rightTop = [...backData].slice(0, 16 * 16).reduce((a, b) => a + b, 0);
     let rightTopProp = parseInt((rightTop * 100) / rightValue);
     let rightBottomProp = 100 - rightTopProp;
 
@@ -302,9 +293,6 @@ export const sitTypeEvent = {
         time = 240 * 13;
       }
     }
-
-    // console.log(pressure , total / length)
-
     sitPoint = length
     sitTotal = DataArr.reduce((a, b) => a + b, 0);
     sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
