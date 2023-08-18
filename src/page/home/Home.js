@@ -27,6 +27,7 @@ import {
   rotateArrayCounter90Degrees,
   calculatePressure,
   objChange,
+  arr10to5,
 } from "../../assets/util/line";
 import { Popover, message } from "antd";
 import { SelectOutlined } from "@ant-design/icons";
@@ -986,6 +987,8 @@ class Home extends React.Component {
         //       wsPointData: wsPointData,
         //     });
         // }
+
+        wsPointData = arr10to5(wsPointData)
 
         this.com.current?.backData({
           wsPointData: wsPointData,

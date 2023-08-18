@@ -151,7 +151,7 @@ export function calculateY(arr) {
 }
 
 export function calculatePressure(x) {
-  if(x < 40){
+  if (x < 40) {
     return 0
   }
   const coefficient2 = -0.005051;
@@ -210,7 +210,7 @@ export function press(arr, width, height, type = "row") {
         wsPointData[i * width + j] = parseInt(
           (wsPointData[i * width + j] /
             (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) *
-            1000
+          1000
         );
       }
     }
@@ -229,7 +229,7 @@ export function press(arr, width, height, type = "row") {
         wsPointData[j * height + i] = parseInt(
           (wsPointData[j * height + i] /
             (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) *
-            1000
+          1000
         );
       }
     }
@@ -259,7 +259,7 @@ export function pressNew({ arr, width, height, type = "row", value }) {
         wsPointData[i * width + j] = parseInt(
           (wsPointData[i * width + j] /
             (value - colArr[i] == 0 ? 1 : value - colArr[i])) *
-            1000
+          1000
         );
       }
     }
@@ -278,7 +278,7 @@ export function pressNew({ arr, width, height, type = "row", value }) {
         wsPointData[j * height + i] = parseInt(
           (wsPointData[j * height + i] /
             (value - colArr[i] == 0 ? 1 : value - colArr[i])) *
-            1000
+          1000
         );
       }
     }
@@ -496,11 +496,11 @@ function calCenter(arr) {
       const value =
         res[i].value -
         ((res[i].value - res[i + 1].value) * res[i + 1].value) /
-          (res[i].value + res[i + 1].value);
+        (res[i].value + res[i + 1].value);
       const index =
         res[i].index +
         (Math.abs(res[i].index - res[i + 1].index) * res[i + 1].value) /
-          (res[i].value + res[i + 1].value);
+        (res[i].value + res[i + 1].value);
       data.push({ value, index });
     }
     res = data;
@@ -518,7 +518,7 @@ function findMedian(arr, start, end) {
     numRight = 0,
     left,
     right;
-  for (let i = start; i < end; ) {
+  for (let i = start; i < end;) {
     numLeft += arr[i];
     if (numLeft < total / 2) {
       i++;
@@ -528,7 +528,7 @@ function findMedian(arr, start, end) {
     }
   }
 
-  for (let i = end - 1; i >= start; ) {
+  for (let i = end - 1; i >= start;) {
     numRight += arr[i];
     if (numRight < total / 2) {
       i--;
@@ -717,4 +717,41 @@ export function objChange(newValue, oldValue, valueFlag) {
   } else {
     return true;
   }
+}
+
+export function arr10to5(arr) {
+  const newDataArr = []
+
+  for (let i = 0; i < 5; i++) {
+
+    for (let j = 0; j < 5; j++) {
+      let num = 0
+
+      for (let k = 0; k < 2; k++) {
+        for (let z = 0; z < 2; z++) {
+          num += arr[(i * 2 + k) * 10 + j * 2 + z]
+          // console.log(i + k, j + z)
+        }
+      }
+
+      newDataArr.push(Number((num / 4).toFixed(1)))
+    }
+
+  }
+  const wsPointData = []
+  for (let i = 0; i < 5; i++) {
+
+    for (let j = 0; j < 5; j++) {
+      let num = 0
+
+      for (let k = 0; k < 2; k++) {
+        for (let z = 0; z < 2; z++) {
+          // num += ndata[(i*2 + k) * 10 + j*2 + z]
+          wsPointData[(i * 2 + k) * 10 + j * 2 + z] = newDataArr[i * 5 + j]
+          // console.log(i + k, j + z)
+        }
+      }
+    }
+  }
+  return wsPointData
 }

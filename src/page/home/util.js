@@ -4,7 +4,8 @@ import { footLine, pressBed,
   rotateArrayCounter90Degrees,
   calculatePressure,
   objChange,
-  calPress,} from "../../assets/util/line";
+  calPress,
+  arr10to5,} from "../../assets/util/line";
 import { findMax, } from "../../assets/util/util";
 import { calFoot } from "../../assets/util/value";
 let totalArr = [],
@@ -424,8 +425,13 @@ export const sitTypeEvent = {
       sitArea = 0;
     }
   },
-  car10: () => {
+  car10: ({ that, wsPointData }) => {
 
+    const arr = arr10to5(wsPointData)
+
+    that.com.current?.sitData({
+      wsPointData: arr,
+    });
   },
   hand: ({ that, wsPointData }) => {
     if (that.state.numMatrixFlag == "normal") {
