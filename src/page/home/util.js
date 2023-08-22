@@ -5,7 +5,8 @@ import { footLine, pressBed,
   calculatePressure,
   objChange,
   calPress,
-  arr10to5,} from "../../assets/util/line";
+  arr10to5,
+  handLine,} from "../../assets/util/line";
 import { findMax, } from "../../assets/util/util";
 import { calFoot } from "../../assets/util/value";
 let totalArr = [],
@@ -432,9 +433,24 @@ export const sitTypeEvent = {
     that.com.current?.sitData({
       wsPointData: arr,
     });
+    const dataArr = []
+    for(let i = 0 ; i < 10 ; i ++ ){
+      dataArr[i] = []
+      for(let j = 0 ; j < 10 ; j ++ ){
+        dataArr[i].push(wsPointData[i*10 + j])
+      }
+    }
+
+    that.setState({
+      newArr1 : dataArr
+    })
+
   },
   hand: ({ that, wsPointData }) => {
     if (that.state.numMatrixFlag == "normal") {
+
+      // wsPointData = handLine(wsPointData)
+
       that.com.current?.sitData({
         wsPointData: wsPointData,
       });

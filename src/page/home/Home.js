@@ -175,7 +175,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "foot",
+      matrixName: "car10",
       length: 0,
       local: false,
       dataArr: [],
@@ -197,6 +197,7 @@ class Home extends React.Component {
       pointFlag: false,
       pressChart: false,
       newArr: [],
+      newArr1: [],
       ymax: 200
     };
     this.com = React.createRef();
@@ -217,7 +218,7 @@ class Home extends React.Component {
 
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     ws = new WebSocket(" ws://127.0.0.1:19999");
-    // ws = new WebSocket("ws://192.168.31.46:1880/ws/data")
+    // ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
 
     ws.onopen = () => {
       // connection opened
@@ -761,6 +762,7 @@ class Home extends React.Component {
     };
 
     ws1 = new WebSocket(" ws://127.0.0.1:19998");
+    // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -949,7 +951,8 @@ class Home extends React.Component {
 
 
 
-        const numData = rotateArrayCounter90Degrees([...wsPointData], 10, 10);
+        // const numData = rotateArrayCounter90Degrees([...wsPointData], 10, 10);
+        const numData = [...wsPointData]
 
         const newArr = [];
         for (let i = 0; i < 10; i++) {
@@ -989,6 +992,18 @@ class Home extends React.Component {
         // }
 
         wsPointData = arr10to5(wsPointData)
+
+        const dataArr = []
+        // for (let i = 0; i < 10; i++) {
+        //   dataArr[i] = []
+        //   for (let j = 0; j < 10; j++) {
+        //     dataArr[i].push(wsPointData[i * 10 + j])
+        //   }
+        // }
+
+        // this.setState({
+        //   newArr1: dataArr
+        // })
 
         this.com.current?.backData({
           wsPointData: wsPointData,
@@ -1660,7 +1675,7 @@ class Home extends React.Component {
 
         {/* 全床压力曲线 */}
         {this.state.matrixName === 'bigBed' ?
-          <div style={{ position: "fixed", visibility: this.state.pressChart ?  'hidden':'unset' , width: '60%', right: "20%", bottom: "100px" }}>
+          <div style={{ position: "fixed", visibility: this.state.pressChart ? 'hidden' : 'unset', width: '60%', right: "20%", bottom: "100px" }}>
             <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas>
           </div>
           : null}
@@ -1710,7 +1725,7 @@ class Home extends React.Component {
             {this.state.pressNum ? "压力算法" : "不压力算法"}
           </div>
         </div> */}
-        {/* <div style={{ position: "fixed", right: "25%", bottom: "20px" }}>
+        <div style={{ position: "fixed", right: "25%", bottom: "20px" }}>
           {this.state.newArr.length
             ? this.state.newArr.map((a, indexs) => {
               return (
@@ -1722,7 +1737,21 @@ class Home extends React.Component {
               );
             })
             : null}
-        </div> */}
+        </div>
+
+        <div style={{ position: "fixed", right: "25%", bottom: "400px" }}>
+          {this.state.newArr1.length
+            ? this.state.newArr1.map((a, indexs) => {
+              return (
+                <div style={{ display: "flex", color: "#fff" }}>
+                  {a.map((b, index) => {
+                    return <div style={{ width: 30 }}>{b}</div>;
+                  })}
+                </div>
+              );
+            })
+            : null}
+        </div>
 
 
 
