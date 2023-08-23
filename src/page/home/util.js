@@ -428,10 +428,10 @@ export const sitTypeEvent = {
   },
   car10: ({ that, wsPointData }) => {
 
-    const arr = arr10to5(wsPointData)
+    // const arr = arr10to5(wsPointData)
 
     that.com.current?.sitData({
-      wsPointData: arr,
+      wsPointData: wsPointData,
     });
     const dataArr = []
     for(let i = 0 ; i < 10 ; i ++ ){
@@ -442,7 +442,7 @@ export const sitTypeEvent = {
     }
 
     that.setState({
-      newArr1 : dataArr
+      newArr : dataArr
     })
 
   },
@@ -477,7 +477,7 @@ export const sitTypeEvent = {
 
 export const backTypeEvent = {
   car: () => {
-
+    
   },
   car10: () => {
 

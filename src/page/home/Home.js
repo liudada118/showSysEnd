@@ -217,8 +217,8 @@ class Home extends React.Component {
     if (c2) ctxbig = c2.getContext("2d");
 
     // ws = new WebSocket(" ws://192.168.31.114:19999");
-    ws = new WebSocket(" ws://127.0.0.1:19999");
-    // ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
+    // ws = new WebSocket(" ws://127.0.0.1:19999");
+    ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
 
     ws.onopen = () => {
       // connection opened
@@ -761,8 +761,8 @@ class Home extends React.Component {
       // connection closed
     };
 
-    ws1 = new WebSocket(" ws://127.0.0.1:19998");
-    // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
+    // ws1 = new WebSocket(" ws://127.0.0.1:19998");
+    ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -964,7 +964,7 @@ class Home extends React.Component {
 
         // console.log(newArr)
 
-        this.setState({ newArr });
+        this.setState({ newArr1 : newArr });
 
         // wsPointData = rotate90(wsPointData,32,32)
         // console.log(wsPointData)
@@ -991,7 +991,7 @@ class Home extends React.Component {
         //     });
         // }
 
-        wsPointData = arr10to5(wsPointData)
+        // wsPointData = arr10to5(wsPointData)
 
         const dataArr = []
         // for (let i = 0; i < 10; i++) {
@@ -1669,9 +1669,6 @@ class Home extends React.Component {
             <Car10 ref={this.com} />
           </CanvasCom>
         )}
-        {/* <Com>
-          <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
-        </Com> */}
 
         {/* 全床压力曲线 */}
         {this.state.matrixName === 'bigBed' ?
@@ -1725,13 +1722,13 @@ class Home extends React.Component {
             {this.state.pressNum ? "压力算法" : "不压力算法"}
           </div>
         </div> */}
-        <div style={{ position: "fixed", right: "25%", bottom: "20px" }}>
+        <div style={{ position: "fixed", right: "20%", bottom: "20px" }}>
           {this.state.newArr.length
             ? this.state.newArr.map((a, indexs) => {
               return (
                 <div style={{ display: "flex", color: "#fff" }}>
                   {a.map((b, index) => {
-                    return <div style={{ width: 30 }}>{b}</div>;
+                    return <div style={{ width: 40 }}>{b}</div>;
                   })}
                 </div>
               );
@@ -1739,23 +1736,19 @@ class Home extends React.Component {
             : null}
         </div>
 
-        <div style={{ position: "fixed", right: "25%", bottom: "400px" }}>
+        <div style={{ position: "fixed", right: "20%", bottom: "400px" }}>
           {this.state.newArr1.length
             ? this.state.newArr1.map((a, indexs) => {
               return (
                 <div style={{ display: "flex", color: "#fff" }}>
                   {a.map((b, index) => {
-                    return <div style={{ width: 30 }}>{b}</div>;
+                    return <div style={{ width: 40 }}>{b}</div>;
                   })}
                 </div>
               );
             })
             : null}
         </div>
-
-
-
-
       </div>
     );
   }

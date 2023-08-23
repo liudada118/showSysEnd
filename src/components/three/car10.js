@@ -17,7 +17,7 @@ import { checkRectIndex, checkRectangleIntersection, getPointCoordinate, getPoin
 
 const Canvas = React.forwardRef((props, refs) => {
 
-  const backX = 1, backY = 100, backZ = 118, sitX = -3, sitY = 70, sitZ = 148, backRotationX = -Math.PI * 7 / 12
+  const backX = -3, backY = 98, backZ = 118, sitX = -2, sitY = 75, sitZ = 148, backRotationX = -Math.PI * 7 / 12
 
   console.log('canvas')
   var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper
@@ -329,8 +329,8 @@ const Canvas = React.forwardRef((props, refs) => {
     particles.scale.z = 0.005;
 
     particles.position.z = sitZ;
-    particles.position.y = sitY +5;
-    particles.position.x = sitX - 2;
+    particles.position.y = sitY;
+    particles.position.x = sitX;
     particles.rotation.x = -Math.PI / 48;
     particles.rotation.y = 0; //-Math.PI / 2;
     group.add(particles);
@@ -385,8 +385,8 @@ const Canvas = React.forwardRef((props, refs) => {
     particles1.scale.z = 0.0048;
 
     particles1.position.z = backZ;
-    particles1.position.y = backY -2;
-    particles1.position.x = backX - 4;
+    particles1.position.y = backY;
+    particles1.position.x = backX;
     particles1.rotation.x = backRotationX;
     // particles1.rotation.z = Math.PI;
     // particles1.rotation.y = Math.PI / 2; //Math.PI ;
