@@ -217,8 +217,8 @@ class Home extends React.Component {
     if (c2) ctxbig = c2.getContext("2d");
 
     // ws = new WebSocket(" ws://192.168.31.114:19999");
-    // ws = new WebSocket(" ws://127.0.0.1:19999");
-    ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
+    ws = new WebSocket(" ws://127.0.0.1:19999");
+    // ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
 
     ws.onopen = () => {
       // connection opened
@@ -761,8 +761,8 @@ class Home extends React.Component {
       // connection closed
     };
 
-    // ws1 = new WebSocket(" ws://127.0.0.1:19998");
-    ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
+    ws1 = new WebSocket(" ws://127.0.0.1:19998");
+    // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -1312,7 +1312,7 @@ class Home extends React.Component {
 
     sitIndexArr = sitIndex;
 
-    console.log(sitIndexArr);
+    // console.log(sitIndexArr);
 
     if (obj.back) {
       let back = [...obj.back];
@@ -1336,6 +1336,7 @@ class Home extends React.Component {
         : new Array(4).fill(0);
 
       backIndexArr = backIndex;
+
     }
   };
 
@@ -1666,7 +1667,7 @@ class Home extends React.Component {
           </CanvasCom>
         ) : (
           <CanvasCom matrixName={this.state.matrixName}>
-            <Car10 ref={this.com} />
+            <Car10 ref={this.com} changeSelect={this.changeSelect} />
           </CanvasCom>
         )}
 
@@ -1722,7 +1723,7 @@ class Home extends React.Component {
             {this.state.pressNum ? "压力算法" : "不压力算法"}
           </div>
         </div> */}
-        <div style={{ position: "fixed", right: "20%", bottom: "20px" }}>
+        {/* <div style={{ position: "fixed", right: "20%", bottom: "20px" }}>
           {this.state.newArr.length
             ? this.state.newArr.map((a, indexs) => {
               return (
@@ -1748,7 +1749,7 @@ class Home extends React.Component {
               );
             })
             : null}
-        </div>
+        </div> */}
       </div>
     );
   }

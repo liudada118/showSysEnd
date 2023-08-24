@@ -360,7 +360,7 @@ const Canvas = React.forwardRef((props, refs) => {
       transparent: true,
       //   color: 0xffffff,
       map: spite,
-      size: 1,
+      size: 1.5,
     });
     sitGeometry.setAttribute("scale", new THREE.BufferAttribute(scales, 1));
     sitGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
@@ -459,7 +459,7 @@ const Canvas = React.forwardRef((props, refs) => {
       vertexColors: true,
       transparent: true,
       map: spite,
-      size: 1,
+      size: 1.5,
     });
 
     particles1 = new THREE.Points(backGeometry, material1);

@@ -35,7 +35,7 @@ const sensorArr = [
   { label: '手部检测', value: 'hand' },
   { label: '汽车座椅', value: 'car' },
   { label: '床垫', value: 'bigBed' },
-  { label: '汽车座椅2', value: 'car10' },
+  { label: '汽车靠背(量产)', value: 'car10' },
 ]
 
 

@@ -201,7 +201,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
                     setPlayFlag(false)
                 }
             }
-            if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed")) {
+            if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "car10")) {
                 props.data.current?.handleCharts(
                     props.pressArr,
                     props.pressMax + 100,

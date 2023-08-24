@@ -17,7 +17,7 @@ import { checkRectIndex, checkRectangleIntersection, getPointCoordinate, getPoin
 
 const Canvas = React.forwardRef((props, refs) => {
 
-  const backX = -3, backY = 98, backZ = 118, sitX = -2, sitY = 75, sitZ = 148, backRotationX = -Math.PI * 7 / 12
+  const backX = 0, backY = 102, backZ = 118, sitX = -5, sitY = 75, sitZ = 148, backRotationX = -Math.PI * 7 / 12
 
   console.log('canvas')
   var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper
@@ -218,8 +218,8 @@ const Canvas = React.forwardRef((props, refs) => {
       props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       selectStartArr = [(event.clientX), event.clientY]
 
-      sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
-      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
+      sitArr = getPointCoordinate({ particles, camera, position: { x: group.position.x, y: group.position.y, z: group.position.z} })
+      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: group.position.x, y: group.position.y, z: group.position.z }, width: AMOUNTX1 })
 
       sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
       backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
@@ -263,7 +263,7 @@ const Canvas = React.forwardRef((props, refs) => {
           backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
 
         }
-        // console.log(backIndexArr)
+       
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       }
 
@@ -348,9 +348,9 @@ const Canvas = React.forwardRef((props, refs) => {
 
     for (let ix = 0; ix < AMOUNTX1; ix++) {
       for (let iy = 0; iy < AMOUNTY1; iy++) {
-        positions1[k] = ix * (SEPARATION + 30) - (AMOUNTX1 * SEPARATION) / 2; // x
+        positions1[k] = ix * (SEPARATION) - (AMOUNTX1 * SEPARATION) / 2; // x
         positions1[k + 1] = 0; // y
-        positions1[k + 2] = iy * (SEPARATION + 20) - (AMOUNTY1 * SEPARATION) / 2; // z
+        positions1[k + 2] = iy * (SEPARATION) - (AMOUNTY1 * SEPARATION) / 2; // z
 
         scales1[l] = 1;
         colors1[k] = 0 / 255;
@@ -380,9 +380,9 @@ const Canvas = React.forwardRef((props, refs) => {
     particles1.geometry.attributes.position.needsUpdate = true;
     particles1.geometry.attributes.color.needsUpdate = true;
     particles1.geometry.attributes.scale.needsUpdate = true;
-    particles1.scale.x = 0.0048;
-    particles1.scale.y = 0.0048;
-    particles1.scale.z = 0.0048;
+    particles1.scale.x = 0.0060;
+    particles1.scale.y = 0.0060;
+    particles1.scale.z = 0.0060;
 
     particles1.position.z = backZ;
     particles1.position.y = backY;
@@ -421,7 +421,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
         particlesRect.position.z = backZ + 13;
         particlesRect.position.y = backY + 22 + (iy - 5) * 12;
-        particlesRect.position.x = backX - 6 + (ix - 1) * 6;
+        particlesRect.position.x = backX - 2 + (ix - 1) * 6;
         // particlesRect.rotation.x = -Math.PI / 48;
 
         // particlesRect.rotation.y = 0; //-Math.PI / 2;
@@ -973,7 +973,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
         sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
         backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
-
+        console.log(backIndexArr)
         sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
         backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
       }

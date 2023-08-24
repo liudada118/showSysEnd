@@ -1,4 +1,5 @@
-import { footLine, pressBed,
+import {
+  footLine, pressBed,
   press,
   calculateY,
   rotateArrayCounter90Degrees,
@@ -6,7 +7,8 @@ import { footLine, pressBed,
   objChange,
   calPress,
   arr10to5,
-  handLine,} from "../../assets/util/line";
+  handLine,
+} from "../../assets/util/line";
 import { findMax, } from "../../assets/util/util";
 import { calFoot } from "../../assets/util/value";
 let totalArr = [],
@@ -14,8 +16,8 @@ let totalArr = [],
 let selectArr;
 let sitIndexArr = new Array(4).fill(0),
   backIndexArr = new Array(4).fill(0)
-  let startPressure = 0, time = 0;
-  let num = 0
+let startPressure = 0, time = 0;
+let num = 0
 let meanSmooth = 0,
   maxSmooth = 0,
   pointSmooth = 0,
@@ -50,11 +52,45 @@ let backTotal = 0,
   lastArr = [];
 export const sitTypeEvent = {
   foot: ({ that, wsPointData }) => {
+
+    let resData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 2, 10, 25, 28, 31, 5, 1, 0, 0, 0, 0, 0, 0, 63, 53, 21, 20, 5, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 10, 22, 21, 5, 3, 1, 0, 0, 0, 0, 0, 0, 35, 61, 29, 14, 6, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 5, 11, 18, 6, 1, 1, 0, 0, 0, 0, 0, 0, 0, 5, 30, 34, 16, 13, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 18, 24, 11, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 10, 20, 17, 13, 3, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 15, 31, 27, 22, 12, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 5, 19, 20, 24, 11, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 6, 34, 48, 27, 27, 4, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 3, 25, 33, 29, 12, 7, 2, 1, 1, 0, 0, 0, 0, 0, 0, 36, 67, 51, 54, 35, 7, 4, 2, 3, 1, 0, 0, 0, 0, 0, 0, 1, 4, 34, 24, 51, 38, 18, 3, 2, 0, 0, 0, 0, 0, 0, 1, 84, 86, 62, 63, 44, 13, 5, 4, 6, 2, 0, 0, 0, 0, 0, 0, 3, 6, 43, 63, 65, 81, 57, 6, 4, 0, 0, 0, 0, 0, 0, 6, 76, 85, 53, 58, 82, 12, 5, 4, 7, 2, 0, 0, 0, 0, 0, 0, 3, 7, 44, 55, 80, 100, 67, 8, 4, 0, 0, 0, 0, 0, 0, 16, 63, 77, 53, 63, 86, 7, 5, 4, 6, 2, 0, 0, 0, 0, 0, 0, 3, 14, 60, 57, 55, 55, 75, 17, 4, 0, 0, 0, 0, 0, 0, 1, 24, 57, 65, 52, 16, 5, 4, 3, 6, 2, 0, 0, 0, 0, 0, 0, 3, 11, 64, 59, 57, 84, 69, 6, 4, 0, 0, 0, 0, 0, 0, 0, 1, 4, 6, 5, 3, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 0, 2, 4, 23, 65, 74, 71, 14, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 26, 15, 17, 20, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 1, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 2, 5, 40, 46, 45, 28, 57, 8, 5, 1, 0, 0, 0, 0, 0, 0, 2, 4, 4, 16, 37, 23, 34, 49, 5, 2, 0, 0, 0, 0, 0, 0, 1, 4, 51, 53, 36, 10, 19, 52, 7, 1, 0, 0, 0, 0, 0, 0, 2, 4, 6, 16, 15, 15, 36, 72, 30, 0, 0, 0, 0, 0, 0, 0, 0, 2, 16, 18, 28, 4, 21, 14, 5, 0, 0, 0, 0, 0, 0, 0, 1, 2, 20, 21, 3, 4, 17, 52, 11, 0, 0, 0, 0, 0, 0, 0, 0, 5, 18, 19, 21, 33, 23, 22, 21, 1, 0, 0, 0, 0, 0, 0, 1, 11, 17, 23, 4, 4, 24, 23, 15, 0, 0, 0, 0, 0, 0, 0, 3, 35, 58, 44, 46, 62, 64, 22, 15, 2, 0, 0, 0, 0, 0, 0, 2, 13, 12, 25, 44, 33, 32, 25, 19, 0, 0, 0, 0, 0, 0, 0, 5, 77, 56, 54, 65, 88, 62, 60, 39, 4, 0, 0, 0, 0, 0, 0, 5, 16, 44, 40, 53, 61, 45, 50, 86, 3, 1, 0, 0, 0, 0, 0, 5, 70, 41, 46, 60, 76, 60, 55, 54, 8, 0, 0, 0, 0, 0, 1, 13, 36, 45, 77, 54, 57, 63, 48, 89, 12, 0, 0, 0, 0, 0, 0, 0, 46, 55, 43, 54, 60, 53, 54, 62, 0, 0, 0, 0, 0, 0, 0, 26, 46, 53, 69, 59, 62, 63, 50, 72, 0, 0, 0, 0, 0, 0, 0, 3, 22, 70, 41, 48, 45, 46, 54, 70, 36, 0, 0, 0, 0, 0, 1, 40, 57, 61, 61, 65, 67, 64, 53, 56, 2, 0, 0, 0, 0, 0, 0, 1, 2, 4, 4, 12, 34, 44, 39, 69, 33, 0, 0, 0, 0, 0, 20, 65, 76, 51, 38, 18, 24, 21, 8, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 3, 13, 34, 29, 48, 5, 0, 0, 0, 0, 0, 10, 53, 43, 24, 28, 11, 5, 4, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 10, 16, 27, 21, 2, 0, 0, 0, 0, 0, 2, 46, 45, 26, 16, 3, 2, 2, 2, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 3, 1, 4, 22, 34, 35, 12, 1, 0, 0, 0, 0, 0, 1, 41, 56, 26, 14, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 3, 14, 32, 26, 5, 1, 0, 0, 0, 0, 0, 0, 41, 51, 28, 19, 6, 2, 2, 2, 1, 0, 0, 0]
     const { sitData, backData, arr, realData } = footLine({
-      wsPointData,
+      wsPointData: resData,
       pressFlag: that.state.press,
       pressNumFlag: that.state.pressNum,
     });
+
+    const leftArr = []
+    for (let i = 0; i < 32; i++) {
+      let num = 0
+      for (let j = 0; j < 16; j++) {
+        num += sitData[i * 16 + j]
+      }
+      leftArr.push(num)
+    }
+
+    const leftFoot = leftArr.filter((a) => a > 50)
+    const leftLength = leftFoot.length
+    const leftFootValue = leftFoot.reduce((a,b) => a+b)
+
+    console.log(leftFoot,leftLength)
+
+    const leftCenter = leftArr.slice(parseInt(leftLength / 3), parseInt(leftLength * 2 / 3)).reduce((a,b) => a+b)
+    console.log(leftCenter/leftFootValue)
+
+    const newArr = []
+    for (let i = 0; i < 32; i++) {
+      newArr[i] = []
+      for (let j = 0; j < 32; j++) {
+        newArr[i].push(realData[i * 32 + j])
+      }
+    }
+
+
+
+    that.setState({
+      newArr: newArr
+    })
 
     for (let i = 0; i < arrSmooth.length; i++) {
       arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i]) / 4;
@@ -92,7 +128,7 @@ export const sitTypeEvent = {
     let totalPoint = DataArr.filter((a) => a > 10).length;
     let totalMean = parseInt(totalPress / (totalPoint ? totalPoint : 1));
     let totalMax = findMax(DataArr);
-  
+
 
     let totalArea = totalPoint * 4;
     const sitPressure = (totalMax * 1000) / (totalArea ? totalArea : 1);
@@ -434,15 +470,15 @@ export const sitTypeEvent = {
       wsPointData: wsPointData,
     });
     const dataArr = []
-    for(let i = 0 ; i < 10 ; i ++ ){
+    for (let i = 0; i < 10; i++) {
       dataArr[i] = []
-      for(let j = 0 ; j < 10 ; j ++ ){
-        dataArr[i].push(wsPointData[i*10 + j])
+      for (let j = 0; j < 10; j++) {
+        dataArr[i].push(wsPointData[i * 10 + j])
       }
     }
 
     that.setState({
-      newArr : dataArr
+      newArr: dataArr
     })
 
   },
@@ -477,7 +513,7 @@ export const sitTypeEvent = {
 
 export const backTypeEvent = {
   car: () => {
-    
+
   },
   car10: () => {
 
