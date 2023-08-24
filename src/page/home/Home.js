@@ -35,7 +35,7 @@ import { Num } from "../../components/num/Num";
 import { calFoot } from "../../assets/util/value";
 import { Heatmap } from "../../components/heatmap/canvas";
 import FootTrack from "../../components/footTrack/footTrack";
-import { sitTypeEvent } from "./util";
+import { backTypeEvent, sitTypeEvent } from "./util";
 
 let ws,
   ws1,
@@ -146,7 +146,7 @@ const content4 = (
     <p>下载轨迹图</p>
   </div>
 );
-let ctxbig
+let ctxbig  ,ctxsit, ctxback
 class Home extends React.Component {
   constructor() {
     super();
@@ -175,7 +175,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "car10",
+      matrixName: "localCar",
       length: 0,
       local: false,
       dataArr: [],
@@ -208,6 +208,8 @@ class Home extends React.Component {
     this.progress = React.createRef();
   }
 
+
+
   componentDidMount() {
     console.log(window.innerWidth, document.documentElement.style);
     document.documentElement.style.fontSize = `${window.innerWidth / 120}px`;
@@ -225,534 +227,7 @@ class Home extends React.Component {
       console.info("connect success");
     };
     ws.onmessage = (e) => {
-      sitPress = 0;
-      let jsonObject = JSON.parse(e.data);
-      //处理空数组
-      sitDataFlag = false;
-      if (jsonObject.sitData != null) {
-
-        if (this.state.matrixName != 'car10') {
-          if (colValueFlag) {
-            num++;
-
-            this.title.current?.changeNum(num);
-          } else {
-            num = 0;
-          }
-        }
-        // console.log(num)
-
-        let selectArr;
-        let wsPointData = jsonObject.sitData;
-        if (!Array.isArray(wsPointData)) {
-          wsPointData = JSON.parse(wsPointData);
-        }
-
-        sitTypeEvent[this.state.matrixName]({ that: this, wsPointData })
-
-
-
-        // if (this.state.matrixName == "foot") {
-        //   const { sitData, backData, arr, realData } = footLine({
-        //     wsPointData,
-        //     pressFlag: this.state.press,
-        //     pressNumFlag: this.state.pressNum,
-        //   });
-
-        //   arr[0] = arr[0] ? arr[0] : 0;
-        //   arr[1] = arr[1] ? arr[1] : 0;
-        //   for (let i = 0; i < arrSmooth.length; i++) {
-        //     arrSmooth[i] = arrSmooth[i] + (arr[i] - arrSmooth[i]) / 4;
-        //   }
-
-        //   // console.log(arr)
-        //   selectArr = [];
-
-        //   for (let j = sitIndexArr[2]; j <= sitIndexArr[3]; j++) {
-        //     for (let i = sitIndexArr[0]; i <= sitIndexArr[1]; i++) {
-        //       selectArr.push(sitData[j * 16 + i]);
-        //     }
-        //   }
-
-        //   for (let j = backIndexArr[2]; j <= backIndexArr[3]; j++) {
-        //     for (let i = backIndexArr[0]; i <= backIndexArr[1]; i++) {
-        //       selectArr.push(backData[j * 16 + i]);
-        //     }
-        //   }
-
-        //   let DataArr;
-        //   if (
-        //     sitIndexArr.every((a) => a == 0) &&
-        //     backIndexArr.every((a) => a == 0)
-        //   ) {
-        //     DataArr = [...realData];
-        //   } else {
-        //     DataArr = [...selectArr];
-        //   }
-
-        //   // initData()
-
-        //   // 脚型渲染页面
-
-        //   let totalPress = DataArr.reduce((a, b) => a + b, 0);
-        //   let totalPoint = DataArr.filter((a) => a > 10).length;
-        //   let totalMean = parseInt(totalPress / (totalPoint ? totalPoint : 1));
-        //   let totalMax = findMax(DataArr);
-        //   // backMin = findMin(realData.filter((a) => a > 10))
-
-        //   let totalArea = totalPoint * 4;
-        //   const sitPressure = (totalMax * 1000) / (totalArea ? totalArea : 1);
-
-        //   // const {press , point , mean , max , area , pressure} = calArr(DataArr)
-
-        //   meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10);
-        //   maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10);
-        //   pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10);
-        //   areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10);
-        //   pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10);
-
-        //   pressureSmooth = parseInt(
-        //     pressureSmooth + (sitPressure - pressureSmooth) / 10
-        //   );
-
-        //   const leftValue = sitData.reduce((a, b) => a + b, 0);
-        //   const rightValue = backData.reduce((a, b) => a + b, 0);
-
-        //   let leftProp = parseInt((leftValue * 100) / (leftValue + rightValue));
-        //   let rightProp = 100 - leftProp;
-
-        //   let leftTop = [...sitData]
-        //     .slice(0, 16 * 16)
-        //     .reduce((a, b) => a + b, 0);
-        //   let leftTopProp = parseInt((leftTop * 100) / leftValue);
-        //   let leftBottomProp = 100 - leftTopProp;
-
-        //   let rightTop = [...backData]
-        //     .slice(0, 16 * 16)
-        //     .reduce((a, b) => a + b, 0);
-        //   let rightTopProp = parseInt((rightTop * 100) / rightValue);
-        //   let rightBottomProp = 100 - rightTopProp;
-
-        //   const total = DataArr.reduce((a, b) => a + b, 0);
-        //   totalSmooth = parseInt(totalSmooth + (total - totalSmooth) / 10);
-        //   leftPropSmooth = parseInt(
-        //     leftPropSmooth + (leftProp - leftPropSmooth) / 10
-        //   );
-        //   leftValueSmooth = parseInt(
-        //     leftValueSmooth + (leftValue - leftValueSmooth) / 10
-        //   );
-        //   rightValueSmooth = parseInt(
-        //     rightValueSmooth + (rightValue - rightValueSmooth) / 10
-        //   );
-        //   leftTopPropSmooth = parseInt(
-        //     leftTopPropSmooth + (leftTopProp - leftTopPropSmooth) / 10
-        //   );
-        //   rightTopPropSmooth = parseInt(
-        //     rightTopPropSmooth + (rightTopProp - rightTopPropSmooth) / 10
-        //   );
-        //   rightPropSmooth = 100 - leftPropSmooth;
-        //   leftBottomPropSmooth = 100 - leftTopPropSmooth;
-        //   rightBottomPropSmooth = 100 - rightTopPropSmooth;
-
-        //   if (
-        //     totalPoint < 10 &&
-        //     sitIndexArr.every((a) => a == 0) &&
-        //     backIndexArr.every((a) => a == 0)
-        //   ) {
-        //     meanSmooth = 0;
-        //     maxSmooth = 0;
-        //     pointSmooth = 0;
-        //     areaSmooth = 0;
-        //     pressSmooth = 0;
-        //     pressureSmooth = 0;
-        //     totalSmooth = 0;
-        //     leftValueSmooth = 0;
-        //     rightValueSmooth = 0;
-        //     leftPropSmooth = 0;
-        //     rightPropSmooth = 0;
-        //     leftTopPropSmooth = 0;
-        //     leftBottomPropSmooth = 0;
-        //     rightTopPropSmooth = 0;
-        //     rightBottomPropSmooth = 0;
-        //     arrSmooth = [16, 16];
-        //     leftProp = 50;
-        //     rightProp = 50;
-        //     totalPoint = 0;
-        //   }
-
-        //   // 数字矩阵 点图
-        //   // if (this.state.numMatrixFlag) {
-        //   //   this.com.current?.changeWsData(realData)
-        //   // } else {
-        //   //   this.com.current?.backData({
-        //   //     wsPointData: backData,
-        //   //   });
-        //   //   this.com.current?.sitData({
-        //   //     wsPointData: sitData,
-        //   //     arr: arrSmooth
-        //   //   });
-        //   //   this.com.current?.changeDataFlag();
-        //   // }
-
-        //   // 数字矩阵 点图 热力图
-        //   if (this.state.numMatrixFlag == "num") {
-        //     this.com.current?.changeWsData(realData);
-        //   } else if (this.state.numMatrixFlag == "normal") {
-        //     this.com.current?.backData({
-        //       wsPointData: backData,
-        //     });
-        //     this.com.current?.sitData({
-        //       wsPointData: sitData,
-        //       arr: arrSmooth,
-        //     });
-        //     this.com.current?.changeDataFlag();
-        //   } else {
-        //     this.com.current?.bthClickHandle(realData);
-        //   }
-
-        //   this.data.current?.changeData({
-        //     meanPres: meanSmooth,
-        //     maxPres: maxSmooth,
-        //     point: pointSmooth,
-        //     area: areaSmooth,
-        //     totalPres: pressSmooth,
-        //     pressure: pressureSmooth,
-        //   });
-
-        //   this.data.current?.canvas.current.initCanvasrotate1(
-        //     (rightProp - 50) / 100
-        //   );
-
-        //   this.data.current?.canvas.current.changeState({
-        //     total: totalSmooth,
-        //     leftValue: leftValueSmooth,
-        //     rightValue: rightValueSmooth,
-        //     leftProp: leftPropSmooth,
-        //     rightProp: rightPropSmooth,
-        //   });
-
-        //   // 打开脚型轨迹图
-        //   if (this.state.centerFlag) {
-        //     this.track.current?.circleMove({ arrSmooth, rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
-        //   }
-
-        //   if (totalArr.length < 20) {
-        //     totalArr.push(totalPress);
-        //   } else {
-        //     totalArr.shift();
-        //     totalArr.push(totalPress);
-        //   }
-
-        //   if (!this.state.local) {
-        //     if (totalPointArr.length < 20) {
-        //       totalPointArr.push(totalPoint);
-        //     } else {
-        //       totalPointArr.shift();
-        //       totalPointArr.push(totalPoint);
-        //     }
-
-        //     const max1 = findMax(totalPointArr);
-        //     this.data.current?.handleChartsArea(totalPointArr, max1 + 100);
-        //   }
-        // } else if (this.state.matrixName == "hand") {
-        //   // wsPointData = handLine(wsPointData)
-        //   // wsPointData[31] = 100
-        //   // console.log(this.com.current)
-
-        //   if (this.state.press) {
-        //     wsPointData = press(wsPointData, 32, 32);
-        //   }
-        //   if (this.state.pressNum) {
-        //     wsPointData = calculateY(wsPointData);
-        //   }
-
-        //   if (this.state.numMatrixFlag == "normal") {
-        //     this.com.current?.sitData({
-        //       wsPointData: wsPointData,
-        //     });
-        //     // console.log(wsPointData)
-        //     let sitData = [],
-        //       backData = [];
-        //     for (let i = 0; i < 32; i++) {
-        //       for (let j = 0; j < 32; j++) {
-        //         if (j < 16) {
-        //           sitData.push(wsPointData[i * 32 + j]);
-        //         } else {
-        //           backData.push(wsPointData[i * 32 + j]);
-        //         }
-        //       }
-        //     }
-
-        //     const footLength = calFoot(sitData, 16, 32);
-        //     console.log(footLength);
-        //   } else if (this.state.numMatrixFlag == "heatmap") {
-        //     this.com.current?.bthClickHandle(wsPointData);
-        //   }
-        // } else if (this.state.matrixName == "car") {
-        //   // wsPointData = carSitLine(wsPointData)
-
-        //   // wsPointData[31] = 100
-
-        //   if (this.state.press) {
-        //     wsPointData = press(wsPointData, 32, 32);
-        //   }
-        //   if (this.state.pressNum) {
-        //     wsPointData = calculateY(wsPointData);
-        //   }
-
-        //   if (
-        //     this.state.carState == "sit" &&
-        //     this.state.numMatrixFlag == "num"
-        //   ) {
-        //     this.com.current?.changeWsData(wsPointData);
-        //   } else if (
-        //     this.state.carState == "sit" &&
-        //     this.state.numMatrixFlag == "heatmap"
-        //   ) {
-        //     this.com.current?.bthClickHandle(wsPointData);
-        //   } // if (this.state.numMatrixFlag === 'normal' )
-        //   else {
-        //     if (this.state.numMatrixFlag == "normal") {
-        //       this.com.current?.sitData({
-        //         wsPointData: wsPointData,
-        //       });
-        //     }
-        //   }
-
-        //   selectArr = [];
-
-        //   for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
-        //     for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
-        //       selectArr.push(wsPointData[i * 32 + j]);
-        //     }
-        //   }
-
-        //   let DataArr;
-
-        //   if (sitIndexArr.every((a) => a == 0)) {
-        //     DataArr = [...wsPointData];
-        //   } else {
-        //     DataArr = [...selectArr];
-        //   }
-
-        //   // 框选后或者无框选的数据
-        //   const total = DataArr.reduce((a, b) => a + b, 0);
-        //   const length = DataArr.filter((a, index) => a > 0).length;
-
-        //   sitPoint = DataArr.filter(
-        //     (a) => a > this.state.valuej1 * 0.02
-        //   ).length;
-        //   sitTotal = DataArr.reduce((a, b) => a + b, 0);
-        //   sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
-        //   sitMax = findMax(DataArr);
-        //   sitMin = findMin(DataArr.filter((a) => a > 10));
-        //   sitArea = sitPoint * 4;
-        //   if (
-        //     sitPoint < 80 &&
-        //     sitIndexArr.every((a) => a == 0) &&
-        //     backIndexArr.every((a) => a == 0)
-        //   ) {
-        //     sitMean = 0;
-        //     sitMax = 0;
-        //     sitTotal = 0;
-        //     sitPoint = 0;
-        //     sitArea = 0;
-        //   }
-        // } else if (this.state.matrixName == "bigBed") {
-        //   // wsPointData[2047] = 1000
-
-
-        //   let DataArr;
-        //   selectArr = [];
-        //   wsPointData = pressBed(wsPointData, 1500);
-
-        //   let bodyArr = []
-        //   for (let i = 0; i < 64; i++) {
-        //     let num = 0
-        //     for (let j = 0; j < 32; j++) {
-        //       num += wsPointData[j * 64 + i]
-        //     }
-        //     bodyArr.push(parseInt(num / 32))
-        //   }
-        //   this.bodyArr = bodyArr
-        //   // console.log(this.bodyArr , this.state.local)
-        //   // if (this.state.matrixName == "bigBed" && !this.state.local)
-        //   //   this.data.current?.handleChartsBody(bodyArr, 200);
-
-        //   this.com.current?.sitData({
-        //     wsPointData: wsPointData,
-        //   });
-
-        //   for (let i = sitIndexArr[2]; i < sitIndexArr[3]; i++) {
-        //     for (let j = sitIndexArr[0]; j < sitIndexArr[1]; j++) {
-        //       selectArr.push(wsPointData[i * 64 + j]);
-        //     }
-        //   }
-
-        //   if (sitIndexArr.every((a) => a == 0)) {
-        //     DataArr = [...wsPointData];
-        //   } else {
-        //     DataArr = [...selectArr];
-        //   }
-
-        //   // 框选后或者无框选的数据
-        //   const total = DataArr.reduce((a, b) => a + b, 0);
-        //   const length = DataArr.filter((a, index) => a > 0).length;
-
-        //   const newPressure = total / length;
-        //   // setRealPress(newPressure);
-        //   let pressure = calculatePressure(total / length)
-        //   const change = objChange(newPressure, startPressure, 4);
-        //   if (change) {
-        //     startPressure = newPressure;
-        //     time = 0;
-        //   } else {
-        //     time++;
-        //     pressure = calculatePressure(calPress(startPressure, newPressure, time));
-        //     if (time > 240 * 13) {
-        //       time = 240 * 13;
-        //     }
-        //   }
-
-        //   // console.log(pressure , total / length)
-
-        //   sitPoint = length
-        //   sitTotal = DataArr.reduce((a, b) => a + b, 0);
-        //   sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
-        //   sitMax = findMax(DataArr);
-        //   sitMin = findMin(DataArr.filter((a) => a > 10));
-        //   sitArea = sitPoint * 4;
-        //   if (
-        //     sitPoint < 80 &&
-        //     sitIndexArr.every((a) => a == 0) &&
-        //     backIndexArr.every((a) => a == 0)
-        //   ) {
-        //     sitMean = 0;
-        //     sitMax = 0;
-        //     sitTotal = 0;
-        //     sitPoint = 0;
-        //     sitArea = 0;
-        //   }
-
-        //   meanSmooth = (meanSmooth + (sitMean - meanSmooth) / 10)
-        //     ? (meanSmooth + (sitMean - meanSmooth) / 10)
-        //     : 1;
-        //   maxSmooth = (maxSmooth + (sitMax - maxSmooth) / 10)
-        //     ? (maxSmooth + (sitMax - maxSmooth) / 10)
-        //     : 1;
-        //   pointSmooth = (pointSmooth + (sitPoint - pointSmooth) / 10)
-        //     ? (pointSmooth + (sitPoint - pointSmooth) / 10)
-        //     : 1;
-        //   areaSmooth = (areaSmooth + (sitArea - areaSmooth) / 10)
-        //     ? (areaSmooth + (sitArea - areaSmooth) / 10)
-        //     : 1;
-        //   pressSmooth = (pressSmooth + (sitTotal - pressSmooth) / 10)
-        //     ? (pressSmooth + (sitTotal - pressSmooth) / 10)
-        //     : 1;
-
-        //   pressureSmooth = (
-        //     pressureSmooth + (pressure - pressureSmooth) / 3
-        //   )
-        //     ? (pressureSmooth + (pressure - pressureSmooth) / 3)
-        //     : 0;
-        //   // console.log(pressure,pressureSmooth)
-        //   this.data.current?.changeData({
-        //     meanPres: meanSmooth.toFixed(0),
-        //     maxPres: maxSmooth.toFixed(0),
-        //     point: pointSmooth.toFixed(0),
-        //     area: areaSmooth.toFixed(0),
-        //     totalPres: pressSmooth.toFixed(0),
-        //     pressure: pressureSmooth.toFixed(2),
-        //   });
-
-        //   if (totalArr.length < 20) {
-        //     totalArr.push(sitTotal);
-        //   } else {
-        //     totalArr.shift();
-        //     totalArr.push(sitTotal);
-        //   }
-
-        //   const max = findMax(totalArr);
-
-        //   if (this.state.matrixName == "bigBed" && !this.state.local)
-        //     this.data.current?.handleCharts(totalArr, max + 1000);
-
-        //   if (totalPointArr.length < 20) {
-        //     totalPointArr.push(sitPoint);
-        //   } else {
-        //     totalPointArr.shift();
-        //     totalPointArr.push(sitPoint);
-        //   }
-
-        //   const max1 = findMax(totalPointArr);
-        //   if (this.state.matrixName == "bigBed" && !this.state.local)
-        //     this.data.current?.handleChartsArea(totalPointArr, max1 + 100);
-        // }
-      }
-
-      if (jsonObject.port != null) {
-        const port = [];
-        jsonObject.port.forEach((a, index) => {
-          port.push({
-            value: a.path,
-            label: a.path,
-          });
-        });
-
-        this.setState({
-          port: port,
-        });
-      }
-      if (jsonObject.length != null) {
-        this.setState({
-          length: jsonObject.length,
-        });
-      }
-      if (jsonObject.time != null) {
-        this.setState({
-          time: jsonObject.time,
-        });
-      }
-      if (jsonObject.timeArr != null) {
-        // const arr = []
-        const arr = jsonObject.timeArr.map((a, index) => a.date);
-
-        if (this.state.matrixName != 'car10') {
-          let obj = [];
-          arr.forEach((a, index) => {
-            obj.push({
-              value: a,
-              label: a,
-            });
-          });
-          this.setState({ dataArr: obj });
-        }
-
-      }
-
-      if (jsonObject.index != null) {
-        this.progress.current?.changeIndex(jsonObject.index)
-      }
-
-      if (jsonObject.areaArr != null) {
-        const max = findMax(jsonObject.areaArr);
-        this.data.current?.handleChartsArea(jsonObject.areaArr, max + 100);
-        this.max = max;
-        this.areaArr = jsonObject.areaArr;
-      }
-
-      if (jsonObject.pressArr != null) {
-        const max = findMax(jsonObject.pressArr);
-        if (this.state.matrixName == "car" || this.state.matrixName == "bigBed") {
-          this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
-          this.pressMax = max;
-          this.pressArr = jsonObject.pressArr;
-        }
-      }
-
-      if (jsonObject.download != null) {
-        message.info(jsonObject.download);
-      }
+      this.wsData(e)
     };
     ws.onerror = (e) => {
       // an error occurred
@@ -768,404 +243,7 @@ class Home extends React.Component {
       console.info("connect success");
     };
     ws1.onmessage = (e) => {
-      let jsonObject = JSON.parse(e.data);
-
-      if (jsonObject.backData != null && this.state.matrixName == "car") {
-
-        if (this.state.matrixName == 'car10') {
-          if (colValueFlag) {
-            num++;
-
-            this.title.current?.changeNum(num);
-          } else {
-            num = 0;
-          }
-        }
-
-        backPress = 0;
-        let wsPointData = jsonObject.backData;
-
-        if (!Array.isArray(wsPointData)) {
-          wsPointData = JSON.parse(wsPointData);
-        }
-
-        // wsPointData = rotate90(wsPointData,32,32)
-        // console.log(wsPointData)
-        if (this.state.press) {
-          wsPointData = press(wsPointData, 32, 32);
-        }
-        if (this.state.pressNum) {
-          wsPointData = calculateY(wsPointData);
-        }
-
-        // wsPointData[31] = 1000
-        if (
-          this.state.carState == "back" &&
-          this.state.numMatrixFlag == "num"
-        ) {
-          wsPointData = rotate90(wsPointData, 32, 32);
-          this.com.current?.changeWsData(wsPointData);
-        } else if (
-          this.state.carState == "back" &&
-          this.state.numMatrixFlag == "heatmap"
-        ) {
-          wsPointData = rotate180(wsPointData, 32, 32);
-          this.com.current?.bthClickHandle(wsPointData);
-        }
-        // if (this.state.numMatrixFlag == 'normal')
-        else {
-          if (this.state.numMatrixFlag == "normal")
-            this.com.current?.backData({
-              wsPointData: wsPointData,
-            });
-        }
-
-        // console.log(backIndexArr)
-        // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
-        // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
-        const selectArr = [];
-        for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
-          for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
-            selectArr.push(wsPointData[i * 32 + j]);
-          }
-        }
-
-        let DataArr;
-        if (
-          sitIndexArr.every((a) => a == 0) &&
-          backIndexArr.every((a) => a == 0)
-        ) {
-          DataArr = [...wsPointData];
-        } else {
-          DataArr = [...selectArr];
-        }
-        // console.log(DataArr)
-
-        backTotal = DataArr.reduce((a, b) => a + b, 0);
-        backPoint = DataArr.filter((a) => a > 10).length;
-        backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
-        backMax = findMax(DataArr);
-        backMin = findMin(DataArr.filter((a) => a > 10));
-        backArea = backPoint * 4;
-
-        if (
-          backPoint < 80 &&
-          sitIndexArr.every((a) => a == 0) &&
-          backIndexArr.every((a) => a == 0)
-        ) {
-          backMean = 0;
-          backMax = 0;
-          backTotal = 0;
-          backPoint = 0;
-          backArea = 0;
-        }
-
-        const totalPress = backTotal + sitTotal;
-        let totalMean = ((backMean + sitMean) / 2).toFixed(0);
-        if (backMean == 0) {
-          totalMean = sitMean;
-        }
-        if (sitMean == 0) {
-          totalMean = backMean;
-        }
-        const totalMax = Math.max(backMax, sitMax);
-        const totalPoint = backPoint + sitPoint;
-        const totalArea = backArea + sitArea;
-        const totalMin = Math.min(backMin, sitMin);
-        const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
-        // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
-        meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
-          ? parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
-          : 1;
-        maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
-          ? parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
-          : 1;
-        pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
-          ? parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
-          : 1;
-        areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
-          ? parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
-          : 1;
-        pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
-          ? parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
-          : 1;
-        pressureSmooth = parseInt(
-          pressureSmooth + (sitPressure - pressureSmooth) / 10
-        )
-          ? parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
-          : 1;
-        if (sitPoint < 100) {
-          pressureSmooth = 0;
-        }
-
-        this.data.current?.changeData({
-          meanPres: meanSmooth,
-          maxPres: maxSmooth,
-          point: pointSmooth,
-          area: areaSmooth,
-          totalPres: pressSmooth,
-          pressure: pressureSmooth,
-        });
-
-        if (totalArr.length < 20) {
-          totalArr.push(totalPress);
-        } else {
-          totalArr.shift();
-          totalArr.push(totalPress);
-        }
-
-        const max = findMax(totalArr);
-
-        if (this.state.matrixName == "car" && !this.state.local)
-          this.data.current?.handleCharts(totalArr, max + 1000);
-
-        if (totalPointArr.length < 20) {
-          totalPointArr.push(totalPoint);
-        } else {
-          totalPointArr.shift();
-          totalPointArr.push(totalPoint);
-        }
-
-        const max1 = findMax(totalPointArr);
-        if (this.state.matrixName == "car" && !this.state.local)
-          this.data.current?.handleChartsArea(totalPointArr, max1 + 100);
-      }
-
-      if (jsonObject.backData != null && this.state.matrixName == "car10") {
-
-        if (this.state.matrixName == 'car10') {
-          if (colValueFlag) {
-            num++;
-
-            this.title.current?.changeNum(num);
-          } else {
-            num = 0;
-          }
-        }
-        backPress = 0;
-        let wsPointData = jsonObject.backData;
-
-        if (!Array.isArray(wsPointData)) {
-          wsPointData = JSON.parse(wsPointData);
-        }
-
-
-
-        // const numData = rotateArrayCounter90Degrees([...wsPointData], 10, 10);
-        const numData = [...wsPointData]
-
-        const newArr = [];
-        for (let i = 0; i < 10; i++) {
-          newArr[i] = [];
-          for (let j = 0; j < 10; j++) {
-            newArr[i].push(numData[i * 10 + j]);
-          }
-        }
-
-        // console.log(newArr)
-
-        this.setState({ newArr1 : newArr });
-
-        // wsPointData = rotate90(wsPointData,32,32)
-        // console.log(wsPointData)
-        if (this.state.press) {
-          wsPointData = press(wsPointData, 32, 32);
-        }
-        if (this.state.pressNum) {
-          wsPointData = calculateY(wsPointData);
-        }
-
-        // wsPointData[31] = 1000
-        // if (this.state.carState == 'back' && this.state.numMatrixFlag == 'num') {
-        //   wsPointData = rotate90(wsPointData, 32, 32)
-        //   this.com.current?.changeWsData(wsPointData);
-        // } else if (this.state.carState == 'back' && this.state.numMatrixFlag == 'heatmap') {
-        //   wsPointData = rotate180(wsPointData, 32, 32)
-        //   this.com.current?.bthClickHandle(wsPointData);
-        // } else
-        // // if (this.state.numMatrixFlag == 'normal')
-        // {
-        //   if (this.state.numMatrixFlag == 'normal')
-        //     this.com.current?.backData({
-        //       wsPointData: wsPointData,
-        //     });
-        // }
-
-        // wsPointData = arr10to5(wsPointData)
-
-        const dataArr = []
-        // for (let i = 0; i < 10; i++) {
-        //   dataArr[i] = []
-        //   for (let j = 0; j < 10; j++) {
-        //     dataArr[i].push(wsPointData[i * 10 + j])
-        //   }
-        // }
-
-        // this.setState({
-        //   newArr1: dataArr
-        // })
-
-        this.com.current?.backData({
-          wsPointData: wsPointData,
-        });
-
-        // console.log(backIndexArr)
-        // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
-        // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
-        const selectArr = [];
-        for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
-          for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
-            selectArr.push(wsPointData[i * 32 + j]);
-          }
-        }
-
-        let DataArr;
-        if (
-          sitIndexArr.every((a) => a == 0) &&
-          backIndexArr.every((a) => a == 0)
-        ) {
-          DataArr = [...wsPointData];
-        } else {
-          DataArr = [...selectArr];
-        }
-        // console.log(DataArr)
-
-        backTotal = DataArr.reduce((a, b) => a + b, 0);
-        backPoint = DataArr.filter((a) => a > 10).length;
-        backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
-        backMax = findMax(DataArr);
-        backMin = findMin(DataArr.filter((a) => a > 10));
-        backArea = backPoint * 4;
-
-        if (
-          backPoint < 10 &&
-          sitIndexArr.every((a) => a == 0) &&
-          backIndexArr.every((a) => a == 0)
-        ) {
-          backMean = 0;
-          backMax = 0;
-          backTotal = 0;
-          backPoint = 0;
-          backArea = 0;
-        }
-
-        const totalPress = backTotal + sitTotal;
-        let totalMean = ((backMean + sitMean) / 2).toFixed(0);
-        if (backMean == 0) {
-          totalMean = sitMean;
-        }
-        if (sitMean == 0) {
-          totalMean = backMean;
-        }
-        const totalMax = Math.max(backMax, sitMax);
-        const totalPoint = backPoint + sitPoint;
-        const totalArea = backArea + sitArea;
-        const totalMin = Math.min(backMin, sitMin);
-        const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
-        // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
-        meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
-          ? parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
-          : 1;
-        maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
-          ? parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
-          : 1;
-        pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
-          ? parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
-          : 1;
-        areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
-          ? parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
-          : 1;
-        pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
-          ? parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
-          : 1;
-        pressureSmooth = parseInt(
-          pressureSmooth + (sitPressure - pressureSmooth) / 10
-        )
-          ? parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
-          : 1;
-        if (sitPoint < 100) {
-          pressureSmooth = 0;
-        }
-
-        this.data.current?.changeData({
-          meanPres: meanSmooth,
-          maxPres: maxSmooth,
-          point: pointSmooth,
-          area: areaSmooth,
-          totalPres: pressSmooth,
-          pressure: pressureSmooth,
-        });
-
-        if (totalArr.length < 20) {
-          totalArr.push(totalPress);
-        } else {
-          totalArr.shift();
-          totalArr.push(totalPress);
-        }
-
-        const max = findMax(totalArr);
-
-        if (this.state.matrixName == "car10" && !this.state.local)
-          this.data.current?.handleCharts(totalArr, max + 1000);
-
-        if (totalPointArr.length < 20) {
-          totalPointArr.push(totalPoint);
-        } else {
-          totalPointArr.shift();
-          totalPointArr.push(totalPoint);
-        }
-
-        const max1 = findMax(totalPointArr);
-        if (this.state.matrixName == "car10" && !this.state.local)
-          this.data.current?.handleChartsArea(totalPointArr, max1 + 10);
-      }
-
-      if (jsonObject.timeArr != null) {
-        // const arr = []
-        console.log(jsonObject.timeArr)
-        const arr = jsonObject.timeArr.map((a, index) => a.date);
-
-        let obj = [];
-        arr.forEach((a, index) => {
-          obj.push({
-            value: a,
-            label: a,
-          });
-        });
-        this.setState({ dataArr: obj });
-
-      }
-
-      if (jsonObject.length != null) {
-        this.setState({
-          length: jsonObject.length,
-        });
-      }
-      if (jsonObject.time != null) {
-        this.setState({
-          time: jsonObject.time,
-        });
-      }
-
-      if (jsonObject.index != null) {
-        this.progress.current?.changeIndex(jsonObject.index)
-      }
-
-      if (jsonObject.areaArr != null) {
-        const max = findMax(jsonObject.areaArr);
-        this.data.current?.handleChartsArea(jsonObject.areaArr, max + 100);
-        this.max = max;
-        this.areaArr = jsonObject.areaArr;
-      }
-
-      if (jsonObject.pressArr != null) {
-        const max = findMax(jsonObject.pressArr);
-        if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "car10") {
-          this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
-          this.pressMax = max;
-          this.pressArr = jsonObject.pressArr;
-        }
-      }
+      this.ws1Data(e)
     };
     ws1.onerror = (e) => {
       // an error occurred
@@ -1176,6 +254,549 @@ class Home extends React.Component {
 
   }
 
+  changeWs(ip) {
+    if (ws) {
+      ws.close()
+    }
+    if (ws1) {
+      ws1.close()
+    }
+    this.initCar()
+    const that = this
+    console.log(that)
+    ws = new WebSocket(`ws://${ip}:1880/ws/data`)
+    ws.onopen = () => {
+      // connection opened
+      console.info("connect success");
+    };
+    ws.onmessage = (e) => {
+      that.wsData(e)
+    };
+    ws.onerror = (e) => {
+      // an error occurred
+    };
+    ws.onclose = (e) => {
+      // connection closed
+    };
+    ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
+    // ws1 = new WebSocket(" ws://127.0.0.1:19998");
+    // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
+    ws1.onopen = () => {
+      // connection opened
+      console.info("connect success");
+    };
+    ws1.onmessage = (e) => {
+      that.ws1Data(e)
+    };
+    ws1.onerror = (e) => {
+      // an error occurred
+    };
+    ws1.onclose = (e) => {
+      // connection closed
+    };
+    console.log('changeWs')
+  }
+
+  wsData = (e) => {
+    sitPress = 0;
+    let jsonObject = JSON.parse(e.data);
+    //处理空数组
+    sitDataFlag = false;
+    if (jsonObject.sitData != null) {
+
+      if (this.state.matrixName != 'car10') {
+        if (colValueFlag) {
+          num++;
+
+          this.title.current?.changeNum(num);
+        } else {
+          num = 0;
+        }
+      }
+      // console.log(num)
+
+      let selectArr;
+      let wsPointData = jsonObject.sitData;
+      if (!Array.isArray(wsPointData)) {
+        wsPointData = JSON.parse(wsPointData);
+      }
+
+      sitTypeEvent[this.state.matrixName]({ that: this, wsPointData })
+
+    }
+
+    if (jsonObject.port != null) {
+      const port = [];
+      jsonObject.port.forEach((a, index) => {
+        port.push({
+          value: a.path,
+          label: a.path,
+        });
+      });
+
+      this.setState({
+        port: port,
+      });
+    }
+    if (jsonObject.length != null) {
+      this.setState({
+        length: jsonObject.length,
+      });
+    }
+    if (jsonObject.time != null) {
+      this.setState({
+        time: jsonObject.time,
+      });
+    }
+    if (jsonObject.timeArr != null) {
+      // const arr = []
+      const arr = jsonObject.timeArr.map((a, index) => a.date);
+
+      if (this.state.matrixName != 'car10') {
+        let obj = [];
+        arr.forEach((a, index) => {
+          obj.push({
+            value: a,
+            label: a,
+          });
+        });
+        this.setState({ dataArr: obj });
+      }
+
+    }
+
+    if (jsonObject.index != null) {
+      this.progress.current?.changeIndex(jsonObject.index)
+    }
+
+    if (jsonObject.areaArr != null) {
+      const max = findMax(jsonObject.areaArr);
+      this.data.current?.handleChartsArea(jsonObject.areaArr, max + 100);
+      this.max = max;
+      this.areaArr = jsonObject.areaArr;
+    }
+
+    if (jsonObject.pressArr != null) {
+      const max = findMax(jsonObject.pressArr);
+      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed") {
+        this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
+        this.pressMax = max;
+        this.pressArr = jsonObject.pressArr;
+      }
+    }
+
+    if (jsonObject.download != null) {
+      message.info(jsonObject.download);
+    }
+  }
+
+  ws1Data = (e) => {
+    let jsonObject = JSON.parse(e.data);
+    // let wsPointData = jsonObject.backData;
+    // if (!Array.isArray(wsPointData)) {
+    //   wsPointData = JSON.parse(wsPointData);
+    // }
+    if (jsonObject.backData != null) {
+      backTypeEvent[this.state.matrixName]({ that: this, jsonObject })
+    }
+
+    // if (jsonObject.backData != null && this.state.matrixName == "car") {
+
+    //   if (this.state.matrixName == 'car10') {
+    //     if (colValueFlag) {
+    //       num++;
+
+    //       this.title.current?.changeNum(num);
+    //     } else {
+    //       num = 0;
+    //     }
+    //   }
+
+    //   backPress = 0;
+    //   let wsPointData = jsonObject.backData;
+
+    //   if (!Array.isArray(wsPointData)) {
+    //     wsPointData = JSON.parse(wsPointData);
+    //   }
+
+    //   // wsPointData = rotate90(wsPointData,32,32)
+    //   // console.log(wsPointData)
+    //   if (this.state.press) {
+    //     wsPointData = press(wsPointData, 32, 32);
+    //   }
+    //   if (this.state.pressNum) {
+    //     wsPointData = calculateY(wsPointData);
+    //   }
+
+    //   // wsPointData[31] = 1000
+    //   if (
+    //     this.state.carState == "back" &&
+    //     this.state.numMatrixFlag == "num"
+    //   ) {
+    //     wsPointData = rotate90(wsPointData, 32, 32);
+    //     this.com.current?.changeWsData(wsPointData);
+    //   } else if (
+    //     this.state.carState == "back" &&
+    //     this.state.numMatrixFlag == "heatmap"
+    //   ) {
+    //     wsPointData = rotate180(wsPointData, 32, 32);
+    //     this.com.current?.bthClickHandle(wsPointData);
+    //   }
+    //   // if (this.state.numMatrixFlag == 'normal')
+    //   else {
+    //     if (this.state.numMatrixFlag == "normal")
+    //       this.com.current?.backData({
+    //         wsPointData: wsPointData,
+    //       });
+    //   }
+
+    //   // console.log(backIndexArr)
+    //   // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
+    //   // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
+    //   const selectArr = [];
+    //   for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
+    //     for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
+    //       selectArr.push(wsPointData[i * 32 + j]);
+    //     }
+    //   }
+
+    //   let DataArr;
+    //   if (
+    //     sitIndexArr.every((a) => a == 0) &&
+    //     backIndexArr.every((a) => a == 0)
+    //   ) {
+    //     DataArr = [...wsPointData];
+    //   } else {
+    //     DataArr = [...selectArr];
+    //   }
+    //   // console.log(DataArr)
+
+    //   backTotal = DataArr.reduce((a, b) => a + b, 0);
+    //   backPoint = DataArr.filter((a) => a > 10).length;
+    //   backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
+    //   backMax = findMax(DataArr);
+    //   backMin = findMin(DataArr.filter((a) => a > 10));
+    //   backArea = backPoint * 4;
+
+    //   if (
+    //     backPoint < 80 &&
+    //     sitIndexArr.every((a) => a == 0) &&
+    //     backIndexArr.every((a) => a == 0)
+    //   ) {
+    //     backMean = 0;
+    //     backMax = 0;
+    //     backTotal = 0;
+    //     backPoint = 0;
+    //     backArea = 0;
+    //   }
+
+    //   const totalPress = backTotal + sitTotal;
+    //   let totalMean = ((backMean + sitMean) / 2).toFixed(0);
+    //   if (backMean == 0) {
+    //     totalMean = sitMean;
+    //   }
+    //   if (sitMean == 0) {
+    //     totalMean = backMean;
+    //   }
+    //   const totalMax = Math.max(backMax, sitMax);
+    //   const totalPoint = backPoint + sitPoint;
+    //   const totalArea = backArea + sitArea;
+    //   const totalMin = Math.min(backMin, sitMin);
+    //   const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+    //   // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
+    //   meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+    //     ? parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+    //     : 1;
+    //   maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+    //     ? parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+    //     : 1;
+    //   pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+    //     ? parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+    //     : 1;
+    //   areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+    //     ? parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+    //     : 1;
+    //   pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+    //     ? parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+    //     : 1;
+    //   pressureSmooth = parseInt(
+    //     pressureSmooth + (sitPressure - pressureSmooth) / 10
+    //   )
+    //     ? parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
+    //     : 1;
+    //   if (sitPoint < 100) {
+    //     pressureSmooth = 0;
+    //   }
+
+    //   this.data.current?.changeData({
+    //     meanPres: meanSmooth,
+    //     maxPres: maxSmooth,
+    //     point: pointSmooth,
+    //     area: areaSmooth,
+    //     totalPres: pressSmooth,
+    //     pressure: pressureSmooth,
+    //   });
+
+    //   if (totalArr.length < 20) {
+    //     totalArr.push(totalPress);
+    //   } else {
+    //     totalArr.shift();
+    //     totalArr.push(totalPress);
+    //   }
+
+    //   const max = findMax(totalArr);
+
+    //   if (this.state.matrixName == "car" && !this.state.local)
+    //     this.data.current?.handleCharts(totalArr, max + 1000);
+
+    //   if (totalPointArr.length < 20) {
+    //     totalPointArr.push(totalPoint);
+    //   } else {
+    //     totalPointArr.shift();
+    //     totalPointArr.push(totalPoint);
+    //   }
+
+    //   const max1 = findMax(totalPointArr);
+    //   if (this.state.matrixName == "car" && !this.state.local)
+    //     this.data.current?.handleChartsArea(totalPointArr, max1 + 100);
+    // }
+
+    // if (jsonObject.backData != null && this.state.matrixName == "car10") {
+
+    //   if (this.state.matrixName == 'car10') {
+    //     if (colValueFlag) {
+    //       num++;
+
+    //       this.title.current?.changeNum(num);
+    //     } else {
+    //       num = 0;
+    //     }
+    //   }
+    //   backPress = 0;
+    //   let wsPointData = jsonObject.backData;
+
+    //   if (!Array.isArray(wsPointData)) {
+    //     wsPointData = JSON.parse(wsPointData);
+    //   }
+
+
+
+    //   // const numData = rotateArrayCounter90Degrees([...wsPointData], 10, 10);
+    //   const numData = [...wsPointData]
+
+    //   const newArr = [];
+    //   for (let i = 0; i < 10; i++) {
+    //     newArr[i] = [];
+    //     for (let j = 0; j < 10; j++) {
+    //       newArr[i].push(numData[i * 10 + j]);
+    //     }
+    //   }
+
+    //   // console.log(newArr)
+
+    //   this.setState({ newArr1 : newArr });
+
+    //   // wsPointData = rotate90(wsPointData,32,32)
+    //   // console.log(wsPointData)
+    //   if (this.state.press) {
+    //     wsPointData = press(wsPointData, 32, 32);
+    //   }
+    //   if (this.state.pressNum) {
+    //     wsPointData = calculateY(wsPointData);
+    //   }
+
+    //   // wsPointData[31] = 1000
+    //   // if (this.state.carState == 'back' && this.state.numMatrixFlag == 'num') {
+    //   //   wsPointData = rotate90(wsPointData, 32, 32)
+    //   //   this.com.current?.changeWsData(wsPointData);
+    //   // } else if (this.state.carState == 'back' && this.state.numMatrixFlag == 'heatmap') {
+    //   //   wsPointData = rotate180(wsPointData, 32, 32)
+    //   //   this.com.current?.bthClickHandle(wsPointData);
+    //   // } else
+    //   // // if (this.state.numMatrixFlag == 'normal')
+    //   // {
+    //   //   if (this.state.numMatrixFlag == 'normal')
+    //   //     this.com.current?.backData({
+    //   //       wsPointData: wsPointData,
+    //   //     });
+    //   // }
+
+    //   // wsPointData = arr10to5(wsPointData)
+
+    //   const dataArr = []
+    //   // for (let i = 0; i < 10; i++) {
+    //   //   dataArr[i] = []
+    //   //   for (let j = 0; j < 10; j++) {
+    //   //     dataArr[i].push(wsPointData[i * 10 + j])
+    //   //   }
+    //   // }
+
+    //   // this.setState({
+    //   //   newArr1: dataArr
+    //   // })
+
+    //   this.com.current?.backData({
+    //     wsPointData: wsPointData,
+    //   });
+
+    //   // console.log(backIndexArr)
+    //   // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
+    //   // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
+    //   const selectArr = [];
+    //   for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
+    //     for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
+    //       selectArr.push(wsPointData[i * 32 + j]);
+    //     }
+    //   }
+
+    //   let DataArr;
+    //   if (
+    //     sitIndexArr.every((a) => a == 0) &&
+    //     backIndexArr.every((a) => a == 0)
+    //   ) {
+    //     DataArr = [...wsPointData];
+    //   } else {
+    //     DataArr = [...selectArr];
+    //   }
+    //   // console.log(DataArr)
+
+    //   backTotal = DataArr.reduce((a, b) => a + b, 0);
+    //   backPoint = DataArr.filter((a) => a > 10).length;
+    //   backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
+    //   backMax = findMax(DataArr);
+    //   backMin = findMin(DataArr.filter((a) => a > 10));
+    //   backArea = backPoint * 4;
+
+    //   if (
+    //     backPoint < 10 &&
+    //     sitIndexArr.every((a) => a == 0) &&
+    //     backIndexArr.every((a) => a == 0)
+    //   ) {
+    //     backMean = 0;
+    //     backMax = 0;
+    //     backTotal = 0;
+    //     backPoint = 0;
+    //     backArea = 0;
+    //   }
+
+    //   const totalPress = backTotal + sitTotal;
+    //   let totalMean = ((backMean + sitMean) / 2).toFixed(0);
+    //   if (backMean == 0) {
+    //     totalMean = sitMean;
+    //   }
+    //   if (sitMean == 0) {
+    //     totalMean = backMean;
+    //   }
+    //   const totalMax = Math.max(backMax, sitMax);
+    //   const totalPoint = backPoint + sitPoint;
+    //   const totalArea = backArea + sitArea;
+    //   const totalMin = Math.min(backMin, sitMin);
+    //   const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+    //   // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
+    //   meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+    //     ? parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+    //     : 1;
+    //   maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+    //     ? parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+    //     : 1;
+    //   pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+    //     ? parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+    //     : 1;
+    //   areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+    //     ? parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+    //     : 1;
+    //   pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+    //     ? parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+    //     : 1;
+    //   pressureSmooth = parseInt(
+    //     pressureSmooth + (sitPressure - pressureSmooth) / 10
+    //   )
+    //     ? parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
+    //     : 1;
+    //   if (sitPoint < 100) {
+    //     pressureSmooth = 0;
+    //   }
+
+    //   this.data.current?.changeData({
+    //     meanPres: meanSmooth,
+    //     maxPres: maxSmooth,
+    //     point: pointSmooth,
+    //     area: areaSmooth,
+    //     totalPres: pressSmooth,
+    //     pressure: pressureSmooth,
+    //   });
+
+    //   if (totalArr.length < 20) {
+    //     totalArr.push(totalPress);
+    //   } else {
+    //     totalArr.shift();
+    //     totalArr.push(totalPress);
+    //   }
+
+    //   const max = findMax(totalArr);
+
+    //   if (this.state.matrixName == "car10" && !this.state.local)
+    //     this.data.current?.handleCharts(totalArr, max + 1000);
+
+    //   if (totalPointArr.length < 20) {
+    //     totalPointArr.push(totalPoint);
+    //   } else {
+    //     totalPointArr.shift();
+    //     totalPointArr.push(totalPoint);
+    //   }
+
+    //   const max1 = findMax(totalPointArr);
+    //   if (this.state.matrixName == "car10" && !this.state.local)
+    //     this.data.current?.handleChartsArea(totalPointArr, max1 + 10);
+    // }
+
+    if (jsonObject.timeArr != null) {
+      // const arr = []
+      console.log(jsonObject.timeArr)
+      const arr = jsonObject.timeArr.map((a, index) => a.date);
+
+      let obj = [];
+      arr.forEach((a, index) => {
+        obj.push({
+          value: a,
+          label: a,
+        });
+      });
+      this.setState({ dataArr: obj });
+
+    }
+
+    if (jsonObject.length != null) {
+      this.setState({
+        length: jsonObject.length,
+      });
+    }
+    if (jsonObject.time != null) {
+      this.setState({
+        time: jsonObject.time,
+      });
+    }
+
+    if (jsonObject.index != null) {
+      this.progress.current?.changeIndex(jsonObject.index)
+    }
+
+    if (jsonObject.areaArr != null) {
+      const max = findMax(jsonObject.areaArr);
+      this.data.current?.handleChartsArea(jsonObject.areaArr, max + 100);
+      this.max = max;
+      this.areaArr = jsonObject.areaArr;
+    }
+
+    if (jsonObject.pressArr != null) {
+      const max = findMax(jsonObject.pressArr);
+      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "car10") {
+        this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
+        this.pressMax = max;
+        this.pressArr = jsonObject.pressArr;
+      }
+    }
+  }
 
   wsSendObj = (obj) => {
     if (ws && ws.readyState === 1) {
@@ -1197,14 +818,39 @@ class Home extends React.Component {
     if (canvas && ctxbig) {
       this.drawChart({ ctx: ctxbig, arr, max, canvas, index })
     }
-
-    // console.log(arr, max)
   }
 
   initBigCtx() {
     var c2 = document.getElementById("myChartBig");
     console.log(c2, 'c2')
     if (c2) ctxbig = c2.getContext("2d");
+  }
+
+  initCar() {
+    var c2 = document.getElementById("myChartsit");
+    console.log(c2, 'c2')
+    if (c2) ctxsit = c2.getContext("2d");
+    var c1 = document.getElementById("myChartback");
+    console.log(c1, 'c1')
+    if (c1) ctxback = c1.getContext("2d");
+  }
+
+  handleChartsSit(arr, max, index) {
+    // console.log(first)
+    const canvas = document.getElementById('myChartsit')
+    // console.log(canvas , ctxbig)
+    if (canvas && ctxsit) {
+      this.drawChart({ ctx: ctxsit, arr, max, canvas })
+    }
+  }
+
+  handleChartsBack(arr, max, index) {
+    // console.log(first)
+    const canvas = document.getElementById('myChartback')
+    // console.log(canvas , ctxbig)
+    if (canvas && ctxback) {
+      this.drawChart({ ctx: ctxback, arr, max, canvas })
+    }
   }
 
   drawChart({ ctx, arr, max, canvas, index }) {
@@ -1631,6 +1277,7 @@ class Home extends React.Component {
           pointFlag={this.state.pointFlag}
           valueMult={this.state.valueMult}
           pressChart={this.state.pressChart}
+          changeWs={this.changeWs.bind(this)}
         />
 
         <CanvasCom matrixName={this.state.matrixName}>
@@ -1675,6 +1322,13 @@ class Home extends React.Component {
         {this.state.matrixName === 'bigBed' ?
           <div style={{ position: "fixed", visibility: this.state.pressChart ? 'hidden' : 'unset', width: '60%', right: "20%", bottom: "100px" }}>
             <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas>
+          </div>
+          : null}
+
+        {this.state.matrixName === 'localCar' ?
+          <div style={{ position: "fixed", display : 'flex' ,visibility: this.state.pressChart ? 'hidden' : 'unset', width: '60%', right: "20%", bottom: "100px" }}>
+            <canvas id="myChartsit" style={{ height: '300px',flex : 1 }}></canvas>
+            <canvas id="myChartback" style={{ height: '300px',flex : 1 }}></canvas>
           </div>
           : null}
 

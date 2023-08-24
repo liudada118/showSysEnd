@@ -8,8 +8,9 @@ import {
   calPress,
   arr10to5,
   handLine,
+  rotateArray90Degrees,
 } from "../../assets/util/line";
-import { findMax, } from "../../assets/util/util";
+import { findMax, rotate180, rotate90, } from "../../assets/util/util";
 import { calFoot } from "../../assets/util/value";
 let totalArr = [],
   totalPointArr = []
@@ -48,6 +49,8 @@ let backTotal = 0,
   sitMin = 0,
   sitPoint = 0,
   sitArea = 0,
+  backPress = 0,
+  colValueFlag = false,
   clearFlag = false,
   lastArr = [];
 export const sitTypeEvent = {
@@ -508,14 +511,391 @@ export const sitTypeEvent = {
     } else if (that.state.numMatrixFlag == "heatmap") {
       that.com.current?.bthClickHandle(wsPointData);
     }
+  },
+  localCar({ that, wsPointData }){
+
+    const arr = []
+    for(let i = 0 ; i < 5 ; i ++){
+      let num = 0
+      for(let j = 0 ; j < 20 ; j ++){
+        num += wsPointData[i*20 + j]
+      }
+      arr.push(Math.floor(num/20))
+    }
+
+    that.handleChartsSit(arr , 255)
+
+    let data = rotateArray90Degrees(wsPointData , 10, 10)
+    that.com.current?.sitData({
+      wsPointData: data,
+    });
   }
 }
 
 export const backTypeEvent = {
-  car: () => {
+  car: ({ that, jsonObject }) => {
+    if (that.state.matrixName == 'car10') {
+      if (colValueFlag) {
+        num++;
 
-  },
-  car10: () => {
+        that.title.current?.changeNum(num);
+      } else {
+        num = 0;
+      }
+    }
 
+    backPress = 0;
+    let wsPointData = jsonObject.backData;
+
+    if (!Array.isArray(wsPointData)) {
+      wsPointData = JSON.parse(wsPointData);
+    }
+
+    if (that.state.press) {
+      wsPointData = press(wsPointData, 32, 32);
+    }
+    if (that.state.pressNum) {
+      wsPointData = calculateY(wsPointData);
+    }
+
+    // wsPointData[31] = 1000
+    if (
+      that.state.carState == "back" &&
+      that.state.numMatrixFlag == "num"
+    ) {
+      wsPointData = rotate90(wsPointData, 32, 32);
+      that.com.current?.changeWsData(wsPointData);
+    } else if (
+      that.state.carState == "back" &&
+      that.state.numMatrixFlag == "heatmap"
+    ) {
+      wsPointData = rotate180(wsPointData, 32, 32);
+      that.com.current?.bthClickHandle(wsPointData);
+    }
+    // if (that.state.numMatrixFlag == 'normal')
+    else {
+      if (that.state.numMatrixFlag == "normal")
+        that.com.current?.backData({
+          wsPointData: wsPointData,
+        });
+    }
+
+    // console.log(backIndexArr)
+    // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
+    // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
+    const selectArr = [];
+    for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
+      for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
+        selectArr.push(wsPointData[i * 32 + j]);
+      }
+    }
+
+    let DataArr;
+    if (
+      sitIndexArr.every((a) => a == 0) &&
+      backIndexArr.every((a) => a == 0)
+    ) {
+      DataArr = [...wsPointData];
+    } else {
+      DataArr = [...selectArr];
+    }
+    // console.log(DataArr)
+
+    backTotal = DataArr.reduce((a, b) => a + b, 0);
+    backPoint = DataArr.filter((a) => a > 10).length;
+    backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
+    backMax = findMax(DataArr);
+    backArea = backPoint * 4;
+
+    if (
+      backPoint < 80 &&
+      sitIndexArr.every((a) => a == 0) &&
+      backIndexArr.every((a) => a == 0)
+    ) {
+      backMean = 0;
+      backMax = 0;
+      backTotal = 0;
+      backPoint = 0;
+      backArea = 0;
+    }
+
+    const totalPress = backTotal + sitTotal;
+    let totalMean = ((backMean + sitMean) / 2).toFixed(0);
+    if (backMean == 0) {
+      totalMean = sitMean;
+    }
+    if (sitMean == 0) {
+      totalMean = backMean;
+    }
+    const totalMax = Math.max(backMax, sitMax);
+    const totalPoint = backPoint + sitPoint;
+    const totalArea = backArea + sitArea;
+    const totalMin = Math.min(backMin, sitMin);
+    const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+    // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
+    meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+      ? parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+      : 1;
+    maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+      ? parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+      : 1;
+    pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+      ? parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+      : 1;
+    areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+      ? parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+      : 1;
+    pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+      ? parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+      : 1;
+    pressureSmooth = parseInt(
+      pressureSmooth + (sitPressure - pressureSmooth) / 10
+    )
+      ? parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
+      : 1;
+    if (sitPoint < 100) {
+      pressureSmooth = 0;
+    }
+
+    that.data.current?.changeData({
+      meanPres: meanSmooth,
+      maxPres: maxSmooth,
+      point: pointSmooth,
+      area: areaSmooth,
+      totalPres: pressSmooth,
+      pressure: pressureSmooth,
+    });
+
+    if (totalArr.length < 20) {
+      totalArr.push(totalPress);
+    } else {
+      totalArr.shift();
+      totalArr.push(totalPress);
+    }
+
+    const max = findMax(totalArr);
+
+    if (that.state.matrixName == "car" && !that.state.local)
+      that.data.current?.handleCharts(totalArr, max + 1000);
+
+    if (totalPointArr.length < 20) {
+      totalPointArr.push(totalPoint);
+    } else {
+      totalPointArr.shift();
+      totalPointArr.push(totalPoint);
+    }
+
+    const max1 = findMax(totalPointArr);
+    if (that.state.matrixName == "car" && !that.state.local)
+      that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
   },
+  car10: ({ that, jsonObject }) => {
+    if (that.state.matrixName == 'car10') {
+      if (colValueFlag) {
+        num++;
+
+        that.title.current?.changeNum(num);
+      } else {
+        num = 0;
+      }
+    }
+    backPress = 0;
+    let wsPointData = jsonObject.backData;
+
+    if (!Array.isArray(wsPointData)) {
+      wsPointData = JSON.parse(wsPointData);
+    }
+
+
+
+    // const numData = rotateArrayCounter90Degrees([...wsPointData], 10, 10);
+    const numData = [...wsPointData]
+
+    const newArr = [];
+    for (let i = 0; i < 10; i++) {
+      newArr[i] = [];
+      for (let j = 0; j < 10; j++) {
+        newArr[i].push(numData[i * 10 + j]);
+      }
+    }
+
+    // console.log(newArr)
+
+    that.setState({ newArr1 : newArr });
+
+    // wsPointData = rotate90(wsPointData,32,32)
+    // console.log(wsPointData)
+    if (that.state.press) {
+      wsPointData = press(wsPointData, 32, 32);
+    }
+    if (that.state.pressNum) {
+      wsPointData = calculateY(wsPointData);
+    }
+
+    // wsPointData[31] = 1000
+    // if (that.state.carState == 'back' && that.state.numMatrixFlag == 'num') {
+    //   wsPointData = rotate90(wsPointData, 32, 32)
+    //   that.com.current?.changeWsData(wsPointData);
+    // } else if (that.state.carState == 'back' && that.state.numMatrixFlag == 'heatmap') {
+    //   wsPointData = rotate180(wsPointData, 32, 32)
+    //   that.com.current?.bthClickHandle(wsPointData);
+    // } else
+    // // if (that.state.numMatrixFlag == 'normal')
+    // {
+    //   if (that.state.numMatrixFlag == 'normal')
+    //     that.com.current?.backData({
+    //       wsPointData: wsPointData,
+    //     });
+    // }
+
+    // wsPointData = arr10to5(wsPointData)
+
+    const dataArr = []
+    // for (let i = 0; i < 10; i++) {
+    //   dataArr[i] = []
+    //   for (let j = 0; j < 10; j++) {
+    //     dataArr[i].push(wsPointData[i * 10 + j])
+    //   }
+    // }
+
+    // that.setState({
+    //   newArr1: dataArr
+    // })
+
+    that.com.current?.backData({
+      wsPointData: wsPointData,
+    });
+
+    // console.log(backIndexArr)
+    // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
+    // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
+    const selectArr = [];
+    for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
+      for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
+        selectArr.push(wsPointData[i * 32 + j]);
+      }
+    }
+
+    let DataArr;
+    if (
+      sitIndexArr.every((a) => a == 0) &&
+      backIndexArr.every((a) => a == 0)
+    ) {
+      DataArr = [...wsPointData];
+    } else {
+      DataArr = [...selectArr];
+    }
+    // console.log(DataArr)
+
+    backTotal = DataArr.reduce((a, b) => a + b, 0);
+    backPoint = DataArr.filter((a) => a > 10).length;
+    backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
+    backMax = findMax(DataArr);
+    backArea = backPoint * 4;
+
+    if (
+      backPoint < 10 &&
+      sitIndexArr.every((a) => a == 0) &&
+      backIndexArr.every((a) => a == 0)
+    ) {
+      backMean = 0;
+      backMax = 0;
+      backTotal = 0;
+      backPoint = 0;
+      backArea = 0;
+    }
+
+    const totalPress = backTotal + sitTotal;
+    let totalMean = ((backMean + sitMean) / 2).toFixed(0);
+    if (backMean == 0) {
+      totalMean = sitMean;
+    }
+    if (sitMean == 0) {
+      totalMean = backMean;
+    }
+    const totalMax = Math.max(backMax, sitMax);
+    const totalPoint = backPoint + sitPoint;
+    const totalArea = backArea + sitArea;
+    const totalMin = Math.min(backMin, sitMin);
+    const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+    // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
+    meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+      ? parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
+      : 1;
+    maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+      ? parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
+      : 1;
+    pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+      ? parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
+      : 1;
+    areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+      ? parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
+      : 1;
+    pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+      ? parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
+      : 1;
+    pressureSmooth = parseInt(
+      pressureSmooth + (sitPressure - pressureSmooth) / 10
+    )
+      ? parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
+      : 1;
+    if (sitPoint < 100) {
+      pressureSmooth = 0;
+    }
+
+    that.data.current?.changeData({
+      meanPres: meanSmooth,
+      maxPres: maxSmooth,
+      point: pointSmooth,
+      area: areaSmooth,
+      totalPres: pressSmooth,
+      pressure: pressureSmooth,
+    });
+
+    if (totalArr.length < 20) {
+      totalArr.push(totalPress);
+    } else {
+      totalArr.shift();
+      totalArr.push(totalPress);
+    }
+
+    const max = findMax(totalArr);
+
+    if (that.state.matrixName == "car10" && !that.state.local)
+      that.data.current?.handleCharts(totalArr, max + 1000);
+
+    if (totalPointArr.length < 20) {
+      totalPointArr.push(totalPoint);
+    } else {
+      totalPointArr.shift();
+      totalPointArr.push(totalPoint);
+    }
+
+    const max1 = findMax(totalPointArr);
+    if (that.state.matrixName == "car10" && !that.state.local)
+      that.data.current?.handleChartsArea(totalPointArr, max1 + 10);
+  },
+  localCar({ that, jsonObject }){
+    let wsPointData = jsonObject.backData;
+
+    const arr = []
+    for(let i = 0 ; i < 5 ; i ++){
+      let num = 0
+      for(let j = 0 ; j < 20 ; j ++){
+        num += wsPointData[i*20 + j]
+      }
+      arr.push(Math.floor(num/20))
+    }
+
+    that.handleChartsBack(arr, 255)
+
+    if (!Array.isArray(wsPointData)) {
+      wsPointData = JSON.parse(wsPointData);
+    }
+    wsPointData = rotateArray90Degrees(wsPointData,10,10)
+    // console.log(wsPointData)
+    that.com.current?.backData({
+      wsPointData: wsPointData,
+    });
+  }
 }
