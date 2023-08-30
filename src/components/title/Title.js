@@ -290,7 +290,7 @@ class Title extends React.Component {
 
 
 
-        {this.props.matrixName == 'car' || this.props.matrixName == 'car10' ?
+        {this.props.matrixName == 'car' || this.props.matrixName == 'car10' || this.props.matrixName == 'localCar' ?
 
           // <div style={{ display: 'flex' }}>
           //   <div className='aniButton' onClick={() => this.props.com.current?.actionBack()}>back</div>

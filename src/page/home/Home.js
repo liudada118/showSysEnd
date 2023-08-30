@@ -1014,12 +1014,12 @@ class Home extends React.Component {
           </div>
           : null}
 
-        {this.state.matrixName === 'localCar' ?
+        {/* {this.state.matrixName === 'localCar' ?
           <div style={{ position: "fixed", display : 'flex' ,visibility: this.state.pressChart ? 'hidden' : 'unset', width: '60%', right: "20%", bottom: "100px" }}>
             <canvas id="myChartsit" style={{ height: '300px',flex : 1 }}></canvas>
             <canvas id="myChartback" style={{ height: '300px',flex : 1 }}></canvas>
           </div>
-          : null}
+          : null} */}
 
         {/* 进度条 */}
         {this.state.local ?
