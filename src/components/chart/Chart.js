@@ -61,6 +61,7 @@ export class CanvasDemo extends React.Component {
     this.initCanvasrotate1 = this.initCanvasrotate1.bind(this)
     this.changeState = this.changeState.bind(this)
   }
+
   // initCanvas() {
   //   const {
   //     x0,//原点坐标

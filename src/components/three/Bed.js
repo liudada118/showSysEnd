@@ -22,7 +22,7 @@ import './index.scss'
 const group = new THREE.Group();
 const sitInit = 0;
 const backInit = 0;
-var newDiv
+var newDiv ,smoothValue = 0
 var animationRequestId
 const sitnum1 = 64;
 const sitnum2 = 32;
@@ -471,6 +471,18 @@ let bodyArr
   function sitRenew() {
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
+
+    const realArr =[]
+    for(let i = 0 ; i < 64 ; i ++){
+      let num = 0
+      for(let j = 0 ; j < 32 ; j ++){
+        num += ndata1[j*64 + i] 
+      }
+      smoothValue = smoothValue + (num/32 - smoothValue) /3
+      realArr.push(smoothValue)
+    }
+   
+    props.handleChartsBody1(realArr, ymax1/2)
 
     ndata1Num = ndata1.reduce((a, b) => a + b, 0);
     if (ndata1Num < valuelInit1) {

@@ -178,9 +178,9 @@ export function interp(smallMat, bigMat, Length, num) {
     for (let y = 1; y <= Length; y++) {
       bigMat[
         Length * num * (num * (y - 1)) +
-          (Length * num * num) / 2 +
-          num * (x - 1) +
-          num / 2
+        (Length * num * num) / 2 +
+        num * (x - 1) +
+        num / 2
       ] = smallMat[Length * (y - 1) + x - 1] * 10;
     }
   }
@@ -191,9 +191,9 @@ export function interp1016(smallMat, bigMat, height, width, num) {
     for (let y = 1; y <= width; y++) {
       bigMat[
         width * num * (num * (x - 1)) +
-          (width * num )* Math.floor(num / 2) +
-          num * (y - 1) +
-          Math.floor(num / 2)
+        (width * num) * Math.floor(num / 2) +
+        num * (y - 1) +
+        Math.floor(num / 2)
       ] = smallMat[height * (y - 1) + x - 1] * 10;
     }
   }
@@ -399,8 +399,8 @@ export function jetRgb(min, max, x) {
     g = 1 + (4 * (min + 0.75 * dv - x)) / dv;
     blue = 0;
   }
-  
-  return {r : red , g : g , b : blue};
+
+  return { r: red, g: g, b: blue };
 }
 
 export function jetWhite(min, max, x) {
@@ -554,35 +554,35 @@ export function jetWhite1(min, max, x) {
 }
 
 export function jetWhite2(min, max, x) {
-  if(!x){
-    return rainbowColors[rainbowColors.length-1]
+  if (!x) {
+    return rainbowColors[rainbowColors.length - 1]
   }
   const length = rainbowColors.length;
   const count = (max - min) / length;
   const num = Math.floor(x / count) >= length - 1 ? length - 1 : Math.floor(x / count) < 0 ? 0 : Math.floor(x / count);
-    // console.log(length,count,x  , num,Math.floor(x / count))
+  // console.log(length,count,x  , num,Math.floor(x / count))
   return rainbowColors[length - 1 - num];
 }
 
 export function jetWhite3(min, max, x) {
-  if(!x){
-    return rainbowTextColors[rainbowTextColors.length-1]
+  if (!x) {
+    return rainbowTextColors[rainbowTextColors.length - 1]
   }
   const length = rainbowTextColors.length;
-  const count = (max - min)*2 / length ;
+  const count = (max - min) * 2 / length;
   const num = Math.floor(x / count) >= length - 1 ? length - 1 : Math.floor(x / count) < 0 ? 0 : Math.floor(x / count);
-    // console.log(length,count,x  , num,Math.floor(x / count))
+  // console.log(length,count,x  , num,Math.floor(x / count))
   return rainbowTextColors[length - 1 - num];
 }
 
 export function jetgGrey(min, max, x) {
-  if(!x){
-    return garyColors[garyColors.length-1]
+  if (!x) {
+    return garyColors[garyColors.length - 1]
   }
   const length = garyColors.length;
   const count = (max - min) / length;
   const num = Math.floor(x / count) >= length - 1 ? length - 1 : Math.floor(x / count) < 0 ? 0 : Math.floor(x / count);
-    // console.log(length,count,x  , num,Math.floor(x / count))
+  // console.log(length,count,x  , num,Math.floor(x / count))
   return garyColors[length - 1 - num];
 }
 
@@ -651,7 +651,7 @@ export function jetWhite2Back(min, max, x) {
   const length = rainbowBackColors.length;
   const count = (max - min) / length;
   const num = Math.floor(x / count) >= length - 1 ? length - 1 : Math.floor(x / count) < 0 ? 0 : Math.floor(x / count);
-    // console.log(length,count,x  , num,Math.floor(x / count))
+  // console.log(length,count,x  , num,Math.floor(x / count))
   return rainbowBackColors[length - 1 - num];
 }
 
@@ -825,7 +825,7 @@ export function press(arr, width, height, num) {
       if (newArr1[j + i * height] > 6) {
         newArr1[j + i * height] = parseInt(
           newArr1[j + i * height] +
-            (rowArrList[i] - newArr1[j + i * height]) / (num ? num : 8)
+          (rowArrList[i] - newArr1[j + i * height]) / (num ? num : 8)
         );
       }
     }
@@ -869,7 +869,7 @@ export function pressSj(arr, width, height) {
       if (newArr1[j + i * height] > 6) {
         newArr1[j + i * height] = parseInt(
           newArr1[j + i * height] +
-            (rowArrList[i] - newArr1[j + i * height]) / 4
+          (rowArrList[i] - newArr1[j + i * height]) / 4
         );
       }
     }
@@ -885,9 +885,9 @@ export function findMax(arr) {
   });
   return max;
 }
-const chartValueArr = [200,500,1000,1800,3000, 5000, 10000, 18000, 30000, 45000, 60000, 80000]
+const chartValueArr = [200, 500, 1000, 1800, 3000, 5000, 10000, 18000, 30000, 45000, 60000, 80000]
 export function returnChartMax(value) {
-  
+
   for (let i = 0; i < chartValueArr.length - 1;) {
     if (value > chartValueArr[i] && value < chartValueArr[i + 1]) {
       return chartValueArr[i + 1]
@@ -1027,7 +1027,86 @@ export function discoverSureCurve(detectedArr, num) {
   });
 }
 
+export function calFootType(arr , valueFlag) {
+  // 将脚每一行求和
+  const leftArr = []
+  for (let i = 0; i < 32; i++) {
+    let num = 0
+    for (let j = 0; j < 16; j++) {
+      num += arr[i * 16 + j]
+    }
+    leftArr.push(num)
+  }
 
-export  function footLine(){
-  
+  // 找到整个脚的索引和重量
+  const leftFoot = [], leftFootValue = []
+  leftArr.forEach((a, index) => {
+    if (a > valueFlag*5) {
+      leftFoot.push(index)
+      leftFootValue.push(a)
+    }
+  })
+
+  const footTotalPress = leftFootValue.reduce((a, b) => a + b, 0)
+
+  // let footSlope = []
+  // // 找到每个点的斜率
+  // for (let i = 1; i < leftFootValue.length; i++) {
+  //   footSlope.push(leftFootValue[i] - leftFootValue[i - 1])
+  // }
+
+  // 找到第一个下降然后上升的点  脚趾头跟脚板的分界线
+  let footStart
+  for (let i = 1; i < leftFootValue.length; i++) {
+    if (leftFootValue[i] - leftFootValue[i - 1] < 0 && ((leftFootValue[i + 1] - leftFootValue[i]) / leftFootValue[i]) > 0.2) {
+      footStart = i + 1 + leftFoot[0]
+      break
+    }
+  }
+
+  let footEnd = leftFoot[leftFoot.length - 1]
+
+  let length = footEnd - footStart
+  if (length % 3 == 1) {
+    length = length - 1
+    footEnd = footEnd - 1
+  }
+
+  if (length % 3 == 2) {
+    length = length - 2
+    footEnd = footEnd - 1
+    footStart = footStart - 1
+  }
+
+  let totalFootPoint = 0, contentPoint = 0
+
+  for (let i = footStart; i < footEnd; i++) {
+    for (let j = 0; j < 16; j++) {
+      if (arr[i * 16 + j] > valueFlag) {
+        totalFootPoint++
+      }
+      if (i >= footStart + Math.floor(length / 3) && i < footStart + Math.floor(length * 2 / 3) && arr[i * 16 + j] > valueFlag) {
+        contentPoint++
+      }
+
+      // arr[(i ) * 16 + j] = 100
+    }
+  }
+
+  const prop = contentPoint / totalFootPoint
+  return {footType : prop , footLength : leftFoot.length}
+
+}
+
+export class smoothClass {
+  constructor(length) {
+    this.smoothValue = new Array(length).fill(0)
+  }
+
+  getSmooth(arr, smoothValue) {
+    // this.value = this.value + (value - this.value) / smoothValue
+    for (let i = 0; i < arr.length; i++) {
+      this.smoothValue[i] = this.smoothValue[i] + (arr[i] - this.smoothValue[i]) / smoothValue
+    }
+  }
 }

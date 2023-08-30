@@ -56,7 +56,7 @@ class Title extends React.Component {
       num: 0,
       dataTime: '',
       clickState: true,
-      ip : ''
+      ip: localStorage.getItem('ip') ? localStorage.getItem('ip') : ''
     }
   }
 
@@ -164,7 +164,7 @@ class Title extends React.Component {
             console.log(e);
             this.props.wsSendObj({ file: e })
             this.props.changeMatrix(e)
-            if(e === 'bigBed'){
+            if (e === 'bigBed') {
               this.props.initBigCtx()
             }
             // this.props.changeDateArr(e.info)
@@ -177,7 +177,7 @@ class Title extends React.Component {
 
 
         <Menu className='menu' onClick={this.onClick} selectedKeys={[this.state.current]} mode="horizontal" items={navItems} />
-        {this.props.matrixName != 'localCar' ?  this.props.history === 'now' ? this.props.matrixName != 'car' && this.props.matrixName != 'car10' ? <><Select
+        {this.props.matrixName != 'localCar' ? this.props.history === 'now' ? this.props.matrixName != 'car' && this.props.matrixName != 'car10' ? <><Select
           // value={this.props.portname}
           style={{ marginRight: 20, width: 160 }}
           placeholder="请选择串口"
@@ -278,12 +278,14 @@ class Title extends React.Component {
             />
           );
         })} */}
-        </Select> : 
+        </Select> :
           <>
-          <Input onChange={(e) => {this.setState({ip : e.target.value})}} placeholder='请输入IP' />
-          <Button onClick={() => {this.props.changeWs(this.state.ip)}}>连接</Button>
+            <Input value={this.state.ip} onChange={(e) => { 
+              localStorage.setItem('ip' , e.target.value)
+              this.setState({ ip: e.target.value }) }} placeholder='请输入IP' />
+            <Button onClick={() => { this.props.changeWs(this.state.ip) }}>连接</Button>
           </>
-          
+
         }
 
 
@@ -333,7 +335,7 @@ class Title extends React.Component {
 
         {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {
 
-          if(this.props.com.current){
+          if (this.props.com.current) {
             this.props.com.current.logData()
           }
           // this.props.initPressCtx()
@@ -353,7 +355,7 @@ class Title extends React.Component {
             // this.props.changeStateData({ numMatrixFlag: !flag })
           }}>{this.props.numMatrixFlag == 'normal' ? '矩阵' : this.props.numMatrixFlag == 'num' ? '2D' : '热力图'}</Button> :
           <Button
-          className='titleButton'
+            className='titleButton'
             onClick={() => {
               const flag = !this.props.pointFlag
               this.props.changeStateData({ pointFlag: flag })
@@ -745,8 +747,8 @@ class Title extends React.Component {
                   onChange={(value) => {
                     localStorage.setItem("valueMult", value);
                     // this.props.setValuelInit1(value);
-                    this.props.changeStateData({valueMult : value})
-                    if(this.props.data.current){
+                    this.props.changeStateData({ valueMult: value })
+                    if (this.props.data.current) {
                       this.props.data.current.changePressMult(value)
                     }
                   }}

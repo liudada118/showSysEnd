@@ -10,7 +10,7 @@ import {
   handLine,
   rotateArray90Degrees,
 } from "../../assets/util/line";
-import { findMax, rotate180, rotate90, } from "../../assets/util/util";
+import { calFootType, findMax, rotate180, rotate90, smoothClass, } from "../../assets/util/util";
 import { calFoot } from "../../assets/util/value";
 let totalArr = [],
   totalPointArr = []
@@ -36,7 +36,8 @@ let meanSmooth = 0,
   leftBottomPropSmooth = 0,
   rightBottomPropSmooth = 0
 
-
+const sitSmooth = new smoothClass(6)
+const backSmooth = new smoothClass(6)
 let backTotal = 0,
   backMean = 0,
   backMax = 0,
@@ -72,14 +73,65 @@ export const sitTypeEvent = {
       leftArr.push(num)
     }
 
-    const leftFoot = leftArr.filter((a) => a > 50)
-    const leftLength = leftFoot.length
-    const leftFootValue = leftFoot.reduce((a,b) => a+b)
+    let leftFootValue = calFootType(sitData , 6)
+    let rightFootValue = calFootType(backData , 6)
 
-    console.log(leftFoot,leftLength)
+    const footType = (leftFootValue.footType + rightFootValue.footType) / 2
+    const footLength = (leftFootValue.footLength + rightFootValue.footLength) / 2
+    console.log(footType , footLength)
 
-    const leftCenter = leftArr.slice(parseInt(leftLength / 3), parseInt(leftLength * 2 / 3)).reduce((a,b) => a+b)
-    console.log(leftCenter/leftFootValue)
+    let footArch
+    if(footType < 0.21){  
+      footArch = '高足弓'
+    }else if(footType < 0.26){
+      footArch = '正常'
+    }else{
+      footArch = '扁平足'
+    }
+
+
+    that.data.current?.canvas.current?.changeState({
+      footType : footArch,
+      footLength
+    });
+
+    // const leftFoot = leftArr.filter((a) => a > 50)
+    // const leftFoot = [] , leftFootValue = []
+    // leftArr.forEach((a,index) => {
+    //   if(a > 50){
+    //     leftFoot.push(index)
+    //     leftFootValue.push(a)
+    //   }
+    // })
+
+
+
+    // // console.log(leftFoot[leftFoot.length - 1])
+    // const length = leftFoot[leftFoot.length - 1] - leftFoot[0]
+
+
+
+    // let totalFootPoint = 0 , contentPoint = 0
+
+    // for(let i = leftArr[0] ; i < leftFoot[leftFoot.length - 1] ; i++){
+    //   for(let j = 0 ; j < 16 ; j ++){
+    //     if(sitData[i*16+j] > 10){
+    //       totalFootPoint++
+    //     }
+    //     if( i >= leftFoot[0] + Math.floor(length / 3) && i < leftFoot[0] + Math.floor(length*2 / 3) && sitData[i*16+j] > 10){
+    //       contentPoint++
+    //     }
+    //   }
+    // }
+
+    // console.log( leftFootValue, contentPoint / totalFootPoint)
+    // const leftLength = leftFoot.length
+    // const leftFootValue = leftFoot.reduce((a, b) => a + b)
+
+    // console.log(leftFoot, leftLength)
+
+    // const leftCenter = leftArr.slice(parseInt(leftLength / 3), parseInt(leftLength * 2 / 3)).reduce((a, b) => a + b)
+    // console.log(leftCenter / leftFootValue)
 
     const newArr = []
     for (let i = 0; i < 32; i++) {
@@ -101,22 +153,22 @@ export const sitTypeEvent = {
 
     selectArr = [];
 
-    for (let j = sitIndexArr[2]; j <= sitIndexArr[3]; j++) {
-      for (let i = sitIndexArr[0]; i <= sitIndexArr[1]; i++) {
+    for (let j = that.sitIndexArr[2]; j <= that.sitIndexArr[3]; j++) {
+      for (let i = that.sitIndexArr[0]; i <= that.sitIndexArr[1]; i++) {
         selectArr.push(sitData[j * 16 + i]);
       }
     }
 
-    for (let j = backIndexArr[2]; j <= backIndexArr[3]; j++) {
-      for (let i = backIndexArr[0]; i <= backIndexArr[1]; i++) {
+    for (let j = that.backIndexArr[2]; j <= that.backIndexArr[3]; j++) {
+      for (let i = that.backIndexArr[0]; i <= that.backIndexArr[1]; i++) {
         selectArr.push(backData[j * 16 + i]);
       }
     }
 
     let DataArr;
     if (
-      sitIndexArr.every((a) => a == 0) &&
-      backIndexArr.every((a) => a == 0)
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
     ) {
       DataArr = [...realData];
     } else {
@@ -183,8 +235,8 @@ export const sitTypeEvent = {
 
     if (
       totalPoint < 10 &&
-      sitIndexArr.every((a) => a == 0) &&
-      backIndexArr.every((a) => a == 0)
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
     ) {
       meanSmooth = 0;
       maxSmooth = 0;
@@ -304,13 +356,13 @@ export const sitTypeEvent = {
       wsPointData: wsPointData,
     });
 
-    for (let i = sitIndexArr[2]; i < sitIndexArr[3]; i++) {
-      for (let j = sitIndexArr[0]; j < sitIndexArr[1]; j++) {
+    for (let i = that.sitIndexArr[2]; i < that.sitIndexArr[3]; i++) {
+      for (let j = that.sitIndexArr[0]; j < that.sitIndexArr[1]; j++) {
         selectArr.push(wsPointData[i * 64 + j]);
       }
     }
 
-    if (sitIndexArr.every((a) => a == 0)) {
+    if (that.sitIndexArr.every((a) => a == 0)) {
       DataArr = [...wsPointData];
     } else {
       DataArr = [...selectArr];
@@ -341,8 +393,8 @@ export const sitTypeEvent = {
     sitArea = sitPoint * 4;
     if (
       sitPoint < 80 &&
-      sitIndexArr.every((a) => a == 0) &&
-      backIndexArr.every((a) => a == 0)
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
     ) {
       sitMean = 0;
       sitMax = 0;
@@ -405,7 +457,7 @@ export const sitTypeEvent = {
     if (that.state.matrixName == "bigBed" && !that.state.local)
       that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
   },
-  car: ({ that, wsPointData }) => {
+  car: ({ that, wsPointData, backFlag , local }) => {
 
     if (
       that.state.carState == "sit" &&
@@ -425,27 +477,28 @@ export const sitTypeEvent = {
         });
       }
     }
+    
+    const selectArr = [];
 
-    selectArr = [];
-
-    for (let i = sitIndexArr[0]; i < sitIndexArr[1]; i++) {
-      for (let j = sitIndexArr[2]; j < sitIndexArr[3]; j++) {
+    for (let i = that.sitIndexArr[0]; i < that.sitIndexArr[1]; i++) {
+      for (let j = that.sitIndexArr[2]; j < that.sitIndexArr[3]; j++) {
         selectArr.push(wsPointData[i * 32 + j]);
       }
     }
 
     let DataArr;
 
-    if (sitIndexArr.every((a) => a == 0)) {
+    if (that.sitIndexArr.every((a) => a == 0)) {
       DataArr = [...wsPointData];
     } else {
       DataArr = [...selectArr];
     }
-
+    DataArr = DataArr.map((a) => a < 10? 0 : a )
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
     const length = DataArr.filter((a, index) => a > 0).length;
 
+    
     sitPoint = DataArr.filter(
       (a) => a > that.state.valuej1 * 0.02
     ).length;
@@ -455,14 +508,63 @@ export const sitTypeEvent = {
     sitArea = sitPoint * 4;
     if (
       sitPoint < 80 &&
-      sitIndexArr.every((a) => a == 0) &&
-      backIndexArr.every((a) => a == 0)
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
     ) {
       sitMean = 0;
       sitMax = 0;
       sitTotal = 0;
       sitPoint = 0;
       sitArea = 0;
+    }
+    const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+    if (!backFlag) {
+      sitSmooth.getSmooth([sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure], 10)
+
+      if(local){
+        that.data.current?.changeData({
+          meanPres: sitMean,
+          maxPres: sitMax,
+          totalPres: sitTotal,
+          point: sitPoint,
+          area: sitArea,
+          pressure: sitPressure,
+        });
+      }else{
+        that.data.current?.changeData({
+          meanPres: parseInt(sitSmooth.smoothValue[0]),
+          maxPres: parseInt(sitSmooth.smoothValue[1]),
+          totalPres: parseInt(sitSmooth.smoothValue[2]),
+          point: parseInt(sitSmooth.smoothValue[3]),
+          area: parseInt(sitSmooth.smoothValue[4]),
+          pressure: parseInt(sitSmooth.smoothValue[5]),
+        });
+      }
+
+      
+
+      if (totalArr.length < 20) {
+        totalArr.push(sitSmooth.smoothValue[2]);
+      } else {
+        totalArr.shift();
+        totalArr.push(sitSmooth.smoothValue[2]);
+      }
+
+      const max = findMax(totalArr);
+
+      if (that.state.matrixName == "car" && !that.state.local)
+        that.data.current?.handleCharts(totalArr, max + 1000);
+
+      if (totalPointArr.length < 20) {
+        totalPointArr.push(sitSmooth.smoothValue[3]);
+      } else {
+        totalPointArr.shift();
+        totalPointArr.push(sitSmooth.smoothValue[3]);
+      }
+
+      const max1 = findMax(totalPointArr);
+      if (that.state.matrixName == "car" && !that.state.local)
+        that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
     }
   },
   car10: ({ that, wsPointData }) => {
@@ -493,7 +595,7 @@ export const sitTypeEvent = {
       that.com.current?.sitData({
         wsPointData: wsPointData,
       });
-      // console.log(wsPointData)
+
       let sitData = [],
         backData = [];
       for (let i = 0; i < 32; i++) {
@@ -512,29 +614,120 @@ export const sitTypeEvent = {
       that.com.current?.bthClickHandle(wsPointData);
     }
   },
-  localCar({ that, wsPointData }){
+  localCar({ that, wsPointData , local }) {
 
     const arr = []
-    for(let i = 0 ; i < 5 ; i ++){
+    for (let i = 0; i < 5; i++) {
       let num = 0
-      for(let j = 0 ; j < 20 ; j ++){
-        num += wsPointData[i*20 + j]
+      for (let j = 0; j < 20; j++) {
+        num += wsPointData[i * 20 + j]
       }
-      arr.push(Math.floor(num/20))
+      arr.push(Math.floor(num / 20))
     }
 
-    that.handleChartsSit(arr , 255)
+    that.handleChartsSit(arr, 255)
 
-    let data = rotateArray90Degrees(wsPointData , 10, 10)
+    let data = rotateArray90Degrees(wsPointData, 10, 10)
     that.com.current?.sitData({
       wsPointData: data,
     });
+
+
+    const selectArr = [];
+
+    for (let i = that.sitIndexArr[0]; i < that.sitIndexArr[1]; i++) {
+      for (let j = that.sitIndexArr[2]; j < that.sitIndexArr[3]; j++) {
+        selectArr.push(wsPointData[i * 32 + j]);
+      }
+    }
+
+    let DataArr;
+
+    if (that.sitIndexArr.every((a) => a == 0)) {
+      DataArr = [...wsPointData];
+    } else {
+      DataArr = [...selectArr];
+    }
+    DataArr = DataArr.map((a) => a < 10? 0 : a )
+    // 框选后或者无框选的数据
+    const total = DataArr.reduce((a, b) => a + b, 0);
+    const length = DataArr.filter((a, index) => a > 0).length;
+
+    
+    sitPoint = DataArr.filter(
+      (a) => a > that.state.valuej1 * 0.02
+    ).length;
+    sitTotal = DataArr.reduce((a, b) => a + b, 0);
+    sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
+    sitMax = findMax(DataArr);
+    sitArea = sitPoint * 4;
+    if (
+      sitPoint < 80 &&
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
+    ) {
+      sitMean = 0;
+      sitMax = 0;
+      sitTotal = 0;
+      sitPoint = 0;
+      sitArea = 0;
+    }
+    const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+    if (false) {
+      sitSmooth.getSmooth([sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure], 10)
+
+      if(local){
+        that.data.current?.changeData({
+          meanPres: sitMean,
+          maxPres: sitMax,
+          totalPres: sitTotal,
+          point: sitPoint,
+          area: sitArea,
+          pressure: sitPressure,
+        });
+      }else{
+        that.data.current?.changeData({
+          meanPres: parseInt(sitSmooth.smoothValue[0]),
+          maxPres: parseInt(sitSmooth.smoothValue[1]),
+          totalPres: parseInt(sitSmooth.smoothValue[2]),
+          point: parseInt(sitSmooth.smoothValue[3]),
+          area: parseInt(sitSmooth.smoothValue[4]),
+          pressure: parseInt(sitSmooth.smoothValue[5]),
+        });
+      }
+
+      
+
+      if (totalArr.length < 20) {
+        totalArr.push(sitSmooth.smoothValue[2]);
+      } else {
+        totalArr.shift();
+        totalArr.push(sitSmooth.smoothValue[2]);
+      }
+
+      const max = findMax(totalArr);
+
+      if (that.state.matrixName == "car" && !that.state.local)
+        that.data.current?.handleCharts(totalArr, max + 1000);
+
+      if (totalPointArr.length < 20) {
+        totalPointArr.push(sitSmooth.smoothValue[3]);
+      } else {
+        totalPointArr.shift();
+        totalPointArr.push(sitSmooth.smoothValue[3]);
+      }
+
+      const max1 = findMax(totalPointArr);
+      if (that.state.matrixName == "car" && !that.state.local)
+        that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
+    }
+
   }
 }
 
 export const backTypeEvent = {
-  car: ({ that, jsonObject }) => {
-    if (that.state.matrixName == 'car10') {
+  car: ({ that, jsonObject, sitFlag ,local }) => {
+    if (that.state.matrixName == 'car' && !sitFlag) {
       if (colValueFlag) {
         num++;
 
@@ -580,37 +773,40 @@ export const backTypeEvent = {
         });
     }
 
-    // console.log(backIndexArr)
-    // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
-    // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
+    // console.log(that.backIndexArr)
+    // that.backIndexArr[2] = Math.round(that.backIndexArr[2] / 2)
+    // that.backIndexArr[3] = Math.round(that.backIndexArr[3] / 2)
     const selectArr = [];
-    for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
-      for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
+    for (let i = that.backIndexArr[0]; i < that.backIndexArr[1]; i++) {
+      for (let j = 31 - that.backIndexArr[3]; j < 31 - that.backIndexArr[2]; j++) {
         selectArr.push(wsPointData[i * 32 + j]);
       }
     }
 
     let DataArr;
     if (
-      sitIndexArr.every((a) => a == 0) &&
-      backIndexArr.every((a) => a == 0)
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
     ) {
       DataArr = [...wsPointData];
     } else {
       DataArr = [...selectArr];
     }
     // console.log(DataArr)
-
+    DataArr = DataArr.map((a) => a < 10? 0 : a )
     backTotal = DataArr.reduce((a, b) => a + b, 0);
     backPoint = DataArr.filter((a) => a > 10).length;
     backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
     backMax = findMax(DataArr);
     backArea = backPoint * 4;
 
+
+
+
     if (
       backPoint < 80 &&
-      sitIndexArr.every((a) => a == 0) &&
-      backIndexArr.every((a) => a == 0)
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0) && !local
     ) {
       backMean = 0;
       backMax = 0;
@@ -619,58 +815,53 @@ export const backTypeEvent = {
       backArea = 0;
     }
 
-    const totalPress = backTotal + sitTotal;
-    let totalMean = ((backMean + sitMean) / 2).toFixed(0);
-    if (backMean == 0) {
-      totalMean = sitMean;
-    }
-    if (sitMean == 0) {
-      totalMean = backMean;
-    }
-    const totalMax = Math.max(backMax, sitMax);
-    const totalPoint = backPoint + sitPoint;
-    const totalArea = backArea + sitArea;
-    const totalMin = Math.min(backMin, sitMin);
     const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
     // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
-    meanSmooth = parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
-      ? parseInt(meanSmooth + (totalMean - meanSmooth) / 10)
-      : 1;
-    maxSmooth = parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
-      ? parseInt(maxSmooth + (totalMax - maxSmooth) / 10)
-      : 1;
-    pointSmooth = parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
-      ? parseInt(pointSmooth + (totalPoint - pointSmooth) / 10)
-      : 1;
-    areaSmooth = parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
-      ? parseInt(areaSmooth + (totalArea - areaSmooth) / 10)
-      : 1;
-    pressSmooth = parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
-      ? parseInt(pressSmooth + (totalPress - pressSmooth) / 10)
-      : 1;
-    pressureSmooth = parseInt(
-      pressureSmooth + (sitPressure - pressureSmooth) / 10
-    )
-      ? parseInt(pressureSmooth + (sitPressure - pressureSmooth) / 10)
-      : 1;
-    if (sitPoint < 100) {
-      pressureSmooth = 0;
+
+    if (!sitFlag) {
+      backSmooth.getSmooth([backMean, backMax, backTotal, backPoint, backArea, sitPressure], 10)
+    } else {
+      const totalPress = backTotal + sitTotal;
+      const totalMax = Math.max(backMax, sitMax);
+      const totalPoint = backPoint + sitPoint;
+      const totalArea = backArea + sitArea;
+
+      backMean = totalPress / totalPoint;
+      backMax = Math.max(backMax, sitMax);
+      backTotal = backTotal + sitTotal;
+      backPoint = backPoint + sitPoint;
+      backArea = backArea + sitArea;
+
+      backSmooth.getSmooth([totalPress / (totalPoint ? totalPoint : 1), totalMax, totalPress, totalPoint, totalArea, sitPressure], 10)
     }
 
-    that.data.current?.changeData({
-      meanPres: meanSmooth,
-      maxPres: maxSmooth,
-      point: pointSmooth,
-      area: areaSmooth,
-      totalPres: pressSmooth,
-      pressure: pressureSmooth,
-    });
+    if(local){
+      that.data.current?.changeData({
+        meanPres: parseInt(backMean),
+        maxPres: backMax,
+        totalPres: backTotal,
+        point: backPoint,
+        area: backArea,
+        pressure: sitPressure,
+      });
+    }else{
+      that.data.current?.changeData({
+        meanPres: parseInt(backSmooth.smoothValue[0]),
+        maxPres: parseInt(backSmooth.smoothValue[1]),
+        totalPres: parseInt(backSmooth.smoothValue[2]),
+        point: parseInt(backSmooth.smoothValue[3]),
+        area: parseInt(backSmooth.smoothValue[4]),
+        pressure: parseInt(backSmooth.smoothValue[5]),
+      });
+    }
+
+   
 
     if (totalArr.length < 20) {
-      totalArr.push(totalPress);
+      totalArr.push(backSmooth.smoothValue[2]);
     } else {
       totalArr.shift();
-      totalArr.push(totalPress);
+      totalArr.push(backSmooth.smoothValue[2]);
     }
 
     const max = findMax(totalArr);
@@ -679,10 +870,10 @@ export const backTypeEvent = {
       that.data.current?.handleCharts(totalArr, max + 1000);
 
     if (totalPointArr.length < 20) {
-      totalPointArr.push(totalPoint);
+      totalPointArr.push(backSmooth.smoothValue[3]);
     } else {
       totalPointArr.shift();
-      totalPointArr.push(totalPoint);
+      totalPointArr.push(backSmooth.smoothValue[3]);
     }
 
     const max1 = findMax(totalPointArr);
@@ -721,10 +912,10 @@ export const backTypeEvent = {
 
     // console.log(newArr)
 
-    that.setState({ newArr1 : newArr });
+    that.setState({ newArr1: newArr });
 
     // wsPointData = rotate90(wsPointData,32,32)
-    // console.log(wsPointData)
+
     if (that.state.press) {
       wsPointData = press(wsPointData, 32, 32);
     }
@@ -766,20 +957,20 @@ export const backTypeEvent = {
       wsPointData: wsPointData,
     });
 
-    // console.log(backIndexArr)
-    // backIndexArr[2] = Math.round(backIndexArr[2] / 2)
-    // backIndexArr[3] = Math.round(backIndexArr[3] / 2)
+    // console.log(that.backIndexArr)
+    // that.backIndexArr[2] = Math.round(that.backIndexArr[2] / 2)
+    // that.backIndexArr[3] = Math.round(that.backIndexArr[3] / 2)
     const selectArr = [];
-    for (let i = backIndexArr[0]; i < backIndexArr[1]; i++) {
-      for (let j = 31 - backIndexArr[3]; j < 31 - backIndexArr[2]; j++) {
+    for (let i = that.backIndexArr[0]; i < that.backIndexArr[1]; i++) {
+      for (let j = 31 - that.backIndexArr[3]; j < 31 - that.backIndexArr[2]; j++) {
         selectArr.push(wsPointData[i * 32 + j]);
       }
     }
 
     let DataArr;
     if (
-      sitIndexArr.every((a) => a == 0) &&
-      backIndexArr.every((a) => a == 0)
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
     ) {
       DataArr = [...wsPointData];
     } else {
@@ -795,8 +986,8 @@ export const backTypeEvent = {
 
     if (
       backPoint < 10 &&
-      sitIndexArr.every((a) => a == 0) &&
-      backIndexArr.every((a) => a == 0)
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
     ) {
       backMean = 0;
       backMax = 0;
@@ -875,16 +1066,16 @@ export const backTypeEvent = {
     if (that.state.matrixName == "car10" && !that.state.local)
       that.data.current?.handleChartsArea(totalPointArr, max1 + 10);
   },
-  localCar({ that, jsonObject }){
+  localCar({ that, jsonObject,sitFlag ,local }) {
     let wsPointData = jsonObject.backData;
 
     const arr = []
-    for(let i = 0 ; i < 5 ; i ++){
+    for (let i = 0; i < 5; i++) {
       let num = 0
-      for(let j = 0 ; j < 20 ; j ++){
-        num += wsPointData[i*20 + j]
+      for (let j = 0; j < 20; j++) {
+        num += wsPointData[i * 20 + j]
       }
-      arr.push(Math.floor(num/20))
+      arr.push(Math.floor(num / 20))
     }
 
     that.handleChartsBack(arr, 255)
@@ -892,10 +1083,114 @@ export const backTypeEvent = {
     if (!Array.isArray(wsPointData)) {
       wsPointData = JSON.parse(wsPointData);
     }
-    wsPointData = rotateArray90Degrees(wsPointData,10,10)
-    // console.log(wsPointData)
+    wsPointData = rotateArray90Degrees(wsPointData, 10, 10)
+
     that.com.current?.backData({
       wsPointData: wsPointData,
     });
+
+    const selectArr = [];
+    for (let i = that.backIndexArr[0]; i < that.backIndexArr[1]; i++) {
+      for (let j = 31 - that.backIndexArr[3]; j < 31 - that.backIndexArr[2]; j++) {
+        selectArr.push(wsPointData[i * 32 + j]);
+      }
+    }
+
+    let DataArr;
+    if (
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
+    ) {
+      DataArr = [...wsPointData];
+    } else {
+      DataArr = [...selectArr];
+    }
+    // console.log(DataArr)
+    DataArr = DataArr.map((a) => a < 10? 0 : a )
+    backTotal = DataArr.reduce((a, b) => a + b, 0);
+    backPoint = DataArr.filter((a) => a > 10).length;
+    backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
+    backMax = findMax(DataArr);
+    backArea = backPoint * 4;
+
+
+
+
+    if (
+      backPoint < 80 &&
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0) && !local
+    ) {
+      backMean = 0;
+      backMax = 0;
+      backTotal = 0;
+      backPoint = 0;
+      backArea = 0;
+    }
+
+    const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+    // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
+
+    if (!sitFlag) {
+      backSmooth.getSmooth([backMean, backMax, backTotal, backPoint, backArea, sitPressure], 10)
+    } else {
+      const totalPress = backTotal + sitTotal;
+      const totalMax = Math.max(backMax, sitMax);
+      const totalPoint = backPoint + sitPoint;
+      const totalArea = backArea + sitArea;
+
+      backMean = totalPress / totalPoint;
+      backMax = Math.max(backMax, sitMax);
+      backTotal = backTotal + sitTotal;
+      backPoint = backPoint + sitPoint;
+      backArea = backArea + sitArea;
+
+      backSmooth.getSmooth([totalPress / (totalPoint ? totalPoint : 1), totalMax, totalPress, totalPoint, totalArea, sitPressure], 10)
+    }
+
+    if(local){
+      that.data.current?.changeData({
+        meanPres: parseInt(backMean),
+        maxPres: backMax,
+        totalPres: backTotal,
+        point: backPoint,
+        area: backArea,
+        pressure: sitPressure,
+      });
+    }else{
+      that.data.current?.changeData({
+        meanPres: parseInt(backSmooth.smoothValue[0]),
+        maxPres: parseInt(backSmooth.smoothValue[1]),
+        totalPres: parseInt(backSmooth.smoothValue[2]),
+        point: parseInt(backSmooth.smoothValue[3]),
+        area: parseInt(backSmooth.smoothValue[4]),
+        pressure: parseInt(backSmooth.smoothValue[5]),
+      });
+    }
+
+   
+
+    if (totalArr.length < 20) {
+      totalArr.push(backSmooth.smoothValue[2]);
+    } else {
+      totalArr.shift();
+      totalArr.push(backSmooth.smoothValue[2]);
+    }
+
+    const max = findMax(totalArr);
+
+    if (!that.state.local)
+      that.data.current?.handleCharts(totalArr, max + 1000);
+
+    if (totalPointArr.length < 20) {
+      totalPointArr.push(backSmooth.smoothValue[3]);
+    } else {
+      totalPointArr.shift();
+      totalPointArr.push(backSmooth.smoothValue[3]);
+    }
+
+    const max1 = findMax(totalPointArr);
+    if (!that.state.local)
+      that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
   }
 }
