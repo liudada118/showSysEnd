@@ -269,7 +269,7 @@ class Home extends React.Component {
     this.initCar()
     const that = this
     console.log(that)
-    ws = new WebSocket(`ws://${ip}:23001/ws/data`)
+    ws = new WebSocket(`ws://${ip}:1880/ws/data`)
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -283,7 +283,7 @@ class Home extends React.Component {
     ws.onclose = (e) => {
       // connection closed
     };
-    ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
+    ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
     // ws1 = new WebSocket(" ws://127.0.0.1:19998");
     // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
