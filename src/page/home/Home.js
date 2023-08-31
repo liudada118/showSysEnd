@@ -36,13 +36,12 @@ import { calFoot } from "../../assets/util/value";
 import { Heatmap } from "../../components/heatmap/canvas";
 import FootTrack from "../../components/footTrack/footTrack";
 import { backTypeEvent, sitTypeEvent } from "./util";
-
+let controlFlag = true
 const controlArr = [
-  {
-    name: '座椅向前', info: '座椅向前',
-  },
+  { name: '座椅向前', info: '座椅向前', },
   { name: '靠背向后', info: '靠背向后' },
   { name: '靠背向前', info: '靠背向前' },
+  { name: '侧翼气囊充气', info: '侧翼气囊充气', },
   { name: '靠背气囊充气', info: '靠背气囊充气' },
   { name: '靠背气囊放气', info: '靠背气囊放气' },
   { name: '坐垫向下移动', info: '坐垫向下移动腿部气囊放气' },
@@ -213,7 +212,9 @@ class Home extends React.Component {
       newArr: [],
       newArr1: [],
       ymax: 200,
-      control: ''
+      control: '',
+      hunch: '',
+      front: ''
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -284,8 +285,8 @@ class Home extends React.Component {
     this.initCar()
     const that = this
     console.log(that)
-    ws = new WebSocket(`ws://${ip}:1880/ws/data`)
-    // ws = new WebSocket(`ws://${ip}:23001/ws/data`)
+    // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
+    ws = new WebSocket(`ws://${ip}:23001/ws/data`)
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -299,8 +300,8 @@ class Home extends React.Component {
     ws.onclose = (e) => {
       // connection closed
     };
-    ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
-    // ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
+    // ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
+    ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
     // ws1 = new WebSocket(" ws://127.0.0.1:19998");
     // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
@@ -318,8 +319,8 @@ class Home extends React.Component {
     };
     console.log('changeWs')
 
-    // wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
-    wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
+    wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
+    // wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
     wsControl.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -327,10 +328,33 @@ class Home extends React.Component {
     wsControl.onmessage = (e) => {
       // that.ws1Data(e)
       let jsonObject = (e.data);
-      console.log(jsonObject)
-      this.setState({
-        control: jsonObject
-      })
+      if (jsonObject[0] == 1) {
+        const data = jsonObject.split(' ')[1]
+        console.log(data, 'hunch')
+
+        this.setState({
+          hunch: data
+        })
+      } else if (jsonObject[0] == 2) {
+        const data = jsonObject.split(' ')[1]
+        console.log(data)
+        this.setState({
+          front: data
+        })
+      } else {
+        if(controlFlag && (jsonObject === '靠背气囊充气')){
+          this.setState({
+            control: [jsonObject ,'侧翼气囊充气' ]
+          })
+          controlFlag = false
+        }else{
+          this.setState({
+            control: [jsonObject]
+          })
+        }
+        
+      }
+
     };
     wsControl.onerror = (e) => {
       // an error occurred
@@ -1090,8 +1114,10 @@ class Home extends React.Component {
             fontSize: '1.5rem'
           }}>
             {controlArr.map((a, index) => {
-              return (<p style={{ color: this.state.control === a.info ? '#0cf862' : '#fff', fontWeight: 'bold' }}>{a.name}</p>)
+              return (<p style={{ color: this.state.control.includes(a.info)  ? '#0cf862' : '#fff', fontWeight: 'bold' }}>{a.name}</p>)
             })}
+            <p>hunch : {this.state.hunch}</p>
+            <p>front : {this.state.front}</p>
           </div>
         ) : null}
 
