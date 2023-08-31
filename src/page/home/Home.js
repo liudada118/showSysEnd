@@ -37,8 +37,22 @@ import { Heatmap } from "../../components/heatmap/canvas";
 import FootTrack from "../../components/footTrack/footTrack";
 import { backTypeEvent, sitTypeEvent } from "./util";
 
+const controlArr = [
+  {
+    name: '座椅向前', info: '座椅向前',
+  },
+  { name: '靠背向后', info: '靠背向后' },
+  { name: '靠背向前', info: '靠背向前' },
+  { name: '靠背气囊充气', info: '靠背气囊充气' },
+  { name: '靠背气囊放气', info: '靠背气囊放气' },
+  { name: '坐垫向下移动', info: '坐垫向下移动腿部气囊放气' },
+  { name: '腿部气囊放气', info: '坐垫向下移动腿部气囊放气' },
+  { name: '坐垫向上移动', info: '坐垫向上移动腿部气囊充气' },
+  { name: '腿部气囊充气', info: '坐垫向上移动腿部气囊充气' }]
+
 let ws,
   ws1,
+  wsControl,
   xvalue = 0,
   zvalue = 0,
   sitIndexArr = new Array(4).fill(0),
@@ -146,7 +160,7 @@ const content4 = (
     <p>下载轨迹图</p>
   </div>
 );
-let ctxbig  ,ctxsit, ctxback , ctxbig1
+let ctxbig, ctxsit, ctxback, ctxbig1
 class Home extends React.Component {
   constructor() {
     super();
@@ -198,7 +212,8 @@ class Home extends React.Component {
       pressChart: false,
       newArr: [],
       newArr1: [],
-      ymax: 200
+      ymax: 200,
+      control: ''
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -269,7 +284,8 @@ class Home extends React.Component {
     this.initCar()
     const that = this
     console.log(that)
-    ws = new WebSocket(`ws://${ip}:1880/ws/data`)
+    // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
+    ws = new WebSocket(`ws://${ip}:23001/ws/data`)
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -283,7 +299,8 @@ class Home extends React.Component {
     ws.onclose = (e) => {
       // connection closed
     };
-    ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
+    // ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
+    ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
     // ws1 = new WebSocket(" ws://127.0.0.1:19998");
     // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
@@ -300,6 +317,27 @@ class Home extends React.Component {
       // connection closed
     };
     console.log('changeWs')
+
+    wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
+    // wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
+    wsControl.onopen = () => {
+      // connection opened
+      console.info("connect success");
+    };
+    wsControl.onmessage = (e) => {
+      // that.ws1Data(e)
+      let jsonObject = (e.data);
+      console.log(jsonObject)
+      this.setState({
+        control: jsonObject
+      })
+    };
+    wsControl.onerror = (e) => {
+      // an error occurred
+    };
+    wsControl.onclose = (e) => {
+      // connection closed
+    };
   }
 
   wsData = (e) => {
@@ -308,7 +346,7 @@ class Home extends React.Component {
     //处理空数组
     sitDataFlag = false;
     let backFlag
-    if(jsonObject.backFlag != null){
+    if (jsonObject.backFlag != null) {
       backFlag = jsonObject.backFlag
     }
 
@@ -331,7 +369,7 @@ class Home extends React.Component {
         wsPointData = JSON.parse(wsPointData);
       }
 
-      sitTypeEvent[this.state.matrixName]({ that: this, wsPointData , backFlag , local : this.state.local})
+      sitTypeEvent[this.state.matrixName]({ that: this, wsPointData, backFlag, local: this.state.local })
 
     }
 
@@ -407,7 +445,7 @@ class Home extends React.Component {
     //   wsPointData = JSON.parse(wsPointData);
     // }
     let sitFlag
-    if(jsonObject.sitFlag != null){
+    if (jsonObject.sitFlag != null) {
       sitFlag = jsonObject.sitFlag
     }
 
@@ -422,7 +460,7 @@ class Home extends React.Component {
         }
       }
 
-      backTypeEvent[this.state.matrixName]({ that: this, jsonObject ,sitFlag, local : this.state.local })
+      backTypeEvent[this.state.matrixName]({ that: this, jsonObject, sitFlag, local: this.state.local })
     }
 
     if (jsonObject.timeArr != null) {
@@ -1009,7 +1047,7 @@ class Home extends React.Component {
         {/* 全床压力曲线 */}
         {this.state.matrixName === 'bigBed' ?
           <div style={{ position: "fixed", visibility: this.state.pressChart ? 'hidden' : 'unset', width: '60%', right: "20%", bottom: "100px" }}>
-             <canvas id="myChartBig1" style={{ height: '300px', width: '100%' }}></canvas>
+            <canvas id="myChartBig1" style={{ height: '300px', width: '100%' }}></canvas>
             {/* <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas> */}
           </div>
           : null}
@@ -1040,6 +1078,21 @@ class Home extends React.Component {
           <CanvasCom matrixName={this.state.matrixName}>
             <FootTrack ref={this.track} />
           </CanvasCom>
+        ) : null}
+
+        {this.state.matrixName == 'localCar' ? (
+          <div style={{
+            position: "fixed",
+            bottom: "6%",
+            right: "20%",
+            borderRadius: "10px",
+            color: '#fff',
+            fontSize: '1.5rem'
+          }}>
+            {controlArr.map((a, index) => {
+              return (<p style={{ color: this.state.control === a.info ? '#0cf862' : '#fff', fontWeight: 'bold' }}>{a.name}</p>)
+            })}
+          </div>
         ) : null}
 
         {/* <div style={{ position: "fixed", bottom: "20px", color: "#fff" }}>
