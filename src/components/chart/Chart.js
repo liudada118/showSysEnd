@@ -458,7 +458,7 @@ export class CanvasDemo extends React.Component {
                     <div>{a.data}</div>
                   </div>
                
-                    <div>{this.state[footArr[index]]}</div>
+                    <div>{this.state[footArr[index]]} {dataArr1[index].data === '足弓分类' ? Number(this.state.footValue).toFixed(2) : null}</div>
                
                 </div>
               )

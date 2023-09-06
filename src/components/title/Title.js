@@ -1,9 +1,14 @@
 import React from 'react'
-import { Menu, Slider, Button, Select } from 'antd';
+import { Menu, Slider, Button, Select, message } from 'antd';
 import exchange from '../../assets/images/exchange.png'
 import option from '../../assets/images/Option.png'
 import './title.scss'
 import Input from 'antd/es/input/Input';
+import { CSVLink, CSVDownload } from 'react-csv';
+
+let collection = JSON.parse(localStorage.getItem('collection'))
+  ? JSON.parse(localStorage.getItem('collection'))
+  : [['hunch', 'front', '标签']];
 
 const navItems = [
   {
@@ -56,7 +61,16 @@ class Title extends React.Component {
       num: 0,
       dataTime: '',
       clickState: true,
-      ip: localStorage.getItem('ip') ? localStorage.getItem('ip') : ''
+      colName: '',
+      csvData: JSON.parse(localStorage.getItem('collection'))
+        ? JSON.parse(localStorage.getItem('collection'))
+        : [['hunch', 'front', '标签']],
+      length: JSON.parse(localStorage.getItem('collection'))
+        ? JSON.parse(localStorage.getItem('collection')).length
+        : 1,
+      ip: localStorage.getItem('ip') ? localStorage.getItem('ip') : '',
+
+      dataName: ''
     }
   }
 
@@ -280,9 +294,10 @@ class Title extends React.Component {
         })} */}
         </Select> :
           <>
-            <Input value={this.state.ip} onChange={(e) => { 
-              localStorage.setItem('ip' , e.target.value)
-              this.setState({ ip: e.target.value }) }} placeholder='请输入IP' />
+            <Input value={this.state.ip} onChange={(e) => {
+              localStorage.setItem('ip', e.target.value)
+              this.setState({ ip: e.target.value })
+            }} placeholder='请输入IP' />
             <Button onClick={() => { this.props.changeWs(this.state.ip) }}>连接</Button>
           </>
 
@@ -301,23 +316,62 @@ class Title extends React.Component {
           : null}
         {!this.props.local ?
           <>
+            {this.props.matrixName == 'car' ? <Input placeholder='输入采集文件名称' onChange={(e) => { this.setState({ colName: e.target.value }) }} /> : null}
+
+            {this.props.matrixName == 'localCar' ?
+              <Input placeholder='输入采集标签' onChange={(e) => { this.setState({ dataName: e.target.value }) }} />
+              : null}
+
             <Button
               className='titleButton'
               onClick={() => {
-                const flag = this.props.colFlag
-                const date = new Date(Date.now());
-                const formattedDate = date.toLocaleString();
-                if (flag) {
-                  this.props.wsSendObj({ flag: true, time: formattedDate })
+
+                if (this.props.matrixName !== 'localCar') {
+                  const flag = this.props.colFlag
+                  const formattedDate = Date.now()
+                  if (flag) {
+                    if (this.state.colName) {
+                      this.props.wsSendObj({ flag: true, colName: this.state.colName + ' ' + formattedDate })
+                    } else {
+                      this.props.wsSendObj({ flag: true, time: formattedDate })
+                    }
+
+                  } else {
+                    this.props.wsSendObj({ flag: flag })
+                  }
+                  // console.log(flag)
+                  // this.props.setColFlag(!flag)
+                  this.props.changeStateData({ colFlag: !flag })
+                  this.props.setColValueFlag(flag)
                 } else {
-                  this.props.wsSendObj({ flag: flag })
+                  // collection.push([this.props.hunch, this.props.front, this.state.dataName]);
+                  // localStorage.setItem('collection', JSON.stringify(collection))
+                  // this.setState({ csvData: collection, length: collection.length });
+                  // console.log(collection)
+                  // message.success('采集成功');
+                  const flag = this.props.colWebFlag
+                  this.props.changeStateData({ colWebFlag: !flag })
                 }
-                // console.log(flag)
-                // this.props.setColFlag(!flag)
-                this.props.changeStateData({ colFlag: !flag })
-                this.props.setColValueFlag(flag)
-              }}>{this.props.colFlag ? '采集' : '停止'}{this.state.num ? this.state.num : null}
+              }}>{this.props.colFlag ? '采集' : '停止'}{this.props.matrixName == 'localCar' ? this.props.length - 1 : this.state.num}
             </Button>
+            {this.props.matrixName == 'localCar' ?
+              <Button className='titleButton'>
+                <CSVLink
+                  // ref={downloadRef}
+
+                  filename={`${new Date().getTime()}.csv`}
+                  data={this.props.csvData}
+                  style={{ color: '#5A5A89', textDecoration: 'none' }}
+                >
+                  下载
+                </CSVLink> </Button> : null}
+
+            {this.props.matrixName == 'localCar' ?
+              <Button className='titleButton' onClick={() => {
+                collection = ['hunch', 'front', '标签']
+                localStorage.removeItem('collection')
+                this.setState({ collection: ['hunch', 'front', '标签'], length: 1 })
+              }}>删除</Button> : null}
           </>
           : <Button
             className='titleButton'
@@ -325,6 +379,12 @@ class Title extends React.Component {
               this.props.wsSendObj({ download: this.state.dataTime })
             }}
           >{'下载'}</Button>
+        }
+
+        {
+          this.props.matrixName === 'car' && this.props.local ? <Button className='titleButton' onClick={() => {
+            this.props.wsSendObj({ variety: true })
+          }} >压力变化</Button> : null
         }
 
         {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {
@@ -372,6 +432,7 @@ class Title extends React.Component {
           onClick={() => {
             const flag = this.props.centerFlag
             this.props.changeStateData({ centerFlag: !flag })
+            console.log(this.props.com.current)
             this.props.com.current?.changeCenterFlag(flag)
             if (flag) {
               this.props.track.current?.canvasInit()

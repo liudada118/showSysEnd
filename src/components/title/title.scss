@@ -11,6 +11,8 @@
         color: #fff;
     }
 
+
+
     display: flex;
     background-color: #191932;
     justify-content: space-between;
@@ -20,6 +22,18 @@
     top: 0;
     width: 100%;
     padding: 5px 3%;
+
+    .ant-input{
+        background-color: #000;
+        border: 0;
+        width: 150px;
+        margin-right: 20px;
+        color: #5A5A89;
+    }
+
+    .ant-input::placeholder{
+        color: #5A5A89;
+    }
 
     .titleItems {
         // display: inline-block;

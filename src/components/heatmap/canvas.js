@@ -445,7 +445,7 @@ export const Heatmap = React.forwardRef((porps, refs) => {
         canvas.width = window.innerHeight *0.8
         canvas.height = window.innerHeight *0.8
         context = canvas.getContext('2d')
-        bthClickHandle()
+        // bthClickHandle()
         // window.onload = function () {
            
         // }

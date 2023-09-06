@@ -364,7 +364,6 @@ class Aside extends React.Component {
     }
 
     handleChartsArea(arr, max, index) {
-        console.log(111)
         const canvas = document.getElementById('myChart2')
         this.drawChart({ ctx: ctx2, arr, max, canvas, index })
         // console.log(arr, max)

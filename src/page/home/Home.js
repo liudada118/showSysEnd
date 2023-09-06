@@ -49,6 +49,10 @@ const controlArr = [
   { name: '坐垫向上移动', info: '坐垫向上移动腿部气囊充气' },
   { name: '腿部气囊充气', info: '坐垫向上移动腿部气囊充气' }]
 
+let collection = JSON.parse(localStorage.getItem('collection'))
+  ? JSON.parse(localStorage.getItem('collection'))
+  : [['hunch', 'front', '标签']];
+
 let ws,
   ws1,
   wsControl,
@@ -166,10 +170,10 @@ class Home extends React.Component {
     this.state = {
       valueg1: localStorage.getItem("carValueg")
         ? JSON.parse(localStorage.getItem("carValueg"))
-        : 2,
+        : 3.6,
       valuej1: localStorage.getItem("carValuej")
         ? JSON.parse(localStorage.getItem("carValuej"))
-        : 200,
+        : 335,
       valuel1: localStorage.getItem("carValuel")
         ? JSON.parse(localStorage.getItem("carValuel"))
         : 2,
@@ -181,14 +185,14 @@ class Home extends React.Component {
         : 2,
       valuelInit1: localStorage.getItem("carValueInit")
         ? JSON.parse(localStorage.getItem("carValueInit"))
-        : 2,
+        : 2000,
       valueMult: localStorage.getItem("valueMult")
         ? JSON.parse(localStorage.getItem("valueMult"))
         : 1,
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "localCar",
+      matrixName: "car",
       length: 0,
       local: false,
       dataArr: [],
@@ -214,7 +218,15 @@ class Home extends React.Component {
       ymax: 200,
       control: '',
       hunch: '',
-      front: ''
+      front: '',
+      colWebFlag: false,
+      csvData: JSON.parse(localStorage.getItem('collection'))
+        ? JSON.parse(localStorage.getItem('collection'))
+        : [['hunch', 'front', '标签']],
+      length: JSON.parse(localStorage.getItem('collection'))
+        ? JSON.parse(localStorage.getItem('collection')).length
+        : 1,
+      dataName : ''
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -239,8 +251,12 @@ class Home extends React.Component {
     var c1 = document.getElementById("myChartBig1");
     console.log(c1, 'c1')
     if (c1) ctxbig1 = c1.getContext("2d");
+    const ip = 'k2.bodyta.com'
+    // ws = new WebSocket(`ws://${ip}:23001/ws/data`)
+    // ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
 
     // ws = new WebSocket(" ws://192.168.31.114:19999");
+    // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
     ws = new WebSocket(" ws://127.0.0.1:19999");
     // ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
     ws.onopen = () => {
@@ -273,6 +289,63 @@ class Home extends React.Component {
       // connection closed
     };
 
+
+    if (this.state.matrixName === 'localCar') {
+      wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
+      // wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
+      wsControl.onopen = () => {
+        // connection opened
+        console.info("connect success");
+      };
+      wsControl.onmessage = (e) => {
+        // that.ws1Data(e)
+
+        let jsonObject = (e.data);
+        console.log(jsonObject)
+        if (jsonObject[0] == 1) {
+          const data = jsonObject.split(' ')[1]
+          console.log(data, 'hunch')
+
+          this.setState({
+            hunch: data
+          })
+        } else if (jsonObject[0] == 2) {
+          const data = jsonObject.split(' ')[1]
+          console.log(data)
+          this.setState({
+            front: data
+          })
+        } else {
+          if (controlFlag && (jsonObject === '靠背气囊充气')) {
+            this.setState({
+              control: [jsonObject, '侧翼气囊充气']
+            })
+            controlFlag = false
+          } else {
+            this.setState({
+              control: [jsonObject]
+            })
+          }
+
+        }
+
+        if (this.state.colFlag) {
+
+          collection.push([this.state.hunch, this.state.front, this.state.dataName]);
+          localStorage.setItem('collection', JSON.stringify(collection))
+          this.setState({ csvData: collection, length: collection.length });
+          console.log(collection)
+        }
+
+      };
+      wsControl.onerror = (e) => {
+        // an error occurred
+      };
+      wsControl.onclose = (e) => {
+        // connection closed
+      };
+    }
+
   }
 
   changeWs(ip) {
@@ -285,8 +358,9 @@ class Home extends React.Component {
     this.initCar()
     const that = this
     console.log(that)
-    ws = new WebSocket(`ws://${ip}:1880/ws/data`)
-    // ws = new WebSocket(`ws://${ip}:23001/ws/data`)
+
+    // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
+    ws = new WebSocket(`ws://${ip}:23001/ws/data`)
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -300,8 +374,8 @@ class Home extends React.Component {
     ws.onclose = (e) => {
       // connection closed
     };
-    ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
-    // ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
+    // ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
+    ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
     // ws1 = new WebSocket(" ws://127.0.0.1:19998");
     // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
@@ -319,8 +393,8 @@ class Home extends React.Component {
     };
     console.log('changeWs')
 
-    // wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
-    wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
+    wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
+    // wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
     wsControl.onopen = () => {
       // connection opened
       console.info("connect success");
@@ -342,17 +416,17 @@ class Home extends React.Component {
           front: data
         })
       } else {
-        if(controlFlag && (jsonObject === '靠背气囊充气')){
+        if (controlFlag && (jsonObject === '靠背气囊充气')) {
           this.setState({
-            control: [jsonObject ,'侧翼气囊充气' ]
+            control: [jsonObject, '侧翼气囊充气']
           })
           controlFlag = false
-        }else{
+        } else {
           this.setState({
             control: [jsonObject]
           })
         }
-        
+
       }
 
     };
@@ -422,16 +496,27 @@ class Home extends React.Component {
     }
     if (jsonObject.timeArr != null) {
       // const arr = []
-      const arr = jsonObject.timeArr.map((a, index) => a.date);
+      const arr = jsonObject.timeArr //.map((a, index) => a.date);
 
-      if (this.state.matrixName != 'car10') {
+      if (this.state.matrixName == 'car') {
         let obj = [];
         arr.forEach((a, index) => {
           obj.push({
-            value: a,
-            label: a,
+            value: a.info,
+            label: a.name,
           });
         });
+        console.log(obj)
+        this.setState({ dataArr: obj });
+      } else {
+        let obj = [];
+        arr.forEach((a, index) => {
+          obj.push({
+            value: a.date,
+            label: a.date,
+          });
+        });
+        console.log(obj)
         this.setState({ dataArr: obj });
       }
 
@@ -490,13 +575,13 @@ class Home extends React.Component {
     if (jsonObject.timeArr != null) {
       // const arr = []
       console.log(jsonObject.timeArr)
-      const arr = jsonObject.timeArr.map((a, index) => a.date);
+      const arr = jsonObject.timeArr//.map((a, index) => a.date);
 
       let obj = [];
       arr.forEach((a, index) => {
         obj.push({
-          value: a,
-          label: a,
+          value: a.info,
+          label: a.name,
         });
       });
       this.setState({ dataArr: obj });
@@ -1028,6 +1113,11 @@ class Home extends React.Component {
           valueMult={this.state.valueMult}
           pressChart={this.state.pressChart}
           changeWs={this.changeWs.bind(this)}
+          hunch={this.state.hunch}
+          front={this.state.front}
+          csvData = {this.state.csvData}
+          length = {this.state.length}
+          colWebFlag = {this.state.colWebFlag}
         />
 
         <CanvasCom matrixName={this.state.matrixName}>
@@ -1114,7 +1204,7 @@ class Home extends React.Component {
             fontSize: '1.5rem'
           }}>
             {controlArr.map((a, index) => {
-              return (<p style={{ color: this.state.control.includes(a.info)  ? '#0cf862' : '#fff', fontWeight: 'bold' }}>{a.name}</p>)
+              return (<p style={{ color: this.state.control.includes(a.info) ? '#0cf862' : '#fff', fontWeight: 'bold' }}>{a.name}</p>)
             })}
             <p>hunch : {this.state.hunch}</p>
             <p>front : {this.state.front}</p>
