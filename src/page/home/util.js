@@ -34,8 +34,8 @@ let meanSmooth = 0,
   leftTopPropSmooth = 0,
   rightTopPropSmooth = 0,
   leftBottomPropSmooth = 0,
-  rightBottomPropSmooth = 0
-
+  rightBottomPropSmooth = 0,
+  footTypeSmooth = 0.22
 const sitSmooth = new smoothClass(6)
 const backSmooth = new smoothClass(6)
 let backTotal = 0,
@@ -73,29 +73,36 @@ export const sitTypeEvent = {
       leftArr.push(num)
     }
 
-    let leftFootValue = calFootType(sitData , 6)
-    let rightFootValue = calFootType(backData , 6)
+    let leftFootValue = calFootType(sitData, 10)
+    let rightFootValue = calFootType(backData, 10)
 
-    const footType = (leftFootValue.footType)
-    //  + rightFootValue.footType) / 2
-    const footLength = (leftFootValue.footLength )
-    // + rightFootValue.footLength) / 2
-    console.log(rightFootValue ,leftFootValue  , footLength)
+    const leftFlag = leftFootValue.footLength > 5
+    const rightFlag = rightFootValue.footLength > 5
+
+    let divisor = leftFlag ? 1 : 0 + rightFlag ? 1 : 0
+    divisor = divisor ? divisor : 1
+
+
+    const footType = (leftFlag ? leftFootValue.footType : 0 + rightFlag ? rightFootValue.footType : 0) / divisor
+    const footLength = (leftFlag ? leftFootValue.footLength : 0 + rightFlag ? rightFootValue.footLength : 0) / divisor
+    // console.log(rightFootValue, leftFootValue, footLength)
+
+    footTypeSmooth = footTypeSmooth + (footType - footTypeSmooth) / 20
 
     let footArch
-    if(footType < 0.21){  
+    if (footTypeSmooth < 0.21) {
       footArch = '高足弓'
-    }else if(footType < 0.26){
+    } else if (footTypeSmooth < 0.26) {
       footArch = '正常'
-    }else{
+    } else {
       footArch = '扁平足'
     }
 
 
     that.data.current?.canvas.current?.changeState({
-      footValue : footType,
-      footType : footArch,
-      footLength
+      footValue: footTypeSmooth,
+      footType: footArch,
+      footLength: (footLength * 11 / 10).toFixed(1)
     });
 
     // const leftFoot = leftArr.filter((a) => a > 50)
@@ -204,15 +211,15 @@ export const sitTypeEvent = {
     const leftValue = sitData.reduce((a, b) => a + b, 0);
     const rightValue = backData.reduce((a, b) => a + b, 0);
 
-    let leftProp = parseInt((leftValue * 100) / (leftValue + rightValue));
+    let leftProp = parseInt((leftValue * 100) / ((leftValue + rightValue) > 0 ? (leftValue + rightValue) : 1));
     let rightProp = 100 - leftProp;
 
     let leftTop = [...sitData].slice(0, 16 * 16).reduce((a, b) => a + b, 0);
-    let leftTopProp = parseInt((leftTop * 100) / leftValue);
+    let leftTopProp = parseInt((leftTop * 100) / (leftValue > 0 ? leftValue : 1));
     let leftBottomProp = 100 - leftTopProp;
 
     let rightTop = [...backData].slice(0, 16 * 16).reduce((a, b) => a + b, 0);
-    let rightTopProp = parseInt((rightTop * 100) / rightValue);
+    let rightTopProp = parseInt((rightTop * 100) / (rightValue > 0 ? rightValue : 1));
     let rightBottomProp = 100 - rightTopProp;
 
     const total = DataArr.reduce((a, b) => a + b, 0);
@@ -290,6 +297,7 @@ export const sitTypeEvent = {
       that.com.current?.changeDataFlag();
     } else {
       that.com.current?.bthClickHandle(realData);
+
     }
 
     that.data.current?.changeData({
@@ -306,9 +314,10 @@ export const sitTypeEvent = {
     );
 
     that.data.current?.canvas.current.changeState({
-      total: totalSmooth,
-      leftValue: leftValueSmooth,
-      rightValue: rightValueSmooth,
+      // total: (totalSmooth/100),
+      total: parseInt(leftValueSmooth / 100) + parseInt(rightValueSmooth / 100),
+      leftValue: parseInt(leftValueSmooth / 100),
+      rightValue: parseInt(rightValueSmooth / 100),
       leftProp: leftPropSmooth,
       rightProp: rightPropSmooth,
     });
@@ -317,6 +326,14 @@ export const sitTypeEvent = {
     if (that.state.centerFlag) {
       that.track.current?.circleMove({ arrSmooth, rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
     }
+
+    that.arrSmooth = arrSmooth
+    that.rightTopPropSmooth = rightTopPropSmooth
+    that.leftTopPropSmooth = leftTopPropSmooth
+    that.leftBottomPropSmooth = leftBottomPropSmooth
+    that.rightPropSmooth = rightPropSmooth
+    that.leftPropSmooth = leftPropSmooth
+    that.rightBottomPropSmooth = rightBottomPropSmooth
 
     if (totalArr.length < 20) {
       totalArr.push(totalPress);
@@ -460,7 +477,7 @@ export const sitTypeEvent = {
     if (that.state.matrixName == "bigBed" && !that.state.local)
       that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
   },
-  car: ({ that, wsPointData, backFlag , local }) => {
+  car: ({ that, wsPointData, backFlag, local }) => {
 
     if (
       that.state.carState == "sit" &&
@@ -480,7 +497,7 @@ export const sitTypeEvent = {
         });
       }
     }
-    
+
     const selectArr = [];
 
     for (let i = that.sitIndexArr[0]; i < that.sitIndexArr[1]; i++) {
@@ -496,12 +513,12 @@ export const sitTypeEvent = {
     } else {
       DataArr = [...selectArr];
     }
-    DataArr = DataArr.map((a) => a < 10? 0 : a )
+    DataArr = DataArr.map((a) => a < 10 ? 0 : a)
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
     const length = DataArr.filter((a, index) => a > 0).length;
 
-    
+
     sitPoint = DataArr.filter(
       (a) => a > that.state.valuej1 * 0.02
     ).length;
@@ -524,7 +541,7 @@ export const sitTypeEvent = {
     if (!backFlag) {
       sitSmooth.getSmooth([sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure], 10)
 
-      if(local){
+      if (local) {
         that.data.current?.changeData({
           meanPres: sitMean,
           maxPres: sitMax,
@@ -533,7 +550,7 @@ export const sitTypeEvent = {
           area: sitArea,
           pressure: sitPressure,
         });
-      }else{
+      } else {
         that.data.current?.changeData({
           meanPres: parseInt(sitSmooth.smoothValue[0]),
           maxPres: parseInt(sitSmooth.smoothValue[1]),
@@ -544,7 +561,7 @@ export const sitTypeEvent = {
         });
       }
 
-      
+
 
       if (totalArr.length < 20) {
         totalArr.push(sitSmooth.smoothValue[2]);
@@ -617,7 +634,7 @@ export const sitTypeEvent = {
       that.com.current?.bthClickHandle(wsPointData);
     }
   },
-  localCar({ that, wsPointData , local }) {
+  localCar({ that, wsPointData, local }) {
 
     const arr = []
     for (let i = 0; i < 5; i++) {
@@ -651,12 +668,12 @@ export const sitTypeEvent = {
     } else {
       DataArr = [...selectArr];
     }
-    DataArr = DataArr.map((a) => a < 10? 0 : a )
+    DataArr = DataArr.map((a) => a < 10 ? 0 : a)
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
     const length = DataArr.filter((a, index) => a > 0).length;
 
-    
+
     sitPoint = DataArr.filter(
       (a) => a > that.state.valuej1 * 0.02
     ).length;
@@ -679,7 +696,7 @@ export const sitTypeEvent = {
     if (false) {
       sitSmooth.getSmooth([sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure], 10)
 
-      if(local){
+      if (local) {
         that.data.current?.changeData({
           meanPres: sitMean,
           maxPres: sitMax,
@@ -688,7 +705,7 @@ export const sitTypeEvent = {
           area: sitArea,
           pressure: sitPressure,
         });
-      }else{
+      } else {
         that.data.current?.changeData({
           meanPres: parseInt(sitSmooth.smoothValue[0]),
           maxPres: parseInt(sitSmooth.smoothValue[1]),
@@ -699,7 +716,7 @@ export const sitTypeEvent = {
         });
       }
 
-      
+
 
       if (totalArr.length < 20) {
         totalArr.push(sitSmooth.smoothValue[2]);
@@ -729,7 +746,7 @@ export const sitTypeEvent = {
 }
 
 export const backTypeEvent = {
-  car: ({ that, jsonObject, sitFlag ,local }) => {
+  car: ({ that, jsonObject, sitFlag, local }) => {
     if (that.state.matrixName == 'car' && !sitFlag) {
       if (colValueFlag) {
         num++;
@@ -796,7 +813,7 @@ export const backTypeEvent = {
       DataArr = [...selectArr];
     }
     // console.log(DataArr)
-    DataArr = DataArr.map((a) => a < 10? 0 : a )
+    DataArr = DataArr.map((a) => a < 10 ? 0 : a)
     backTotal = DataArr.reduce((a, b) => a + b, 0);
     backPoint = DataArr.filter((a) => a > 10).length;
     backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
@@ -838,7 +855,7 @@ export const backTypeEvent = {
       backSmooth.getSmooth([totalPress / (totalPoint ? totalPoint : 1), totalMax, totalPress, totalPoint, totalArea, sitPressure], 10)
     }
 
-    if(local){
+    if (local) {
       that.data.current?.changeData({
         meanPres: parseInt(backMean),
         maxPres: backMax,
@@ -847,7 +864,7 @@ export const backTypeEvent = {
         area: backArea,
         pressure: sitPressure,
       });
-    }else{
+    } else {
       that.data.current?.changeData({
         meanPres: parseInt(backSmooth.smoothValue[0]),
         maxPres: parseInt(backSmooth.smoothValue[1]),
@@ -858,7 +875,7 @@ export const backTypeEvent = {
       });
     }
 
-   
+
 
     if (totalArr.length < 20) {
       totalArr.push(backSmooth.smoothValue[2]);
@@ -1069,7 +1086,7 @@ export const backTypeEvent = {
     if (that.state.matrixName == "car10" && !that.state.local)
       that.data.current?.handleChartsArea(totalPointArr, max1 + 10);
   },
-  localCar({ that, jsonObject,sitFlag ,local }) {
+  localCar({ that, jsonObject, sitFlag, local }) {
     let wsPointData = jsonObject.backData;
 
     const arr = []
@@ -1109,7 +1126,7 @@ export const backTypeEvent = {
       DataArr = [...selectArr];
     }
     // console.log(DataArr)
-    DataArr = DataArr.map((a) => a < 10? 0 : a )
+    DataArr = DataArr.map((a) => a < 10 ? 0 : a)
     backTotal = DataArr.reduce((a, b) => a + b, 0);
     backPoint = DataArr.filter((a) => a > 10).length;
     backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
@@ -1151,7 +1168,7 @@ export const backTypeEvent = {
       backSmooth.getSmooth([totalPress / (totalPoint ? totalPoint : 1), totalMax, totalPress, totalPoint, totalArea, sitPressure], 10)
     }
 
-    if(local){
+    if (local) {
       that.data.current?.changeData({
         meanPres: parseInt(backMean),
         maxPres: backMax,
@@ -1160,7 +1177,7 @@ export const backTypeEvent = {
         area: backArea,
         pressure: sitPressure,
       });
-    }else{
+    } else {
       that.data.current?.changeData({
         meanPres: parseInt(backSmooth.smoothValue[0]),
         maxPres: parseInt(backSmooth.smoothValue[1]),
@@ -1171,7 +1188,7 @@ export const backTypeEvent = {
       });
     }
 
-   
+
 
     if (totalArr.length < 20) {
       totalArr.push(backSmooth.smoothValue[2]);

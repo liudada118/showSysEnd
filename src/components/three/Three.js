@@ -518,13 +518,11 @@ const Canvas = React.forwardRef((props, refs) => {
   function backRenew() {
 
 
-    ndata = [...newData].map((a, index) => (a - valuef2 < 0 ? 0 : a));
+    ndata = [...newData].map((a, index) => (a - valuef1 < 0 ? 0 : a));
     ndataNum = ndata.reduce((a, b) => a + b, 0);
     if (ndataNum < valuelInit2) {
       ndata = new Array(backnum1 * backnum2).fill(0);
-    } else {
-      ndata = [...newData]
-    }
+    } 
 
     interp1016(ndata, bigArr1, backnum1, backnum2, backInterp);
     //高斯滤波

@@ -265,6 +265,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
                 <div
                     style={{
                         border: leftFlag ? "1px solid #991BFA" : "0px",
+                        left: 0
                     }}
                     className="leftProgress"
                     onMouseDown={(e) => {
@@ -279,6 +280,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
                 <div
                     style={{
                         border: rightFlag ? "1px solid #991BFA" : "0px",
+                        left: '580px'
                     }}
                     className="rightProgress"
                     onMouseDown={(e) => {

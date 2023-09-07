@@ -1029,6 +1029,7 @@ export function discoverSureCurve(detectedArr, num) {
 
 export function calFootType(arr , valueFlag) {
   // 将脚每一行求和
+  const newArr = arr.map((a) => a < valueFlag ? 0 : a)
   const leftArr = []
   for (let i = 0; i < 32; i++) {
     let num = 0
@@ -1041,7 +1042,7 @@ export function calFootType(arr , valueFlag) {
   // 找到整个脚的索引和重量
   const leftFoot = [], leftFootValue = []
   leftArr.forEach((a, index) => {
-    if (a > valueFlag*5) {
+    if (a > valueFlag*2) {
       leftFoot.push(index)
       leftFootValue.push(a)
     }
@@ -1056,14 +1057,20 @@ export function calFootType(arr , valueFlag) {
   // }
 
   // 找到第一个下降然后上升的点  脚趾头跟脚板的分界线
-  let footStart
+  let footStart = 0
   for (let i = 1; i < leftFootValue.length; i++) {
     if (leftFootValue[i] - leftFootValue[i - 1] < 0 && ((leftFootValue[i + 1] - leftFootValue[i]) / leftFootValue[i]) > 0.2) {
       footStart = i + 1 + leftFoot[0]
+      if(i > leftFootValue.length*0.4){
+        footStart = leftFoot[0] 
+      }
       break
     }
   }
 
+  if(!footStart){
+    footStart = leftFoot[0]
+  }
   let footEnd = leftFoot[leftFoot.length - 1]
 
   let length = footEnd - footStart
@@ -1093,7 +1100,9 @@ export function calFootType(arr , valueFlag) {
     }
   }
 
-  const prop = contentPoint / totalFootPoint
+  // console.log(footStart ,contentPoint  , totalFootPoint)
+
+  const prop = contentPoint / (totalFootPoint ? totalFootPoint : 1)
   return {footType : prop , footLength : leftFoot.length}
 
 }

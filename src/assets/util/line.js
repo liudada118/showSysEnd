@@ -39,13 +39,13 @@ export function footLine({ wsPointData, pressFlag, pressNumFlag }) {
     rowArr.push(rowtotal);
   }
 
-  if (pressFlag) {
-    wsPointData = press(wsPointData);
-  }
-  if (pressNumFlag) {
-    wsPointData = calculateY(wsPointData);
-  }
-
+  // if (pressFlag) {
+  //   wsPointData = press(wsPointData);
+  // }
+  // if (pressNumFlag) {
+  //   wsPointData = calculateY(wsPointData);
+  // }
+  wsPointData = pressNew({ arr: wsPointData, width: 32, height: 32, type: 'column', value: 1621})
   // wsPointData[1023] = 100
   let sitData = [],
     backData = [];
@@ -243,7 +243,6 @@ export function press(arr, width, height, type = "row") {
 
 export function pressNew({ arr, width, height, type = "row", value }) {
   let wsPointData = [...arr];
-
   if (type == "row") {
     let colArr = [];
     for (let i = 0; i < height; i++) {

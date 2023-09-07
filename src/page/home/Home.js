@@ -192,7 +192,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "car",
+      matrixName: "bigBed",
       length: 0,
       local: false,
       dataArr: [],
@@ -226,7 +226,7 @@ class Home extends React.Component {
       length: JSON.parse(localStorage.getItem('collection'))
         ? JSON.parse(localStorage.getItem('collection')).length
         : 1,
-      dataName : ''
+      dataName: ''
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -568,8 +568,10 @@ class Home extends React.Component {
           num = 0;
         }
       }
+      if (this.state.matrixName !== 'bigBed' && this.state.matrixName !== 'foot') {
+        backTypeEvent[this.state.matrixName]({ that: this, jsonObject, sitFlag, local: this.state.local })
+      }
 
-      backTypeEvent[this.state.matrixName]({ that: this, jsonObject, sitFlag, local: this.state.local })
     }
 
     if (jsonObject.timeArr != null) {
@@ -975,7 +977,9 @@ class Home extends React.Component {
                 <div
                   className="setIcon marginB10"
                   onClick={() => {
-                    this.track.current?.loadImg({ arrSmooth, rightTopPropSmooth, leftTopPropSmooth, leftBottomPropSmooth, rightPropSmooth, leftPropSmooth, rightBottomPropSmooth })
+                    const that = this
+                    console.log(that.rightTopPropSmooth)
+                    this.track.current?.loadImg({ arrSmooth: that.arrSmooth, rightTopPropSmooth: that.rightTopPropSmooth, leftTopPropSmooth: that.leftTopPropSmooth, leftBottomPropSmooth: that.leftBottomPropSmooth, rightPropSmooth: that.rightPropSmooth, leftPropSmooth: that.leftPropSmooth, rightBottomPropSmooth: that.rightBottomPropSmooth })
                   }}
                 >
                   <img src={load} alt="" />
@@ -1115,9 +1119,9 @@ class Home extends React.Component {
           changeWs={this.changeWs.bind(this)}
           hunch={this.state.hunch}
           front={this.state.front}
-          csvData = {this.state.csvData}
-          length = {this.state.length}
-          colWebFlag = {this.state.colWebFlag}
+          csvData={this.state.csvData}
+          length={this.state.length}
+          colWebFlag={this.state.colWebFlag}
         />
 
         <CanvasCom matrixName={this.state.matrixName}>

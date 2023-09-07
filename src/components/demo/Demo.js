@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { findMax } from '../../assets/util/util'
-import { carBackLine } from '../../assets/util/line'
+import { carBackLine, pressNew } from '../../assets/util/line'
+import { Slider } from 'antd'
 let data = []
 
 // for (let i = 0; i < 32; i++) {
@@ -29,12 +30,19 @@ let data = []
 //         res[i].push(data[i * 32 + j])
 //     }
 // }
-let ws
+let ws , pressValue =  localStorage.getItem("carValuePress")
+? JSON.parse(localStorage.getItem("carValuePress"))
+: 1000
 
 export default function Demo() {
     const [data, setData] = useState([])
     const [max, setMax] = useState(0)
     const [maxCol, setMaxCol] = useState(0)
+    const [valuePress, setValuePress] = useState(
+        localStorage.getItem("carValuePress")
+          ? JSON.parse(localStorage.getItem("carValuePress"))
+          : 1000
+      );
     useEffect(() => {
         ws = new WebSocket(" ws://localhost:19999");
         ws.onopen = () => {
@@ -47,8 +55,8 @@ export default function Demo() {
 
             if (jsonObject.sitData != null) {
                 let wsPointData = jsonObject.sitData;
-                
-                wsPointData = wsPointData.map((a) => a < 10 ? 0 : a)
+
+                wsPointData = wsPointData.map((a) => a < 5 ? 0 : a)
                 let a = wsPointData.splice(0, 1 * 32)
                 let b = wsPointData.splice(0, 15 * 32)
                 wsPointData = a.concat(wsPointData, b)
@@ -101,7 +109,7 @@ export default function Demo() {
                 //     }
                 // }
 
-
+                wsPointData = pressNew({ arr: wsPointData, width: 32, height: 32, type: 'column', value: pressValue})
 
                 // let colArr = []
                 // for (let i = 0; i < 32; i++) {
@@ -158,6 +166,20 @@ export default function Demo() {
             }</div>
             <div style={{ fontSize: '30px' }}>{max}</div>
             <div style={{ fontSize: '30px' }}>{maxCol}</div>
+
+            <Slider
+                min={1}
+                max={10000}
+                onChange={(value) => {
+                    localStorage.setItem("carValuePress", value);
+                    setValuePress(value);
+                    pressValue = value;
+                }}
+                value={valuePress}
+                step={5}
+                // value={this.props.}
+                style={{ width: "200px" }}
+            />
         </>
     )
 }
