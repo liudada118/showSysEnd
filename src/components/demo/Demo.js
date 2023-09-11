@@ -78,17 +78,17 @@ export default function Demo() {
                     }
                 }
 
-                wsPointData = newArr
-                let colArr = [], rowArr = []
-                for (let i = 0; i < 32; i++) {
-                    let coltotal = 0, rowtotal = 0
-                    for (let j = 0; j < 32; j++) {
-                        coltotal += wsPointData[j * 32 + i]
-                        rowtotal += wsPointData[i * 32 + j]
-                    }
-                    colArr.push(coltotal)
-                    rowArr.push(rowtotal)
-                }
+                // wsPointData = newArr
+                // let colArr = [], rowArr = []
+                // for (let i = 0; i < 32; i++) {
+                //     let coltotal = 0, rowtotal = 0
+                //     for (let j = 0; j < 32; j++) {
+                //         coltotal += wsPointData[j * 32 + i]
+                //         rowtotal += wsPointData[i * 32 + j]
+                //     }
+                //     colArr.push(coltotal)
+                //     rowArr.push(rowtotal)
+                // }
 
                 // wsPointData = carBackLine(wsPointData)
 
@@ -109,7 +109,7 @@ export default function Demo() {
                 //     }
                 // }
 
-                wsPointData = pressNew({ arr: wsPointData, width: 32, height: 32, type: 'column', value: pressValue})
+                // wsPointData = pressNew({ arr: wsPointData, width: 32, height: 32, type: 'column', value: pressValue})
 
                 // let colArr = []
                 // for (let i = 0; i < 32; i++) {
@@ -120,13 +120,16 @@ export default function Demo() {
                 //     colArr.push(total)
                 // }
 
-                let max = findMax(wsPointData)
-                let maxIndex = wsPointData.indexOf(max)
-                let colNum = maxIndex % 32
-                let colTotalNum = colArr[colNum]
-                setMax(max)
-                setMaxCol(colTotalNum)
-
+                // let max = findMax(wsPointData)
+                // let maxIndex = wsPointData.indexOf(max)
+                // let colNum = maxIndex % 32
+                // let colTotalNum = colArr[colNum]
+                // setMax(max)
+                const press = wsPointData.reduce((a,b) => a+b , 0)
+                const point = wsPointData.filter((a,index) => a > 5).length
+                // setMaxCol(colTotalNum)
+                // console.log(press,point)
+                setMax((press/point).toFixed(2))
                 // for (let i = 0; i < 32; i++) {
                 //     for (let j = 0; j < 32; j++) {
                 //         wsPointData[j*32 + i] = parseInt((wsPointData[j*32 + i] /(1245 - colArr[i] ==0 ? 1 : 1245 - colArr[i]))*1000 )
@@ -164,7 +167,7 @@ export default function Demo() {
                     )
                 })
             }</div>
-            <div style={{ fontSize: '30px' }}>{max}</div>
+            <div style={{ fontSize: '50px' }}>{max}</div>
             <div style={{ fontSize: '30px' }}>{maxCol}</div>
 
             <Slider

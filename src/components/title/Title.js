@@ -355,6 +355,13 @@ class Title extends React.Component {
               }}>{this.props.colFlag ? '采集' : '停止'}{this.props.matrixName == 'localCar' ? this.props.length - 1 : this.state.num}
             </Button>
             {this.props.matrixName == 'localCar' ?
+
+              <>
+               <Button onClick={() => {
+                this.props.colPushData()
+               }} className='titleButton'>
+                单次采集
+               </Button>
               <Button className='titleButton'>
                 <CSVLink
                   // ref={downloadRef}
@@ -364,13 +371,14 @@ class Title extends React.Component {
                   style={{ color: '#5A5A89', textDecoration: 'none' }}
                 >
                   下载
-                </CSVLink> </Button> : null}
+                </CSVLink> </Button> </>: null}
 
             {this.props.matrixName == 'localCar' ?
               <Button className='titleButton' onClick={() => {
-                collection = ['hunch', 'front', '标签']
-                localStorage.removeItem('collection')
-                this.setState({ collection: ['hunch', 'front', '标签'], length: 1 })
+                // collection = ['hunch', 'front', '标签']
+                // localStorage.removeItem('collection')
+                // this.setState({ collection: ['hunch', 'front', '标签'], length: 1 })
+                this.props.delPushData()
               }}>删除</Button> : null}
           </>
           : <Button

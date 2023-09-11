@@ -418,7 +418,9 @@ class Aside extends React.Component {
                                             </div>
                                             <div className='dataIteminfo'>
                                                 <div className='standardColor'>{a.eng}</div>
-                                                <div>{this.state[arrArea[index]]}</div>
+                                                <div>{this.props.matrixName === 'car' && arrArea[index] === 'area' ? 
+                                                <div>{parseInt(this.state[arrArea[index]]*2.1)} <span style={{color:'#999'}}>cm²</span></div> 
+                                                :  <div>{this.state[arrArea[index]]} <span style={{color:'#999'}}>个</span></div>}  </div>
                                             </div>
                                         </div>
 
@@ -430,7 +432,7 @@ class Aside extends React.Component {
                 <div className="asideContent firstAside">
                     <h2 className="asideTitle">Pressure Data</h2>
                     {/* <div style={{}}> */}
-                    <span className='pressData'>{(this.state.pressure * this.state.pressMult).toFixed(2)}</span> <span style={{ color: '#999' }}>{this.props.matrixName === 'bigBed' ? 'mmgH' : null}</span>
+                    <span className='pressData'>{(this.state.pressure * this.state.pressMult).toFixed(2)}</span> <span style={{ color: '#999' }}>{'mmgH'}</span>
                     {/* </div> */}
 
                     {this.props.matrixName != 'foot' ? <>
@@ -446,7 +448,7 @@ class Aside extends React.Component {
                                         </div>
                                         <div className='dataIteminfo'>
                                             <div className='standardColor'>{a.eng}</div>
-                                            <div>{this.state[arr[index]]}</div>
+                                            <div>{this.state[arr[index]]} <span style={{ color: '#999' }}>N</span></div>
                                         </div>
                                     </div>
                                 )

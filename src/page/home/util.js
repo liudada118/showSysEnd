@@ -51,6 +51,8 @@ let backTotal = 0,
   sitPoint = 0,
   sitArea = 0,
   backPress = 0,
+  sitPressure = 0,
+  backPressure = 0,
   colValueFlag = false,
   clearFlag = false,
   lastArr = [];
@@ -196,7 +198,7 @@ export const sitTypeEvent = {
 
 
     let totalArea = totalPoint * 4;
-    const sitPressure = (totalMax * 1000) / (totalArea ? totalArea : 1);
+    sitPressure = (totalMax * 1000) / (totalArea ? totalArea : 1);
 
     // const {press , point , mean , max , area , pressure} = calArr(DataArr)
 
@@ -520,12 +522,15 @@ export const sitTypeEvent = {
 
 
     sitPoint = DataArr.filter(
-      (a) => a > that.state.valuej1 * 0.02
+      (a) => a > 10
     ).length;
-    sitTotal = DataArr.reduce((a, b) => a + b, 0);
-    sitMean = parseInt(sitTotal / (sitPoint ? sitPoint : 1));
+    const sitTotalvalue = DataArr.reduce((a, b) => a + b, 0);
     sitMax = findMax(DataArr);
-    sitArea = sitPoint * 4;
+    sitArea = sitPoint;
+    sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1))
+    sitTotal = mmghToPress(sitPressure, sitArea)
+    sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue :1)) * sitTotal
+    sitMean = sitTotal / (sitPoint ? sitPoint : 1)
     if (
       sitPoint < 80 &&
       that.sitIndexArr.every((a) => a == 0) &&
@@ -536,25 +541,26 @@ export const sitTypeEvent = {
       sitTotal = 0;
       sitPoint = 0;
       sitArea = 0;
+      sitPressure = 0
     }
-    const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+
     if (!backFlag) {
       sitSmooth.getSmooth([sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure], 10)
 
       if (local) {
         that.data.current?.changeData({
-          meanPres: sitMean,
-          maxPres: sitMax,
-          totalPres: sitTotal,
+          meanPres: sitMean.toFixed(2),
+          maxPres: sitMax.toFixed(2),
+          totalPres: sitTotal.toFixed(2),
           point: sitPoint,
           area: sitArea,
           pressure: sitPressure,
         });
       } else {
         that.data.current?.changeData({
-          meanPres: parseInt(sitSmooth.smoothValue[0]),
-          maxPres: parseInt(sitSmooth.smoothValue[1]),
-          totalPres: parseInt(sitSmooth.smoothValue[2]),
+          meanPres: (sitSmooth.smoothValue[0]).toFixed(2),
+          maxPres: (sitSmooth.smoothValue[1]).toFixed(2),
+          totalPres: (sitSmooth.smoothValue[2]).toFixed(2),
           point: parseInt(sitSmooth.smoothValue[3]),
           area: parseInt(sitSmooth.smoothValue[4]),
           pressure: parseInt(sitSmooth.smoothValue[5]),
@@ -610,7 +616,7 @@ export const sitTypeEvent = {
   hand: ({ that, wsPointData }) => {
     if (that.state.numMatrixFlag == "normal") {
 
-      // wsPointData = handLine(wsPointData)
+      wsPointData = handLine(wsPointData)
 
       that.com.current?.sitData({
         wsPointData: wsPointData,
@@ -814,15 +820,19 @@ export const backTypeEvent = {
     }
     // console.log(DataArr)
     DataArr = DataArr.map((a) => a < 10 ? 0 : a)
+    const backTotalvalue = DataArr.reduce((a, b) => a + b, 0);
     backTotal = DataArr.reduce((a, b) => a + b, 0);
     backPoint = DataArr.filter((a) => a > 10).length;
-    backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
+    // backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
     backMax = findMax(DataArr);
-    backArea = backPoint * 4;
+    backArea = backPoint;
+    backPressure = carFitting(backTotal / (backPoint ? backPoint : 1))
+    backTotal = mmghToPress(backPressure, backArea)
+    backMax = (backMax / (backTotalvalue ? backTotalvalue : 1)) * backTotal
+    backMean = backTotal / (backPoint ? backPoint : 1)
 
-
-
-
+    // backPressure = carFitting(backTotal / (backPoint ? backPoint : 1))
+    console.log(backPressure , backSmooth.smoothValue[5])
     if (
       backPoint < 80 &&
       that.sitIndexArr.every((a) => a == 0) &&
@@ -833,13 +843,14 @@ export const backTypeEvent = {
       backTotal = 0;
       backPoint = 0;
       backArea = 0;
+      backPressure = 0
     }
 
-    const sitPressure = (sitMax * 1000) / (sitArea ? sitArea : 1);
+    //(sitMax * 1000) / (sitArea ? sitArea : 1);
     // meanSmooth=0 , maxSmooth=0 , pointSmooth=0 , areaSmooth=0 , pressSmooth =0, pressureSmooth=0
 
     if (!sitFlag) {
-      backSmooth.getSmooth([backMean, backMax, backTotal, backPoint, backArea, sitPressure], 10)
+      backSmooth.getSmooth([backMean, backMax, backTotal, backPoint, backArea, backPressure], 10)
     } else {
       const totalPress = backTotal + sitTotal;
       const totalMax = Math.max(backMax, sitMax);
@@ -852,26 +863,26 @@ export const backTypeEvent = {
       backPoint = backPoint + sitPoint;
       backArea = backArea + sitArea;
 
-      backSmooth.getSmooth([totalPress / (totalPoint ? totalPoint : 1), totalMax, totalPress, totalPoint, totalArea, sitPressure], 10)
+      backSmooth.getSmooth([totalPress / (totalPoint ? totalPoint : 1), totalMax, totalPress, totalPoint, totalArea, backPressure], 10)
     }
 
     if (local) {
       that.data.current?.changeData({
-        meanPres: parseInt(backMean),
-        maxPres: backMax,
-        totalPres: backTotal,
+        meanPres: (backMean).toFixed(2),
+        maxPres: backMax.toFixed(2),
+        totalPres: (backTotal).toFixed(2),
         point: backPoint,
         area: backArea,
-        pressure: sitPressure,
+        pressure: backPressure,
       });
     } else {
       that.data.current?.changeData({
-        meanPres: parseInt(backSmooth.smoothValue[0]),
-        maxPres: parseInt(backSmooth.smoothValue[1]),
-        totalPres: parseInt(backSmooth.smoothValue[2]),
+        meanPres: (backSmooth.smoothValue[0]).toFixed(2),
+        maxPres: (backSmooth.smoothValue[1]).toFixed(2),
+        totalPres: (backSmooth.smoothValue[2]).toFixed(2),
         point: parseInt(backSmooth.smoothValue[3]),
         area: parseInt(backSmooth.smoothValue[4]),
-        pressure: parseInt(backSmooth.smoothValue[5]),
+        pressure: (backSmooth.smoothValue[5]),
       });
     }
 
@@ -1213,4 +1224,18 @@ export const backTypeEvent = {
     if (!that.state.local)
       that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
   }
+}
+
+function carFitting(value) {
+  
+  const res = 0.0582 * Math.pow(value, 2) + (-1.4553) * Math.pow(value, 1) + 11.6990
+  // console.log(value , res)
+  return res
+}
+
+function mmghToPress(mmgH, area) {
+  const pa = mmgH * 133
+  const mm = area * 0.014 * 0.015
+  const F = pa * mm
+  return F
 }

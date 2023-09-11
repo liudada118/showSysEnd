@@ -41,13 +41,17 @@ const controlArr = [
   { name: '座椅向前', info: '座椅向前', },
   { name: '靠背向后', info: '靠背向后' },
   { name: '靠背向前', info: '靠背向前' },
-  { name: '侧翼气囊充气', info: '侧翼气囊充气', },
   { name: '靠背气囊充气', info: '靠背气囊充气' },
   { name: '靠背气囊放气', info: '靠背气囊放气' },
   { name: '坐垫向下移动', info: '坐垫向下移动腿部气囊放气' },
   { name: '腿部气囊放气', info: '坐垫向下移动腿部气囊放气' },
   { name: '坐垫向上移动', info: '坐垫向上移动腿部气囊充气' },
-  { name: '腿部气囊充气', info: '坐垫向上移动腿部气囊充气' }]
+  { name: '腿部气囊充气', info: '坐垫向上移动腿部气囊充气' },
+  { name: '侧翼右侧气囊充气', info: '侧翼右侧气囊充气', },
+  { name: '侧翼左侧气囊充气', info: '侧翼左侧气囊充气', },
+  { name: '侧翼右侧气囊放气', info: '侧翼右侧气囊放气', },
+  { name: '侧翼左侧气囊放气', info: '侧翼左侧气囊放气', },
+]
 
 let collection = JSON.parse(localStorage.getItem('collection'))
   ? JSON.parse(localStorage.getItem('collection'))
@@ -163,7 +167,7 @@ const content4 = (
     <p>下载轨迹图</p>
   </div>
 );
-let ctxbig, ctxsit, ctxback, ctxbig1
+let ctxbig, ctxsit, ctxback, ctxbig1, oneFlag = false
 class Home extends React.Component {
   constructor() {
     super();
@@ -192,7 +196,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "bigBed",
+      matrixName: "car",
       length: 0,
       local: false,
       dataArr: [],
@@ -220,13 +224,14 @@ class Home extends React.Component {
       hunch: '',
       front: '',
       colWebFlag: false,
+      colOneFlag: false,
       csvData: JSON.parse(localStorage.getItem('collection'))
         ? JSON.parse(localStorage.getItem('collection'))
         : [['hunch', 'front', '标签']],
       length: JSON.parse(localStorage.getItem('collection'))
         ? JSON.parse(localStorage.getItem('collection')).length
         : 1,
-      dataName: ''
+      dataName: '',
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -315,22 +320,45 @@ class Home extends React.Component {
           this.setState({
             front: data
           })
+          if (oneFlag && this.state.hunch && this.state.front) {
+            collection.push([this.state.hunch, this.state.front, '迎宾结束']);
+            localStorage.setItem('collection', JSON.stringify(collection))
+            this.setState({ csvData: collection, length: collection.length });
+            oneFlag = false
+          }
         } else {
+          if (jsonObject === '迎宾结束') {
+            // collection.push([this.state.hunch, this.state.front, '迎宾结束']);
+            // localStorage.setItem('collection', JSON.stringify(collection))
+            // this.setState({ csvData: collection, length: collection.length });
+            oneFlag = true
+          }
+
           if (controlFlag && (jsonObject === '靠背气囊充气')) {
             this.setState({
-              control: [jsonObject, '侧翼气囊充气']
+              control: [jsonObject, '侧翼左侧气囊充气', '侧翼右侧气囊充气']
             })
             controlFlag = false
           } else {
-            this.setState({
-              control: [jsonObject]
-            })
+
+            if (jsonObject === '侧翼左侧气囊充气') {
+              this.setState({
+                control: [jsonObject, '侧翼右侧气囊放气']
+              })
+            } else if (jsonObject === '侧翼右侧气囊充气') {
+              this.setState({
+                control: [jsonObject, '侧翼左侧气囊放气']
+              })
+            } else {
+              this.setState({
+                control: [jsonObject]
+              })
+            }
           }
 
         }
 
-        if (this.state.colFlag) {
-
+        if (this.state.colWebFlag) {
           collection.push([this.state.hunch, this.state.front, this.state.dataName]);
           localStorage.setItem('collection', JSON.stringify(collection))
           this.setState({ csvData: collection, length: collection.length });
@@ -346,6 +374,18 @@ class Home extends React.Component {
       };
     }
 
+  }
+
+  colPushData() {
+    collection.push([this.state.hunch, this.state.front, this.state.dataName]);
+    localStorage.setItem('collection', JSON.stringify(collection))
+    this.setState({ csvData: collection, length: collection.length });
+  }
+
+  delPushData() {
+    collection = [['hunch', 'front', '标签']]
+    localStorage.removeItem('collection')
+    this.setState({ collection: [['hunch', 'front', '标签']], length: 1 })
   }
 
   changeWs(ip) {
@@ -1122,6 +1162,8 @@ class Home extends React.Component {
           csvData={this.state.csvData}
           length={this.state.length}
           colWebFlag={this.state.colWebFlag}
+          colPushData={this.colPushData.bind(this)}
+          delPushData={this.delPushData.bind(this)}
         />
 
         <CanvasCom matrixName={this.state.matrixName}>
