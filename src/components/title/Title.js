@@ -319,7 +319,7 @@ class Title extends React.Component {
             {this.props.matrixName == 'car' ? <Input placeholder='输入采集文件名称' onChange={(e) => { this.setState({ colName: e.target.value }) }} /> : null}
 
             {this.props.matrixName == 'localCar' ?
-              <Input placeholder='输入采集标签' onChange={(e) => { this.setState({ dataName: e.target.value }) }} />
+              <Input placeholder='输入采集标签' onChange={(e) => { this.props.changeStateData({ dataName: e.target.value }) }} />
               : null}
 
             <Button

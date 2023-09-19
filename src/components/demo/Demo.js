@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { findMax } from '../../assets/util/util'
 import { carBackLine, pressNew } from '../../assets/util/line'
-import { Slider } from 'antd'
+import { Button, Input, Slider } from 'antd'
+import { CSVLink } from 'react-csv'
 let data = []
 
 // for (let i = 0; i < 32; i++) {
@@ -30,9 +31,27 @@ let data = []
 //         res[i].push(data[i * 32 + j])
 //     }
 // }
-let ws , pressValue =  localStorage.getItem("carValuePress")
-? JSON.parse(localStorage.getItem("carValuePress"))
-: 1000
+let ws, pressValue = localStorage.getItem("carValuePress")
+    ? JSON.parse(localStorage.getItem("carValuePress"))
+    : 1000;
+
+
+let collection = JSON.parse(localStorage.getItem('collection'))
+    ? JSON.parse(localStorage.getItem('collection'))
+    : [['data', 'name']];
+let colFalg = false,wsPointData
+
+function colRowArr(arr) {
+    const resArr = []
+    for(let i = 0 ; i < 32 ; i ++ ){
+        let num = 0
+        for(let j = 0 ; j < 32 ; j ++ ){
+            num += arr[i*32 + j]
+        }
+        resArr.push(num)
+    }
+    return resArr
+}
 
 export default function Demo() {
     const [data, setData] = useState([])
@@ -40,9 +59,17 @@ export default function Demo() {
     const [maxCol, setMaxCol] = useState(0)
     const [valuePress, setValuePress] = useState(
         localStorage.getItem("carValuePress")
-          ? JSON.parse(localStorage.getItem("carValuePress"))
-          : 1000
-      );
+            ? JSON.parse(localStorage.getItem("carValuePress"))
+            : 1000
+    );
+    const [csvData, setCsvData] = useState(JSON.parse(localStorage.getItem('collection'))
+        ? JSON.parse(localStorage.getItem('collection'))
+        : [['data', 'name']])
+    const [length, setLength] = useState(JSON.parse(localStorage.getItem('collection'))
+        ? JSON.parse(localStorage.getItem('collection')).length
+        : 1)
+    const [flag, setFlag] = useState(false)
+    const [name, setName] = useState('')
     useEffect(() => {
         ws = new WebSocket(" ws://localhost:19999");
         ws.onopen = () => {
@@ -54,29 +81,37 @@ export default function Demo() {
             //处理空数组
 
             if (jsonObject.sitData != null) {
-                let wsPointData = jsonObject.sitData;
+                wsPointData = jsonObject.sitData;
 
                 wsPointData = wsPointData.map((a) => a < 5 ? 0 : a)
-                let a = wsPointData.splice(0, 1 * 32)
-                let b = wsPointData.splice(0, 15 * 32)
-                wsPointData = a.concat(wsPointData, b)
 
-                let newArr = []
-                for (let i = 0; i < 32; i++) {
-                    for (let j = 0; j < 1; j++) {
-                        newArr[i * 32 + j] = (wsPointData[(i * 32 + j)])
-                    }
+                if (colFalg) {
+                    collection.push([[...wsPointData], name])
+                    setLength(collection.length - 1)
+                    setCsvData(collection)
+                    localStorage.setItem('collection', JSON.stringify(collection))
                 }
-                for (let i = 0; i < 32; i++) {
-                    for (let j = 16; j < 32; j++) {
-                        newArr[i * 32 + j] = (wsPointData[(i * 32 + j - 15)])
-                    }
-                }
-                for (let i = 0; i < 32; i++) {
-                    for (let j = 1; j < 16; j++) {
-                        newArr[i * 32 + j] = (wsPointData[(i * 32 + 16 + j)])
-                    }
-                }
+
+                // let a = wsPointData.splice(0, 1 * 32)
+                // let b = wsPointData.splice(0, 15 * 32)
+                // wsPointData = a.concat(wsPointData, b)
+
+                // let newArr = []
+                // for (let i = 0; i < 32; i++) {
+                //     for (let j = 0; j < 1; j++) {
+                //         newArr[i * 32 + j] = (wsPointData[(i * 32 + j)])
+                //     }
+                // }
+                // for (let i = 0; i < 32; i++) {
+                //     for (let j = 16; j < 32; j++) {
+                //         newArr[i * 32 + j] = (wsPointData[(i * 32 + j - 15)])
+                //     }
+                // }
+                // for (let i = 0; i < 32; i++) {
+                //     for (let j = 1; j < 16; j++) {
+                //         newArr[i * 32 + j] = (wsPointData[(i * 32 + 16 + j)])
+                //     }
+                // }
 
                 // wsPointData = newArr
                 // let colArr = [], rowArr = []
@@ -125,11 +160,11 @@ export default function Demo() {
                 // let colNum = maxIndex % 32
                 // let colTotalNum = colArr[colNum]
                 // setMax(max)
-                const press = wsPointData.reduce((a,b) => a+b , 0)
-                const point = wsPointData.filter((a,index) => a > 5).length
+                const press = wsPointData.reduce((a, b) => a + b, 0)
+                const point = wsPointData.filter((a, index) => a > 5).length
                 // setMaxCol(colTotalNum)
                 // console.log(press,point)
-                setMax((press/point).toFixed(2))
+                setMax((press / point).toFixed(2))
                 // for (let i = 0; i < 32; i++) {
                 //     for (let j = 0; j < 32; j++) {
                 //         wsPointData[j*32 + i] = parseInt((wsPointData[j*32 + i] /(1245 - colArr[i] ==0 ? 1 : 1245 - colArr[i]))*1000 )
@@ -155,7 +190,7 @@ export default function Demo() {
         ws.onclose = (e) => {
             // connection closed
         };
-    }, [])
+    }, [flag])
     return (
         <>
             <div>{
@@ -183,6 +218,41 @@ export default function Demo() {
                 // value={this.props.}
                 style={{ width: "200px" }}
             />
+            <div style={{ display: 'flex' }}>
+                <Input value={name} onChange={(e) => {
+                    setName(e.target.value)
+                }} />
+                <Button onClick={() => {
+                    const res = !flag
+                    setFlag(res)
+                    colFalg = !colFalg
+                }}>采集{length - 1}</Button>
+                <Button onClick={() => {
+                     collection.push([...colRowArr(wsPointData), name])
+                     localStorage.setItem('collection', JSON.stringify(collection))
+                     setCsvData(collection)
+                     setLength(collection.length)
+
+                }}>单次采集{length - 1}</Button>
+                <Button onClick={() => {
+                    // const res = !flag
+                    // setFlag(res)
+                    collection = [['data', 'name']]
+                    localStorage.setItem('collection', JSON.stringify(collection))
+                    setLength(1)
+                }}
+                >删除</Button>
+                <CSVLink
+                    // ref={downloadRef}
+
+                    filename={`${new Date().getTime()}.csv`}
+                    data={csvData}
+                    style={{ color: '#5A5A89', textDecoration: 'none' }}
+                >
+                    下载
+                </CSVLink>
+            </div>
+
         </>
     )
 }
