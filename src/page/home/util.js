@@ -14,7 +14,7 @@ import { calFootType, findMax, rotate180, rotate90, smoothClass, } from "../../a
 import { calFoot } from "../../assets/util/value";
 let totalArr = [],
   totalPointArr = []
-let selectArr;
+let selectArr=[];
 let sitIndexArr = new Array(4).fill(0),
   backIndexArr = new Array(4).fill(0)
 let startPressure = 0, time = 0;
@@ -515,21 +515,21 @@ export const sitTypeEvent = {
     } else {
       DataArr = [...selectArr];
     }
-    DataArr = DataArr.map((a) => a < 10 ? 0 : a)
+    DataArr = DataArr.map((a) => a < that.state.valuef1 ? 0 : a)
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
     const length = DataArr.filter((a, index) => a > 0).length;
 
 
     sitPoint = DataArr.filter(
-      (a) => a > 10
+      (a) => a > that.state.valuef1
     ).length;
     const sitTotalvalue = DataArr.reduce((a, b) => a + b, 0);
     sitMax = findMax(DataArr);
     sitArea = sitPoint;
     sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1))
     sitTotal = mmghToPress(sitPressure, sitArea)
-    sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue :1)) * sitTotal
+    sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal
     sitMean = sitTotal / (sitPoint ? sitPoint : 1)
     if (
       sitPoint < 80 &&
@@ -748,6 +748,102 @@ export const sitTypeEvent = {
         that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
     }
 
+  },
+  sit10({ that, wsPointData, local }) {
+
+
+
+    that.com.current?.sitData({
+      wsPointData: wsPointData,
+    });
+
+    let DataArr;
+
+    if (that.sitIndexArr.every((a) => a == 0)) {
+      DataArr = [...wsPointData];
+    } else {
+      DataArr = [...selectArr];
+    }
+    DataArr = DataArr.map((a) => a < 10 ? 0 : a)
+    // 框选后或者无框选的数据
+    const total = DataArr.reduce((a, b) => a + b, 0);
+    const length = DataArr.filter((a, index) => a > 0).length;
+
+
+    sitPoint = DataArr.filter(
+      (a) => a > 10
+    ).length;
+    const sitTotalvalue = DataArr.reduce((a, b) => a + b, 0);
+    sitMax = findMax(DataArr);
+    sitArea = sitPoint;
+    sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1))
+    sitTotal = mmghToPress(sitPressure, sitArea)
+    sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal
+    sitMean = sitTotal / (sitPoint ? sitPoint : 1)
+    if (
+      sitPoint < 15 &&
+      that.sitIndexArr.every((a) => a == 0) &&
+      that.backIndexArr.every((a) => a == 0)
+    ) {
+      sitMean = 0;
+      sitMax = 0;
+      sitTotal = 0;
+      sitPoint = 0;
+      sitArea = 0;
+      sitPressure = 0
+    }
+
+
+    sitSmooth.getSmooth([sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure], 10)
+
+    if (local) {
+      that.data.current?.changeData({
+        meanPres: sitMean.toFixed(2),
+        maxPres: sitMax.toFixed(2),
+        totalPres: sitTotal.toFixed(2),
+        point: sitPoint,
+        area: sitArea,
+        pressure: sitPressure,
+      });
+    } else {
+      that.data.current?.changeData({
+        meanPres: (sitSmooth.smoothValue[0]).toFixed(2),
+        maxPres: (sitSmooth.smoothValue[1]).toFixed(2),
+        totalPres: (sitSmooth.smoothValue[2]).toFixed(2),
+        point: parseInt(sitSmooth.smoothValue[3]),
+        area: parseInt(sitSmooth.smoothValue[4]),
+        pressure: parseInt(sitSmooth.smoothValue[5]),
+      });
+    }
+
+
+
+    if (totalArr.length < 20) {
+      totalArr.push(sitSmooth.smoothValue[2]);
+    } else {
+      totalArr.shift();
+      totalArr.push(sitSmooth.smoothValue[2]);
+    }
+
+    const max = findMax(totalArr);
+
+    if ( !that.state.local)
+      that.data.current?.handleCharts(totalArr, max + 100);
+
+    if (totalPointArr.length < 20) {
+      totalPointArr.push(sitSmooth.smoothValue[3]);
+    } else {
+      totalPointArr.shift();
+      totalPointArr.push(sitSmooth.smoothValue[3]);
+    }
+
+    const max1 = findMax(totalPointArr);
+    if (!that.state.local)
+      that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
+
+
+
+
   }
 }
 
@@ -819,10 +915,10 @@ export const backTypeEvent = {
       DataArr = [...selectArr];
     }
     // console.log(DataArr)
-    DataArr = DataArr.map((a) => a < 10 ? 0 : a)
+    DataArr = DataArr.map((a) => a < that.state.valuef1 ? 0 : a)
     const backTotalvalue = DataArr.reduce((a, b) => a + b, 0);
     backTotal = DataArr.reduce((a, b) => a + b, 0);
-    backPoint = DataArr.filter((a) => a > 10).length;
+    backPoint = DataArr.filter((a) => a > that.state.valuef1).length;
     // backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
     backMax = findMax(DataArr);
     backArea = backPoint;
@@ -832,7 +928,7 @@ export const backTypeEvent = {
     backMean = backTotal / (backPoint ? backPoint : 1)
 
     // backPressure = carFitting(backTotal / (backPoint ? backPoint : 1))
-    console.log(backPressure , backSmooth.smoothValue[5])
+    console.log(backPressure, backSmooth.smoothValue[5])
     if (
       backPoint < 80 &&
       that.sitIndexArr.every((a) => a == 0) &&
@@ -1226,14 +1322,14 @@ export const backTypeEvent = {
   }
 }
 
-function carFitting(value) {
-  
+export function carFitting(value) {
+
   const res = 0.0582 * Math.pow(value, 2) + (-1.4553) * Math.pow(value, 1) + 11.6990
   // console.log(value , res)
   return res
 }
 
-function mmghToPress(mmgH, area) {
+export function mmghToPress(mmgH, area) {
   const pa = mmgH * 133
   const mm = area * 0.014 * 0.015
   const F = pa * mm

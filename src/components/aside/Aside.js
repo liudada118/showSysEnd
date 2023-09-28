@@ -418,9 +418,11 @@ class Aside extends React.Component {
                                             </div>
                                             <div className='dataIteminfo'>
                                                 <div className='standardColor'>{a.eng}</div>
-                                                <div>{this.props.matrixName === 'car' && arrArea[index] === 'area' ? 
+                                                <div>
+                                                    { arrArea[index] === 'area' ? 
                                                 <div>{parseInt(this.state[arrArea[index]]*2.1)} <span style={{color:'#999'}}>cm²</span></div> 
-                                                :  <div>{this.state[arrArea[index]]} <span style={{color:'#999'}}>个</span></div>}  </div>
+                                                :  <div>{this.state[arrArea[index]]} <span style={{color:'#999'}}>个</span></div>}  
+                                                </div>
                                             </div>
                                         </div>
 

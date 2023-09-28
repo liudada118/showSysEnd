@@ -17,22 +17,31 @@ class SelectionHelper {
 		this.pointBottomRight = new Vector2();
 		this.isShiftPressed = false;
 		this.isDown = false;
-
+		this.isKey = false;
+		this.shiftFlag = 0
+		this.elementDownFlag = false
+		this.pointStart = new Vector2();
 
 		this.onPointerDown = function (event) {
 
 			this.isDown = true;
-			this.onSelectStart(event);
+			if (!this.isKey) {
+				this.onSelectStart(event);
+			} else {
+				this.setStartPoint(event)
+			}
+
 
 		}.bind(this);
 
 		this.onPointerMove = function (event) {
-
-			if (this.isDown) {
-
-				this.onSelectMove(event);
-
+			if(this.isShiftPressed){
+				if (this.isDown ) {
+					this.onSelectMove(event);
+	
+				}
 			}
+			
 
 		}.bind(this);
 
@@ -44,12 +53,24 @@ class SelectionHelper {
 		}.bind(this);
 
 
+	
+
 
 
 		this.renderer.domElement.addEventListener('pointerdown', this.onPointerDown);
 		this.renderer.domElement.addEventListener('pointermove', this.onPointerMove);
 		this.renderer.domElement.addEventListener('pointerup', this.onPointerUp);
 
+
+	
+
+		document.addEventListener('keyup', (e) => {
+			// console.log(e)
+			// this.shiftFlag = 0
+			// if (e.key === 'Shift') {
+			// 	this.isKey = false
+			// }
+		})
 	}
 
 	dispose() {
@@ -61,9 +82,9 @@ class SelectionHelper {
 	}
 
 	onSelectStart(event) {
-		// console.log(11111)
+		console.log(11111)
 		if (this.isShiftPressed) {
-			this.element.style.display = 'none';
+			// this.element.style.display = 'none';
 
 			this.renderer.domElement.parentElement.appendChild(this.element);
 
@@ -77,10 +98,21 @@ class SelectionHelper {
 		}
 	}
 
+	// elementMove(event) {
+	// 	console.log(parseInt(this.element.style.left) , this.element.style.left , event.clientX , this.pointStart)
+	// 	this.element.style.left = parseInt(this.element.style.left) + (event.clientX - this.pointStart.x) +'px' ;
+	// 	this.element.style.top = parseInt(this.element.style.top) + (event.clientY - this.pointStart.y)  + 'px';
+	// }
+
+	// setStartPoint(event) {
+	// 	this.pointStart.x = event.clientX;
+	// 	this.pointStart.y = event.clientY;
+	// }
+
 	onSelectMove(event) {
 
 		// 按下shift键
-		if (this.isShiftPressed) {
+
 			this.element.style.display = 'block';
 
 			this.pointBottomRight.x = Math.max(this.startPoint.x, event.clientX);
@@ -92,14 +124,14 @@ class SelectionHelper {
 			this.element.style.top = this.pointTopLeft.y + 'px';
 			this.element.style.width = (this.pointBottomRight.x - this.pointTopLeft.x) + 'px';
 			this.element.style.height = (this.pointBottomRight.y - this.pointTopLeft.y) + 'px';
-		}
+	
 
 	}
 
 	onSelectOver() {
-		if (this.element) {
-			this.element.parentElement?.removeChild(this.element);
-		}
+		// if (this.element) {
+		// 	this.element.parentElement?.removeChild(this.element);
+		// }
 
 
 	}

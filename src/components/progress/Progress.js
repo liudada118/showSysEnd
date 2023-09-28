@@ -4,6 +4,7 @@ import { Select, message } from 'antd'
 import { moveValue, changePxToValue } from './util'
 import play from "../../assets/images/play.png";
 import pause from "../../assets/images/pause.png";
+import { timeStampToDate } from '../../assets/util/util';
 
 const playOptions = [
     {
@@ -298,6 +299,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
                         setLineFlag(true)
                     }}
                 ></div>
+                
             </div>
             <div className='playContent'>
                 <img
@@ -328,7 +330,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
                     }}
                     alt=""
                 />
-                <div style={{ position: "absolute", right: "40%" }}>
+                <div style={{ position: "absolute", right: "30%" }}>
                     <Select
                         defaultValue="1.0X"
                         style={{
@@ -341,6 +343,13 @@ const ProgressCom = React.forwardRef((props, refs) => {
                         options={playOptions}
                     />
                 </div>
+                <div style={{ position: "absolute", left: "calc(50% - 300px)" }}>
+                    <span style={{ color : '#fff'}}>{timeStampToDate(props.time)}</span>
+                </div>
+
+                
+                    
+                
             </div>
         </div>
     )

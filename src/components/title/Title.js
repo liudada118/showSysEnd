@@ -43,6 +43,7 @@ const sensorArr = [
   { label: '床垫', value: 'bigBed' },
   { label: '汽车靠背(量产)', value: 'car10' },
   { label: '本地自适应', value: 'localCar' },
+  { label: '席悦座椅', value: 'sit10' },
 ]
 
 

@@ -21,7 +21,7 @@ const Canvas = React.forwardRef((props, refs) => {
   console.log('canvas')
   var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper
   let sitIndexArr = [], backIndexArr = []
-  var animationRequestId
+  var animationRequestId, colSelectFlag = false
   const sitnum1 = 32;
   const sitnum2 = 32;
   const sitInterp = 2;
@@ -101,6 +101,10 @@ const Canvas = React.forwardRef((props, refs) => {
   const positionY = 120,
     positionX = -10;
 
+
+  const groupX = -10
+  const groupY = -20
+
   function changeFlag(value) {
     controlsFlag = value
   }
@@ -140,8 +144,8 @@ const Canvas = React.forwardRef((props, refs) => {
       // scene.add(chair);
       group.add(chair);
       scene.add(group);
-      group.position.x = -10;
-      group.position.y = -20;
+      group.position.x = groupX;
+      group.position.y = groupY;
     });
 
     // points  座椅
@@ -204,6 +208,111 @@ const Canvas = React.forwardRef((props, refs) => {
     document.addEventListener('pointermove', pointMove);
 
     document.addEventListener('pointerup', pointUp);
+
+    document.addEventListener('keydown', (e) => {
+      console.log(e)
+      // if (e.key === 'Shift') {
+      // 	this.isKey = true
+      // 	if (this.element  ) {
+      // 		if(this.shiftFlag < 1){
+      // 			console.log('element')
+      // 		this.shiftFlag ++
+      // 		this.element.addEventListener('mousedown', this.elementDown)
+      // 		}else{
+      // 			this.shiftFlag = 2
+      // 		}
+
+      // 	}
+      // }
+
+      if (e.key === 'ArrowUp') {
+
+        selectHelper.element.style.top = parseInt(selectHelper.element.style.top) - 1 + 'px'
+
+        const elementLocal = selectHelper.element.getBoundingClientRect()
+        const selectMatrix = [elementLocal.left, elementLocal.top, elementLocal.right, elementLocal.bottom]
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) {
+            sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          }
+          if (backInterArr) {
+            backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          }
+          // console.log(backIndexArr)
+          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+      }
+
+      if (e.key === 'ArrowDown') {
+        selectHelper.element.style.top = parseInt(selectHelper.element.style.top) + 1 + 'px'
+
+        const elementLocal = selectHelper.element.getBoundingClientRect()
+        const selectMatrix = [elementLocal.left, elementLocal.top, elementLocal.right, elementLocal.bottom]
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) {
+            sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          }
+          if (backInterArr) {
+            backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          }
+          // console.log(backIndexArr)
+          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+      }
+
+      if (e.key === 'ArrowLeft') {
+        selectHelper.element.style.left = parseInt(selectHelper.element.style.left) - 1 + 'px'
+
+        const elementLocal = selectHelper.element.getBoundingClientRect()
+        const selectMatrix = [elementLocal.left, elementLocal.top, elementLocal.right, elementLocal.bottom]
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) {
+            sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          }
+          if (backInterArr) {
+            backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          }
+          // console.log(backIndexArr)
+          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+      }
+
+      if (e.key === 'ArrowRight') {
+        selectHelper.element.style.left = parseInt(selectHelper.element.style.left) + 1 + 'px'
+
+        const elementLocal = selectHelper.element.getBoundingClientRect()
+        const selectMatrix = [elementLocal.left, elementLocal.top, elementLocal.right, elementLocal.bottom]
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) {
+            sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          }
+          if (backInterArr) {
+            backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          }
+          // console.log(backIndexArr)
+          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+      }
+
+    })
+
+
   }
 
   function pointDown(event) {
@@ -213,16 +322,17 @@ const Canvas = React.forwardRef((props, refs) => {
       props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       selectStartArr = [(event.clientX), event.clientY]
 
-      sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
-      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
+      sitArr = getPointCoordinate({ particles, camera, position: { x: groupX, y: groupY, z: 0 } })
+      backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: groupX, y: groupY, z: 0 }, width: AMOUNTX1 })
 
       sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
       backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
+      colSelectFlag = true
     }
   }
 
   function pointMove(event) {
-    if (selectHelper.isShiftPressed) {
+    if (selectHelper.isShiftPressed && colSelectFlag) {
 
 
       selectEndArr = [(event.clientX), event.clientY,]
@@ -253,10 +363,12 @@ const Canvas = React.forwardRef((props, refs) => {
         const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
         const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
 
-        if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+        if (sitInterArr) {
+          sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+        }
         if (backInterArr) {
           backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-         
+
         }
         // console.log(backIndexArr)
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
@@ -265,10 +377,13 @@ const Canvas = React.forwardRef((props, refs) => {
     }
   }
 
+
+
   function pointUp(event) {
     if (selectHelper.isShiftPressed) {
       selectStartArr = []
       selectEndArr = []
+      colSelectFlag = false
     }
   }
 
@@ -443,7 +558,7 @@ const Canvas = React.forwardRef((props, refs) => {
   function actionSit() {
 
     console.log('sit')
-
+    controls.dynamicDampingFactor = 1;
     particles.visible = true;
     controls.reset()
     const tweena = move(
@@ -464,6 +579,7 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function actionBack() {
+    controls.dynamicDampingFactor = 1;
     particles1.visible = true;
     controls.reset()
     const tweena = move(
@@ -471,7 +587,7 @@ const Canvas = React.forwardRef((props, refs) => {
         x: 2,
         y: 165,
         z: 225,
-        rotationx: -Math.PI / 2 - (Math.PI * 4) / 24,
+        rotationx: -Math.PI / 2 - (Math.PI * 4.5) / 24,
       },
       1000,
       particles1
@@ -485,6 +601,7 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function actionAll() {
+    controls.dynamicDampingFactor = 0.1;
     particles1.visible = true;
     particles.visible = true;
     chair.visible = true;
@@ -500,7 +617,7 @@ const Canvas = React.forwardRef((props, refs) => {
           y: sitY,
           z: sitZ,
           rotationx: -Math.PI / 48,
-          rotationz : 0
+          rotationz: 0
         },
         1000,
         particles
@@ -516,7 +633,7 @@ const Canvas = React.forwardRef((props, refs) => {
           y: backY,
           z: backZ,
           rotationx: backRotationX,
-          rotationz : 0
+          rotationz: 0
         },
         1000,
         particles1
@@ -564,8 +681,8 @@ const Canvas = React.forwardRef((props, refs) => {
 
     for (let i = 0; i < 72; i++) {
       for (let j = 0; j < 72; j++) {
-        bigArrg1New[(i*2) * 72 + j*2] = bigArrg1[i * 72 + j]
-        bigArrg1New[(i*2) * 72 + (j*2 + 1)] = bigArrg1[i * 72 + j]
+        bigArrg1New[(i * 2) * 72 + j * 2] = bigArrg1[i * 72 + j]
+        bigArrg1New[(i * 2) * 72 + (j * 2 + 1)] = bigArrg1[i * 72 + j]
         // bigArrg1New[(i * 2 + 1) * 72 + j] = bigArrg1[i * 72 + j]
       }
     }
@@ -590,22 +707,24 @@ const Canvas = React.forwardRef((props, refs) => {
         positions1[k + 1] = -smoothBig1[l] / value2; // y
         let rgb
 
-        if (backIndexArr && !backIndexArr.every((a) => a == 0)) {
+        // if (backIndexArr && !backIndexArr.every((a) => a == 0)) {
 
-          if (ix >= backIndexArr[0] && ix < backIndexArr[1] && iy < AMOUNTY1 - backIndexArr[2] && iy >= AMOUNTY1 - backIndexArr[3]) {
-            // rgb = [255, 0, 0];
-            rgb = jetWhite3(0, valuej2, smoothBig1[l] + 50);
-            scales1[l] = 2;
-            // positions1[k + 1] = smoothBig1[l] / value2 - 1000
-          } else {
-            rgb = jetgGrey(0, valuej2, smoothBig1[l]);
-            scales1[l] = 1;
-          }
-        } else {
-          rgb = jetWhite3(0, valuej2, smoothBig1[l]);
-          scales1[l] = 1;
-        }
+        //   if (ix >= backIndexArr[0] && ix < backIndexArr[1] && iy < AMOUNTY1 - backIndexArr[2] && iy >= AMOUNTY1 - backIndexArr[3]) {
+        //     // rgb = [255, 0, 0];
+        //     rgb = jetWhite3(0, valuej2, smoothBig1[l]);
+        //     scales1[l] = 2;
+        //     // positions1[k + 1] = smoothBig1[l] / value2 - 1000
+        //   } else {
+        //     // rgb = jetgGrey(0, valuej2, smoothBig1[l]);
+        //     // scales1[l] = 1;
+        //     // rgb = [172 ,197 ,235]
+        //   }
+        // } else {
+        //   rgb = jetWhite3(0, valuej2, smoothBig1[l]);
+        //   scales1[l] = 1;
+        // }
 
+        rgb = jetWhite3(0, valuej2, smoothBig1[l]);
 
         colors1[k] = rgb[0] / 255;
         colors1[k + 1] = rgb[1] / 255;
@@ -669,16 +788,18 @@ const Canvas = React.forwardRef((props, refs) => {
         positions[k + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2; // z
 
         let rgb
-        if (sitIndexArr && !sitIndexArr.every((a) => a == 0)) {
+        // if (sitIndexArr && !sitIndexArr.every((a) => a == 0)) {
 
-          if (ix >= sitIndexArr[0] && ix < sitIndexArr[1] && iy >= sitIndexArr[2] && iy < sitIndexArr[3]) {
-            rgb = jetWhite3(0, valuej1, smoothBig[l]);
-          } else {
-            rgb = jetgGrey(0, valuej1, smoothBig[l]);
-          }
-        } else {
-          rgb = jetWhite3(0, valuej1, smoothBig[l]);
-        }
+        //   if (ix >= sitIndexArr[0] && ix < sitIndexArr[1] && iy >= sitIndexArr[2] && iy < sitIndexArr[3]) {
+        //     rgb = jetWhite3(0, valuej1, smoothBig[l]);
+        //   } else {
+        //     // rgb = jetgGrey(0, valuej1, smoothBig[l]);
+        //     rgb = [172 ,197 ,235]
+        //   }
+        // } else {
+        //   rgb = jetWhite3(0, valuej1, smoothBig[l]);
+        // }
+        rgb = jetWhite3(0, valuej1, smoothBig[l]);
 
         colors[k] = rgb[0] / 255;
         colors[k + 1] = rgb[1] / 255;
@@ -715,10 +836,12 @@ const Canvas = React.forwardRef((props, refs) => {
         CMD_KEY, // pan
       ];
       controls.update();
+
     } else if (!controlsFlag) {
       // console.log('111')
       controls.keys = [];
       controls.mouseButtons = [];
+
     }
     renderer.render(scene, camera);
   }

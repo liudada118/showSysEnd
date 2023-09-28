@@ -6,6 +6,7 @@ import Car10 from "../../components/three/car10";
 import Canvas from "../../components/three/Three";
 import CanvasHand from "../../components/three/hand";
 import Bed from "../../components/three/Bed";
+import Sit10 from "../../components/three/sit10";
 import Aside from "../../components/aside/Aside";
 import ProgressCom from "../../components/progress/Progress";
 import plus from "../../assets/images/Plus.png";
@@ -35,7 +36,7 @@ import { Num } from "../../components/num/Num";
 import { calFoot } from "../../assets/util/value";
 import { Heatmap } from "../../components/heatmap/canvas";
 import FootTrack from "../../components/footTrack/footTrack";
-import { backTypeEvent, sitTypeEvent } from "./util";
+import { backTypeEvent, carFitting, mmghToPress, sitTypeEvent } from "./util";
 let controlFlag = true
 const controlArr = [
   { name: '座椅向前', info: '座椅向前', },
@@ -114,8 +115,8 @@ let totalArr = [],
   totalPointArr = [],
   wsMatrixName = "foot";
 let startPressure = 0, time = 0;
-let num = 0,
-  colValueFlag = false,
+let num = 0, wsPointDataSit=[], wsPointDataBack=[],
+colValueFlag = false,
   meanSmooth = 0,
   maxSmooth = 0,
   pointSmooth = 0,
@@ -133,6 +134,7 @@ let num = 0,
   rightTopPropSmooth = 0,
   leftBottomPropSmooth = 0,
   rightBottomPropSmooth = 0,
+
   canvasWidth = 300;
 
 const text = "旋转";
@@ -168,6 +170,27 @@ const content4 = (
   </div>
 );
 let ctxbig, ctxsit, ctxback, ctxbig1, oneFlag = false
+let timer
+const thrott = (fun) => {
+  if (!timer) {
+    timer = setTimeout(() => {
+      fun();
+      timer = null;
+    }, 100);
+  }
+}
+
+let timer1
+const thrott1 = (fun) => {
+  if (!timer1) {
+    timer1 = setTimeout(() => {
+      fun();
+      timer1 = null;
+    }, 100);
+  }
+}
+
+
 class Home extends React.Component {
   constructor() {
     super();
@@ -503,10 +526,11 @@ class Home extends React.Component {
 
       let selectArr;
       let wsPointData = jsonObject.sitData;
+      
       if (!Array.isArray(wsPointData)) {
         wsPointData = JSON.parse(wsPointData);
       }
-
+      wsPointDataSit = wsPointData
       sitTypeEvent[this.state.matrixName]({ that: this, wsPointData, backFlag, local: this.state.local })
 
     }
@@ -608,6 +632,11 @@ class Home extends React.Component {
           num = 0;
         }
       }
+      wsPointDataBack = (jsonObject.backData)
+      if (!Array.isArray(wsPointDataBack)) {
+        wsPointDataBack = JSON.parse(wsPointDataBack);
+      }
+      console.log(wsPointDataBack)
       if (this.state.matrixName !== 'bigBed' && this.state.matrixName !== 'foot') {
         backTypeEvent[this.state.matrixName]({ that: this, jsonObject, sitFlag, local: this.state.local })
       }
@@ -812,32 +841,79 @@ class Home extends React.Component {
   changeSelect = (obj, type) => {
     let sit = [...obj.sit];
 
-    const sitIndex = sit.length
-      ? sit.map((a, index) => {
-        if (this.state.matrixName === "foot") {
-          if (index == 0 || index == 1) {
-            return this.changeFootValue(a);
-          } else {
-            return this.changeValue(a);
-          }
-        } else if (this.state.matrixName === "bigBed") {
-          if (index == 0 || index == 1) {
-            return this.changeBedValue(a);
-          } else {
-            return this.changeValue(a);
-          }
+    if (!sit.every(a => a== 0) && this.state.carState != 'back') {
+      const sitIndex = sit.length
+        ? sit.map((a, index) => {
+          if (this.state.matrixName === "foot") {
+            if (index == 0 || index == 1) {
+              return this.changeFootValue(a);
+            } else {
+              return this.changeValue(a);
+            }
+          } else if (this.state.matrixName === "bigBed") {
+            if (index == 0 || index == 1) {
+              return this.changeBedValue(a);
+            } else {
+              return this.changeValue(a);
+            }
 
-        } else {
-          return this.changeValue(a);
+          } else {
+            return this.changeValue(a);
+          }
+        })
+        : new Array(4).fill(0);
+
+      this.sitIndexArr = sitIndex;
+      if (!sitIndex.every((a) => a == 0) && this.state.carState != 'back') {
+        thrott(this.wsSendObj.bind(this, { sitIndex }))
+      }
+
+      const selectArr = [];
+
+      for (let i = this.sitIndexArr[0]; i < this.sitIndexArr[1]; i++) {
+        for (let j = this.sitIndexArr[2]; j < this.sitIndexArr[3]; j++) {
+          selectArr.push(wsPointDataSit[i * 32 + j]);
         }
-      })
-      : new Array(4).fill(0);
+      }
+      console.log(selectArr,wsPointDataSit,  this.sitIndexArr)
+      let DataArr;
 
-    this.sitIndexArr = sitIndex;
+      if (this.sitIndexArr.every((a) => a == 0)) {
+        DataArr = [...wsPointDataSit];
+      } else {
+        DataArr = [...selectArr];
+      }
+      DataArr = DataArr.map((a) => a < this.state.valuef1 ? 0 : a)
+      // 框选后或者无框选的数据
+      const total = DataArr.reduce((a, b) => a + b, 0);
+      const length = DataArr.filter((a, index) => a > 0).length;
 
+
+      sitPoint = DataArr.filter(
+        (a) => a > this.state.valuef1
+      ).length;
+      const sitTotalvalue = DataArr.reduce((a, b) => a + b, 0);
+      sitMax = findMax(DataArr);
+      sitArea = sitPoint;
+      const sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1))
+      sitTotal = mmghToPress(sitPressure, sitArea)
+      sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal
+      sitMean = sitTotal / (sitPoint ? sitPoint : 1)
+
+      this.data.current?.changeData({
+        meanPres: sitMean.toFixed(2),
+        maxPres: sitMax.toFixed(2),
+        totalPres: sitTotal.toFixed(2),
+        point: sitPoint,
+        area: sitArea,
+        pressure: sitPressure,
+      });
+
+    }
+    // console.log(sitIndex)
     // console.log(sitIndexArr);
 
-    if (obj.back) {
+    if (!obj.back.every(a => a== 0) && this.state.carState != 'sit')  {
       let back = [...obj.back];
       if (back.length) {
         back[2] = Math.round(back[2] / 2);
@@ -859,8 +935,52 @@ class Home extends React.Component {
         : new Array(4).fill(0);
 
       this.backIndexArr = backIndex;
+      if (!backIndex.every((a) => a == 0) && this.state.carState != 'sit') {
+        thrott1(this.wsSendObj.bind(this, { backIndex }))
+      }
+
+      const selectArr = [];
+      for (let i = this.backIndexArr[0]; i < this.backIndexArr[1]; i++) {
+        for (let j = 31 - this.backIndexArr[3]; j < 31 - this.backIndexArr[2]; j++) {
+          selectArr.push(wsPointDataBack[i * 32 + j]);
+        }
+      }
+      console.log(selectArr)
+      let DataArr;
+      if (
+        this.sitIndexArr.every((a) => a == 0) &&
+        this.backIndexArr.every((a) => a == 0)
+      ) {
+        DataArr = [...wsPointDataBack];
+      } else {
+        DataArr = [...selectArr];
+      }
+      // console.log(DataArr)
+      DataArr = DataArr.map((a) => a < this.state.valuef1 ? 0 : a)
+      const backTotalvalue = DataArr.reduce((a, b) => a + b, 0);
+      backTotal = DataArr.reduce((a, b) => a + b, 0);
+      backPoint = DataArr.filter((a) => a > this.state.valuef1).length;
+      // backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
+      backMax = findMax(DataArr);
+      backArea = backPoint;
+      const backPressure = carFitting(backTotal / (backPoint ? backPoint : 1))
+      backTotal = mmghToPress(backPressure, backArea)
+      backMax = (backMax / (backTotalvalue ? backTotalvalue : 1)) * backTotal
+      backMean = backTotal / (backPoint ? backPoint : 1)
+
+      this.data.current?.changeData({
+        meanPres: (backMean).toFixed(2),
+        maxPres: backMax.toFixed(2),
+        totalPres: (backTotal).toFixed(2),
+        point: backPoint,
+        area: backArea,
+        pressure: backPressure,
+      });
 
     }
+
+
+
   };
 
   changeStateData = (obj) => {
@@ -1198,6 +1318,10 @@ class Home extends React.Component {
           <CanvasCom matrixName={this.state.matrixName}>
             <Bed ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)} handleChartsBody1={this.handleChartsBody1.bind(this)} changeSelect={this.changeSelect} />
           </CanvasCom>
+        ) : this.state.matrixName == "sit10" ? (
+          <CanvasCom matrixName={this.state.matrixName}>
+            <Sit10 ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)} handleChartsBody1={this.handleChartsBody1.bind(this)} changeSelect={this.changeSelect} />
+          </CanvasCom>
         ) : (
           <CanvasCom matrixName={this.state.matrixName}>
             <Car10 ref={this.com} changeSelect={this.changeSelect} />
@@ -1230,6 +1354,7 @@ class Home extends React.Component {
             pressArr={this.pressArr}
             length={this.state.length}
             max={this.max}
+            time={this.state.time}
             pressMax={this.pressMax}
             wsSendObj={this.wsSendObj} />
           : null}
