@@ -527,6 +527,7 @@ export const sitTypeEvent = {
     const sitTotalvalue = DataArr.reduce((a, b) => a + b, 0);
     sitMax = findMax(DataArr);
     sitArea = sitPoint;
+    sitTotal = DataArr.reduce((a, b) => a + b, 0)
     sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1))
     sitTotal = mmghToPress(sitPressure, sitArea)
     sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal

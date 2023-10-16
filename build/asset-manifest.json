@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/css/main.2431def9.chunk.css",
-    "main.js": "/js/main.e71bc1e4.chunk.js",
+    "main.js": "/js/main.b958e4cb.chunk.js",
     "runtime-main.js": "/js/runtime-main.ff1fffba.js",
     "js/2.c96d55c8.chunk.js": "/js/2.c96d55c8.chunk.js",
     "js/3.666fa2d8.chunk.js": "/js/3.666fa2d8.chunk.js",
@@ -12,6 +12,6 @@
     "js/runtime-main.ff1fffba.js",
     "js/2.c96d55c8.chunk.js",
     "css/main.2431def9.chunk.css",
-    "js/main.e71bc1e4.chunk.js"
+    "js/main.b958e4cb.chunk.js"
   ]
 }

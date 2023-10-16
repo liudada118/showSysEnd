@@ -274,7 +274,8 @@ class Aside extends React.Component {
             presStan: 0,
             pressMult: localStorage.getItem("valueMult")
                 ? JSON.parse(localStorage.getItem("valueMult"))
-                : 1
+                : 1,
+            fontSize : 1
         }
         this.canvas = React.createRef()
     }
@@ -286,6 +287,10 @@ class Aside extends React.Component {
     }
 
     componentDidMount() {
+
+        this.setState({
+            fontSize : window.innerWidth / 1920
+        })
 
         var c = document.getElementById("myChart1");
         if (c) ctx1 = c.getContext("2d");
@@ -406,7 +411,7 @@ class Aside extends React.Component {
             <div className='aside'>
                 <div className="asideContent firstAside">
                     {this.props.matrixName != 'foot' ? <><h2 className="asideTitle">Pressure Area</h2>
-                        <canvas id="myChart1" style={{ height: '150px', width: '100%' }}></canvas>
+                        <canvas id="myChart1" style={{ height: `${150*this.state.fontSize}px`, width: '100%' }}></canvas>
                         <>
                             {
                                 dataArr.map((a, index) => {
@@ -439,7 +444,7 @@ class Aside extends React.Component {
 
                     {this.props.matrixName != 'foot' ? <>
                         <div className='pressTitle standardColor'>总体压力 Total Pres</div>
-                        <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>
+                        <canvas id="myChart2" style={{ height: `${150*this.state.fontSize}px`, width: '100%' }}></canvas>
                         {
                             dataArrCar.map((a, index) => {
                                 return (

@@ -30,7 +30,7 @@ import {
   objChange,
   arr10to5,
 } from "../../assets/util/line";
-import { Popover, message } from "antd";
+import { Input, Popover, message } from "antd";
 import { SelectOutlined } from "@ant-design/icons";
 import { Num } from "../../components/num/Num";
 import { calFoot } from "../../assets/util/value";
@@ -115,8 +115,8 @@ let totalArr = [],
   totalPointArr = [],
   wsMatrixName = "foot";
 let startPressure = 0, time = 0;
-let num = 0, wsPointDataSit=[], wsPointDataBack=[],
-colValueFlag = false,
+let num = 0, wsPointDataSit = [], wsPointDataBack = [],
+  colValueFlag = false,
   meanSmooth = 0,
   maxSmooth = 0,
   pointSmooth = 0,
@@ -255,6 +255,9 @@ class Home extends React.Component {
         ? JSON.parse(localStorage.getItem('collection')).length
         : 1,
       dataName: '',
+      width: '',
+      height: ''
+
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -526,7 +529,7 @@ class Home extends React.Component {
 
       let selectArr;
       let wsPointData = jsonObject.sitData;
-      
+
       if (!Array.isArray(wsPointData)) {
         wsPointData = JSON.parse(wsPointData);
       }
@@ -577,7 +580,7 @@ class Home extends React.Component {
         arr.forEach((a, index) => {
           obj.push({
             value: a.date,
-            label: a.date,
+            label: a.name,
           });
         });
         console.log(obj)
@@ -841,7 +844,7 @@ class Home extends React.Component {
   changeSelect = (obj, type) => {
     let sit = [...obj.sit];
 
-    if (!sit.every(a => a== 0) && this.state.carState != 'back') {
+    if (!sit.every(a => a == 0) && this.state.carState != 'back') {
       const sitIndex = sit.length
         ? sit.map((a, index) => {
           if (this.state.matrixName === "foot") {
@@ -875,7 +878,7 @@ class Home extends React.Component {
           selectArr.push(wsPointDataSit[i * 32 + j]);
         }
       }
-      console.log(selectArr,wsPointDataSit,  this.sitIndexArr)
+      console.log(selectArr, wsPointDataSit, this.sitIndexArr)
       let DataArr;
 
       if (this.sitIndexArr.every((a) => a == 0)) {
@@ -913,7 +916,7 @@ class Home extends React.Component {
     // console.log(sitIndex)
     // console.log(sitIndexArr);
 
-    if (!obj.back.every(a => a== 0) && this.state.carState != 'sit')  {
+    if (!obj.back.every(a => a == 0) && this.state.carState != 'sit') {
       let back = [...obj.back];
       if (back.length) {
         back[2] = Math.round(back[2] / 2);
@@ -1176,8 +1179,30 @@ class Home extends React.Component {
             /> */}
               </div>
             </Popover>
+
+
+          </div>
+          <div className="setIconItem setIconItem2" style={{ position: 'absolute', width: '60px', right: 0, color: '#5A5A89', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex' }}>
+              <span>x</span><Input value={this.state.width} onChange={(e) => {
+                this.setState({
+                  width: e.target.value
+                })
+                this.com.current.changeBox({ width: e.target.value ,height : this.state.height })
+              }} />
+            </div>
+            <div style={{ display: 'flex' }}>
+              <span>y</span><Input value={this.state.height} onChange={(e) => {
+                this.setState({
+                  height: e.target.value
+                })
+                this.com.current.changeBox({ height: e.target.value , width : this.state.width })
+              }} />
+            </div>
+
           </div>
         </div>
+
 
         <div
           style={{
@@ -1312,7 +1337,7 @@ class Home extends React.Component {
           </CanvasCom>
         ) : this.state.matrixName == "car" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            <CanvasCar ref={this.com} changeSelect={this.changeSelect} />
+            <CanvasCar ref={this.com} changeSelect={this.changeSelect} changeStateData={this.changeStateData} />
           </CanvasCom>
         ) : this.state.matrixName == "bigBed" ? (
           <CanvasCom matrixName={this.state.matrixName}>

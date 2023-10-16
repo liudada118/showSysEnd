@@ -341,6 +341,9 @@ const Canvas = React.forwardRef((props, refs) => {
 
       selectMatrix = [...selectStartArr, ...selectEndArr]
 
+      // console.log(selectEndArr[0] - selectStartArr[0] ,selectEndArr[1] - selectStartArr[1]  )
+      const width = Math.abs(Math.round(selectEndArr[0] - selectStartArr[0]))
+      const height = Math.abs(Math.round(selectEndArr[1] - selectStartArr[1]))
       if (selectStartArr[0] > selectEndArr[0]) {
         // selectMatrix = [...selectEndArr , ...selectStartArr]
         selectMatrix[0] = selectEndArr[0]
@@ -365,13 +368,20 @@ const Canvas = React.forwardRef((props, refs) => {
 
         if (sitInterArr) {
           sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          if((sitIndexArr[3] - sitIndexArr[1] < 2)&&(sitIndexArr[2] - sitIndexArr[0] < 2) ){
+            sitIndexArr = new Array(4).fill(0)
+          }
         }
         if (backInterArr) {
           backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-
+          if((backIndexArr[3] - backIndexArr[1] < 2)&&(backIndexArr[2] - backIndexArr[0] < 2) ){
+            backIndexArr = new Array(4).fill(0)
+          }
         }
         // console.log(backIndexArr)
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        props.changeStateData({ width: width, height: height })
+
       }
 
     }
@@ -704,7 +714,7 @@ const Canvas = React.forwardRef((props, refs) => {
         //柔化处理smooth
         smoothBig1[l] = smoothBig1[l] + (value - smoothBig1[l] + 0.5) / valuel2;
 
-        positions1[k + 1] = -smoothBig1[l] / value2; // y
+        positions1[k + 1] = -smoothBig1[l] * value2; // y
         let rgb
 
         // if (backIndexArr && !backIndexArr.every((a) => a == 0)) {
@@ -784,7 +794,7 @@ const Canvas = React.forwardRef((props, refs) => {
         smoothBig[l] = smoothBig[l] + (value - smoothBig[l] + 0.5) / valuel1;
 
         positions[k] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2 + ix * 20; // x
-        positions[k + 1] = smoothBig[l] / value1; // y
+        positions[k + 1] = smoothBig[l] * value1; // y
         positions[k + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2; // z
 
         let rgb
@@ -823,6 +833,9 @@ const Canvas = React.forwardRef((props, refs) => {
   function render() {
     backRenew();
     sitRenew();
+
+
+
     TWEEN.update();
     if (controlsFlag) {
       controls.mouseButtons = {
@@ -1033,6 +1046,62 @@ const Canvas = React.forwardRef((props, refs) => {
     }
   }
 
+  function changeBox({ width, height }) {
+    const left = selectHelper.pointTopLeft.x ? selectHelper.pointTopLeft.x : window.innerWidth / 2
+    const top = selectHelper.pointTopLeft.y ? selectHelper.pointTopLeft.y : window.innerHeight / 2
+    selectHelper.element.style.left = left + 'px';
+    selectHelper.element.style.top = top + 'px';
+    if (width) {
+      selectHelper.element.style.width = width + 'px';
+    }
+    if (height) {
+      selectHelper.element.style.height = height + 'px';
+    }
+
+    selectEndArr = [left + Number(width), top + Number(height)]
+    selectStartArr = [left, top]
+
+
+    selectMatrix = [...selectStartArr, ...selectEndArr]
+
+    if (selectStartArr[0] > selectEndArr[0]) {
+      // selectMatrix = [...selectEndArr , ...selectStartArr]
+      selectMatrix[0] = selectEndArr[0]
+      selectMatrix[2] = selectStartArr[0]
+    } else {
+      selectMatrix[0] = selectStartArr[0]
+      selectMatrix[2] = selectEndArr[0]
+    }
+
+    if (selectStartArr[1] > selectEndArr[1]) {
+      selectMatrix[1] = selectEndArr[1]
+      selectMatrix[3] = selectStartArr[1]
+    } else {
+      selectMatrix[1] = selectStartArr[1]
+      selectMatrix[3] = selectEndArr[1]
+    }
+
+
+    if (!controlsFlag) {
+      const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+      const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+      if (sitInterArr) {
+        sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+      }
+      if (backInterArr) {
+        backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+      }
+      console.log(selectMatrix ,backIndexArr,sitMatrix)
+      props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+      // props.changeStateData({ width: width, height: height })
+
+    }
+
+    // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+
+  }
+
   useImperativeHandle(refs, () => ({
     backData: backData,
     sitData: sitData,
@@ -1043,7 +1112,8 @@ const Canvas = React.forwardRef((props, refs) => {
     actionAll: actionAll,
     actionSit: actionSit,
     actionBack: actionBack,
-    changePointRotation
+    changePointRotation,
+    changeBox
   }));
   //   视图数据
 

@@ -358,21 +358,21 @@ class Title extends React.Component {
             {this.props.matrixName == 'localCar' ?
 
               <>
-               <Button onClick={() => {
-                this.props.colPushData()
-               }} className='titleButton'>
-                单次采集
-               </Button>
-              <Button className='titleButton'>
-                <CSVLink
-                  // ref={downloadRef}
+                <Button onClick={() => {
+                  this.props.colPushData()
+                }} className='titleButton'>
+                  单次采集
+                </Button>
+                <Button className='titleButton'>
+                  <CSVLink
+                    // ref={downloadRef}
 
-                  filename={`${new Date().getTime()}.csv`}
-                  data={this.props.csvData}
-                  style={{ color: '#5A5A89', textDecoration: 'none' }}
-                >
-                  下载
-                </CSVLink> </Button> </>: null}
+                    filename={`${new Date().getTime()}.csv`}
+                    data={this.props.csvData}
+                    style={{ color: '#5A5A89', textDecoration: 'none' }}
+                  >
+                    下载
+                  </CSVLink> </Button> </> : null}
 
             {this.props.matrixName == 'localCar' ?
               <Button className='titleButton' onClick={() => {
@@ -382,12 +382,20 @@ class Title extends React.Component {
                 this.props.delPushData()
               }}>删除</Button> : null}
           </>
-          : <Button
+          : <> <Button
             className='titleButton'
             onClick={() => {
               this.props.wsSendObj({ download: this.state.dataTime })
             }}
           >{'下载'}</Button>
+            <Button
+              className='titleButton'
+              onClick={() => {
+                this.props.wsSendObj({ delete: this.state.dataTime })
+              }}
+            >{'删除'}</Button>
+
+          </>
         }
 
         {
@@ -748,7 +756,7 @@ class Title extends React.Component {
                   style={{ width: '200px' }}
                 />
               </div>
-              <div
+             {this.props.matrixName != 'car' ? <> <div
                 className="progerssSlide"
                 style={{
                   display: "flex",
@@ -827,7 +835,7 @@ class Title extends React.Component {
                   // value={this.props.}
                   style={{ width: '200px' }}
                 />
-              </div>
+              </div> </> : null}
             </div>
           </div> : <div></div>
         }
