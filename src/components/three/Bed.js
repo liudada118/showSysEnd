@@ -16,13 +16,15 @@ import {
   jet,
   jetWhite2,
   jetgGrey,
+  findMax
 } from "../../assets/util/util";
+
 import './index.scss'
 
 const group = new THREE.Group();
 const sitInit = 0;
 const backInit = 0;
-var newDiv ,smoothValue = 0
+var newDiv, smoothValue = 0
 var animationRequestId
 const sitnum1 = 64;
 const sitnum2 = 32;
@@ -33,7 +35,7 @@ const backnum2 = 32;
 const backInterp = 2;
 const backOrder = 4;
 let controlsFlag = true;
-var ndata = new Array(backnum1 * backnum2).fill(0), newData = new Array(backnum1 * backnum2).fill(0), newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0) , centerFlag = true;
+var ndata = new Array(backnum1 * backnum2).fill(0), newData = new Array(backnum1 * backnum2).fill(0), newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0), centerFlag = true;
 
 var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
   valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
@@ -102,7 +104,7 @@ const Canvas = React.forwardRef((props, refs) => {
     wsPointData,
     ws1
 
-let bodyArr
+  let bodyArr
   let container, stats;
 
   let camera, scene, renderer;
@@ -233,11 +235,11 @@ let bodyArr
 
   function pointDown(event) {
     if (selectHelper.isShiftPressed) {
+      selectStartArr = []
+      selectEndArr = []
       sitIndexArr = []
       backIndexArr = []
-      props.changeSelect({ sit: sitIndexArr
-        // , back: backIndexArr
-       })
+
       selectStartArr = [(event.clientX), event.clientY]
 
 
@@ -302,26 +304,37 @@ let bodyArr
       }
 
 
-      if (!controlsFlag) {
-        const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
-        // const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+      // if (!controlsFlag && selectHelper.isDown) {
+      //   const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+      //   // const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
 
-        if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-        // if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-
-        props.changeSelect({ sit: sitIndexArr,
-          //  back: backIndexArr
-          })
-      }
+      //   if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+      //   console.log(sitIndexArr)
+      //   // if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+      //   props.changeSelect({ sit: sitIndexArr,
+      //     //  back: backIndexArr
+      //     })
+      // }
 
     }
   }
 
   function pointUp(event) {
-    if (selectHelper.isShiftPressed) {
-      selectStartArr = []
-      selectEndArr = []
-    }
+    console.log('up')
+    const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+    // const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+    if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+    console.log(sitIndexArr)
+    // if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+    props.changeSelect({
+      sit: [...sitIndexArr],
+      //  back: backIndexArr
+    })
+    // if (selectHelper.isShiftPressed) {
+    //   selectStartArr = []
+    //   selectEndArr = []
+    // }
   }
 
   //   初始化座椅
@@ -432,7 +445,7 @@ let bodyArr
   function initPoint() {
     const geometry = new THREE.PlaneGeometry(2, 2);
     const spite = new THREE.TextureLoader().load("./circle.png");
-    const material = new THREE.MeshBasicMaterial({ color: 0x991BFA,map: spite,transparent: true, });
+    const material = new THREE.MeshBasicMaterial({ color: 0x991BFA, map: spite, transparent: true, });
     particlesPoint = new THREE.Mesh(geometry, material);
 
     particlesPoint.rotation.x = -Math.PI / 2
@@ -469,22 +482,20 @@ let bodyArr
 
   //  更新座椅数据
   function sitRenew() {
-    // console.log(111)
-    // newData1 = [0,1,0,0,1,0,0,0,1,0,0,1,2,0,1,1,0,1,1,1,3,2,0,1,2,1,0,0,0,3,2,0,0,0,0,0,0,0,2,1,2,2,3,3,1,2,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,3,0,0,0,0,1,0,1,2,2,0,1,1,0,0,0,0,5,3,0,1,0,0,0,0,0,2,2,2,3,3,3,2,1,0,0,2,2,2,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,2,0,0,0,0,2,1,2,2,3,1,0,1,1,0,0,0,8,4,0,1,1,1,0,1,0,3,2,3,4,6,4,3,1,0,0,2,2,1,1,1,0,0,1,0,1,1,0,1,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,2,0,0,0,0,1,0,1,1,2,1,0,0,1,0,0,0,11,3,0,2,1,1,0,0,0,4,3,4,6,6,8,3,1,1,1,3,2,1,1,1,0,0,0,0,1,1,1,1,1,3,0,0,0,0,0,1,0,0,0,0,0,0,0,2,1,0,0,0,0,1,2,2,4,1,1,0,0,0,0,0,6,4,1,3,4,3,0,1,1,5,7,6,8,9,15,4,1,2,1,3,3,1,2,1,0,0,1,1,1,2,1,1,2,2,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,2,1,0,0,0,0,0,0,5,5,1,2,2,2,0,1,3,4,5,7,9,10,13,4,3,3,1,5,3,3,2,1,0,0,1,1,2,3,2,2,3,3,0,0,0,0,2,2,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,2,1,0,1,0,0,1,1,4,4,2,2,3,1,0,0,1,2,4,5,6,7,9,2,4,3,2,4,4,6,3,2,0,0,2,3,3,4,2,3,4,4,0,0,0,0,2,2,0,0,0,1,1,1,0,2,1,3,3,2,2,1,1,1,2,1,0,0,0,1,1,1,5,6,4,2,3,1,0,0,0,1,2,3,3,4,4,1,3,1,1,4,5,7,5,2,0,0,3,2,3,4,4,3,4,4,0,0,0,0,3,4,1,0,0,1,2,1,1,2,2,3,4,3,3,1,1,0,2,1,0,0,0,0,2,3,3,6,6,2,2,1,0,0,0,1,1,1,3,3,3,2,2,1,1,7,10,9,7,1,0,0,3,3,2,3,3,3,5,5,0,0,0,0,3,6,2,0,0,1,1,2,3,7,6,8,6,6,5,2,1,0,1,1,1,0,1,1,4,3,4,11,8,4,5,3,1,0,1,1,1,1,2,3,4,3,3,2,3,8,9,11,8,2,1,0,2,4,2,4,4,3,5,4,0,0,1,0,4,7,3,1,1,1,2,4,5,10,7,10,8,7,8,4,1,0,2,1,1,0,3,2,5,5,3,15,10,7,7,5,1,0,2,1,1,1,2,4,5,2,4,3,7,8,12,14,8,2,0,0,2,4,2,3,3,2,3,3,0,0,0,0,6,10,5,1,1,1,6,5,7,9,7,12,6,8,7,4,1,0,2,1,2,1,4,3,8,6,3,15,10,6,9,8,4,2,5,2,2,3,3,5,8,4,6,6,11,8,12,12,5,5,0,1,2,3,3,3,3,3,2,3,0,0,0,1,7,12,9,1,1,1,3,6,6,6,5,8,5,4,6,3,0,1,2,1,3,3,4,2,9,6,3,13,14,8,9,6,6,3,6,3,4,5,4,6,7,7,8,6,11,6,10,8,5,5,0,1,2,3,3,3,2,3,3,2,0,0,0,1,10,13,9,1,1,1,2,2,3,5,6,6,2,4,3,2,0,1,2,1,2,2,2,3,8,6,3,12,13,7,10,5,4,4,5,4,5,6,6,6,8,9,8,6,8,7,10,7,5,3,0,2,2,3,4,5,3,2,3,3,0,0,0,1,9,14,5,1,0,0,1,3,3,3,4,4,1,3,2,2,0,0,1,1,1,2,1,2,6,6,4,12,15,5,7,10,3,4,3,5,5,6,6,5,9,9,6,6,8,6,9,7,5,5,0,2,3,3,5,6,4,3,2,4,0,0,0,2,10,20,5,0,0,0,1,1,2,3,5,5,1,2,1,1,0,0,0,0,0,1,0,1,5,8,3,12,16,7,7,8,4,2,4,4,3,7,6,5,8,9,7,5,9,6,8,4,5,4,1,3,4,4,5,5,5,3,3,5,0,0,1,3,7,18,6,0,1,0,2,2,4,6,9,7,2,2,2,1,0,0,1,0,0,1,1,2,5,9,3,13,13,10,8,8,6,3,4,3,4,6,5,5,8,7,8,6,8,5,7,4,6,5,1,3,5,5,4,5,6,4,4,4,0,0,1,2,4,9,3,1,1,0,4,4,10,13,13,15,7,5,5,1,1,0,3,2,3,2,2,4,6,11,5,17,14,8,11,8,5,3,3,3,3,4,6,6,7,9,7,4,9,5,7,5,6,5,2,5,5,4,3,4,6,4,3,4,0,0,1,2,4,9,3,1,1,0,4,4,10,13,13,15,7,5,5,1,1,0,3,2,3,2,2,4,6,11,5,17,14,7,6,8,4,3,4,3,5,5,7,9,9,8,8,5,7,6,7,7,7,4,2,4,4,3,3,5,4,4,6,3,0,0,1,0,1,2,1,0,0,0,3,2,5,10,12,9,8,5,5,4,2,0,5,4,4,5,4,5,7,12,5,9,13,6,5,8,6,3,4,4,6,5,9,9,9,7,6,4,10,6,7,8,6,4,1,2,2,4,3,5,3,4,4,3,0,0,1,0,0,2,1,0,1,0,1,1,2,5,10,7,7,6,5,4,3,0,2,2,5,4,5,7,11,12,4,14,14,7,6,9,4,3,4,6,6,7,8,7,8,8,7,6,8,6,7,6,5,3,2,2,2,3,3,3,3,3,3,4,0,0,1,0,1,1,0,0,0,0,0,0,1,2,5,3,4,3,3,2,2,0,2,1,2,3,2,9,11,10,5,13,17,6,7,9,4,3,4,4,4,5,7,9,7,6,10,4,7,7,9,8,5,2,1,1,2,3,2,3,3,3,3,4,0,0,1,0,1,1,1,0,0,0,0,0,1,1,2,1,2,1,1,1,2,0,1,0,1,2,1,8,12,11,6,18,17,6,9,8,4,3,3,3,2,3,3,7,6,3,10,4,6,6,12,8,8,1,0,1,1,3,3,3,3,4,3,4,1,0,1,0,1,1,0,0,0,0,0,0,1,0,1,1,2,1,1,1,2,0,1,0,1,1,0,4,9,8,9,14,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,0,1,0,1,0,1,1,0,2,5,5,7,10,12,6,8,4,1,1,1,1,1,1,1,1,3,1,3,3,8,5,13,8,5,0,0,1,1,2,4,5,4,7,5,5,1,0,1,1,2,1,1,0,0,0,0,0,1,0,0,1,0,2,1,0,1,1,1,0,1,2,0,1,3,4,7,7,7,4,4,3,1,1,1,1,1,1,2,2,2,1,2,3,4,4,10,8,4,0,0,0,1,2,5,6,5,6,3,2,0,1,1,1,1,1,1,1,0,0,0,0,1,0,0,1,0,3,2,1,2,1,1,1,2,3,1,1,3,3,5,5,6,3,4,3,2,1,0,1,2,2,2,3,2,2,2,4,3,3,6,8,3,0,0,0,0,1,5,5,4,4,4,1,0,1,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,3,2,1,2,1,1,1,2,3,1,0,2,1,3,4,8,3,3,2,2,2,1,1,3,5,5,5,4,4,4,6,2,2,5,4,1,0,0,0,0,1,4,3,3,4,3,1,0,2,1,1,1,1,1,1,0,1,0,0,1,0,0,0,0,2,1,0,1,0,1,1,2,2,1,0,2,1,3,4,5,1,3,2,1,2,2,3,6,9,9,10,6,5,5,3,3,1,2,3,0,0,0,0,0,0,4,3,3,5,3,0,1,2,1,1,1,1,1,1,0,2,0,0,1,0,0,0,0,1,1,0,1,0,2,1,1,1,0,0,2,0,2,4,5,1,2,3,2,3,3,5,7,10,10,9,5,4,2,1,2,0,2,1,0,0,0,0,0,0,4,2,2,2,4,0,0,3,1,1,1,1,1,1,0,1,0,0,1,0,0,0,0,1,2,0,1,0,1,0,1,1,0,0,1,0,1,2,4,1,2,1,2,4,3,3,5,8,5,7,2,2,1,1,1,0,1,1,0,0,0,0,0,0,5,3,2,3,2,0,0,5,1,2,2,2,1,1,0,1,0,0,1,0,0,0,0,1,1,0,1,0,1,0,1,1,0,0,1,0,1,2,4,1,1,1,1,2,2,2,3,4,2,3,1,1,0,0,1,0,1,0,0,0,0,0,0,0,3,4,3,1,1,0,0]
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
 
-    const realArr =[]
-    for(let i = 0 ; i < 64 ; i ++){
+    const realArr = []
+    for (let i = 0; i < 64; i++) {
       let num = 0
-      for(let j = 0 ; j < 32 ; j ++){
-        num += ndata1[j*64 + i] 
+      for (let j = 0; j < 32; j++) {
+        num += ndata1[j * 64 + i]
       }
-      smoothValue = smoothValue + (num/32 - smoothValue) /3
+      smoothValue = smoothValue + (num / 32 - smoothValue) / 3
       realArr.push(smoothValue)
     }
-   
-    props.handleChartsBody1(realArr, ymax1/2)
+
+    props.handleChartsBody1(realArr, ymax1 / 2)
 
     ndata1Num = ndata1.reduce((a, b) => a + b, 0);
     if (ndata1Num < valuelInit1) {
@@ -512,13 +523,13 @@ let bodyArr
     );
 
     bodyArr = []
-          // for (let i = 0; i < 64; i++) {
-          //   let num = 0
-          //   for (let j = 0; j < 32; j++) {
-          //     num += ndata1[j * 64 + i]
-          //   }
-          //   bodyArr.push(parseInt(num / 32))
-          // }
+    // for (let i = 0; i < 64; i++) {
+    //   let num = 0
+    //   for (let j = 0; j < 32; j++) {
+    //     num += ndata1[j * 64 + i]
+    //   }
+    //   bodyArr.push(parseInt(num / 32))
+    // }
 
     for (let ix = 0; ix < AMOUNTX; ix++) {
       let num = 0
@@ -530,6 +541,21 @@ let bodyArr
 
     props.handleChartsBody(bodyArr, ymax1)
 
+
+    // for(let i = sitIndexArr[2] ; i < sitIndexArr[3] ; i++){
+    //   for(let j = sitIndexArr[0] ; j < sitIndexArr[1] ; j++){
+    //     dataArr.push(bigArrg[i*AMOUNTY + j])
+    //   }
+    // }
+    //
+    // if(!sitIndexArr.length||sitIndexArr.every((a) => a == 0)){
+    //   dataArr = bigArrg
+    // }
+
+    // console.log(dataArr)
+    let dataArr = []
+
+
     let k = 0,
       l = 0;
 
@@ -538,7 +564,7 @@ let bodyArr
         const value = bigArrg[l] * 10;
 
         //柔化处理smooth
-        smoothBig[l] = smoothBig[l] + (value - smoothBig[l] + 0.5) / valuel1;
+        smoothBig[l] = smoothBig[l] + (value - smoothBig[l]) / valuel1;
 
         positions[k] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // x
         positions[k + 1] = smoothBig[l] / value1; // y
@@ -552,6 +578,7 @@ let bodyArr
             rgb = jet(0, valuej1, smoothBig[l]);
             // scales1[l] = 2;
             // positions1[k + 1] = smoothBig[l] / value2 - 1000
+            dataArr.push(bigArrg[l])
           } else {
             rgb = jetgGrey(0, valuej1, smoothBig[l]);
             // scales1[l] = 1;
@@ -569,6 +596,24 @@ let bodyArr
         l++;
       }
     }
+    if (!sitIndexArr.length || sitIndexArr.every((a) => a == 0)) {
+      dataArr = bigArrg
+    }
+
+    dataArr = dataArr.filter((a) => a > valuej1 * 0.025)
+    const max = findMax(dataArr)
+    const point = dataArr.filter((a) => a > 0).length
+    const press = dataArr.reduce((a, b) => a + b, 0)
+    const mean = press / (point == 0 ? 1 : point)
+    console.log(dataArr, press)
+    props.data.current?.changeData({
+      meanPres: mean.toFixed(2),
+      maxPres: max,
+      point: point,
+      // area: areaSmooth.toFixed(0),
+      totalPres: press,
+      // pressure: pressureSmooth.toFixed(2),
+    });
 
     particles.geometry.attributes.position.needsUpdate = true;
     particles.geometry.attributes.color.needsUpdate = true;
@@ -587,9 +632,9 @@ let bodyArr
       particlesPoint.position.x = -10 + (48) * cooArr[0] / 32
       particlesPoint.position.z = -19 + (38.5) * cooArr[1] / 32
     }
-    if(centerFlag){
+    if (centerFlag) {
       particlesPoint.visible = false
-    }else{
+    } else {
       particlesPoint.visible = true
     }
 
@@ -616,7 +661,7 @@ let bodyArr
     renderer.render(scene, camera);
   }
 
-  function logData(){
+  function logData() {
     console.log(JSON.stringify(bodyArr))
   }
 
@@ -645,7 +690,7 @@ let bodyArr
   // 座椅数据
   function sitValue(prop) {
 
-    const { valuej, valueg, value, valuel, valuef, valuelInit,ymax } = prop;
+    const { valuej, valueg, value, valuel, valuef, valuelInit, ymax } = prop;
     if (valuej) valuej1 = valuej;
     if (valueg) valueg1 = valueg;
     if (value) value1 = value;
@@ -672,14 +717,14 @@ let bodyArr
   function changeGroupRotate(obj) {
 
     if (typeof obj.x === 'number') {
-      group.rotation.x = -( (obj.x) * 6) / 12
+      group.rotation.x = -((obj.x) * 6) / 12
     }
     if (typeof obj.z === 'number') {
       group.rotation.z = (obj.z) * 6 / 12
     }
   }
 
-  function changeCenterFlag(value){
+  function changeCenterFlag(value) {
     centerFlag = value
   }
 

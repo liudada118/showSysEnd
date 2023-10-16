@@ -176,7 +176,7 @@ const thrott = (fun) => {
     timer = setTimeout(() => {
       fun();
       timer = null;
-    }, 100);
+    }, 1000);
   }
 }
 
@@ -219,7 +219,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "car",
+      matrixName: "bigBed",
       length: 0,
       local: false,
       dataArr: [],
@@ -843,7 +843,7 @@ class Home extends React.Component {
 
   changeSelect = (obj, type) => {
     let sit = [...obj.sit];
-
+    console.log(obj.sit , 'obj')
     if (!sit.every(a => a == 0) && this.state.carState != 'back') {
       const sitIndex = sit.length
         ? sit.map((a, index) => {
@@ -867,8 +867,10 @@ class Home extends React.Component {
         : new Array(4).fill(0);
 
       this.sitIndexArr = sitIndex;
+      console.log(sitIndex,this.state.carState , 'flag')
       if (!sitIndex.every((a) => a == 0) && this.state.carState != 'back') {
-        thrott(this.wsSendObj.bind(this, { sitIndex }))
+        // thrott(this.wsSendObj.bind(this, { sitIndex }))
+        this.wsSendObj({ sitIndex })
       }
 
       const selectArr = [];
@@ -916,7 +918,7 @@ class Home extends React.Component {
     // console.log(sitIndex)
     // console.log(sitIndexArr);
 
-    if (!obj.back.every(a => a == 0) && this.state.carState != 'sit') {
+    if (obj.back && !obj.back.every(a => a == 0) && this.state.carState != 'sit') {
       let back = [...obj.back];
       if (back.length) {
         back[2] = Math.round(back[2] / 2);
@@ -939,7 +941,8 @@ class Home extends React.Component {
 
       this.backIndexArr = backIndex;
       if (!backIndex.every((a) => a == 0) && this.state.carState != 'sit') {
-        thrott1(this.wsSendObj.bind(this, { backIndex }))
+        // thrott1(this.wsSendObj.bind(this, { backIndex }))
+        this.wsSendObj({ backIndex })
       }
 
       const selectArr = [];
@@ -1341,7 +1344,7 @@ class Home extends React.Component {
           </CanvasCom>
         ) : this.state.matrixName == "bigBed" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            <Bed ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)} handleChartsBody1={this.handleChartsBody1.bind(this)} changeSelect={this.changeSelect} />
+            <Bed ref={this.com} data={this.data} handleChartsBody={this.handleChartsBody.bind(this)} handleChartsBody1={this.handleChartsBody1.bind(this)} changeSelect={this.changeSelect} />
           </CanvasCom>
         ) : this.state.matrixName == "sit10" ? (
           <CanvasCom matrixName={this.state.matrixName}>
