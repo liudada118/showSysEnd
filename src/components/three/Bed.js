@@ -234,9 +234,10 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function pointDown(event) {
-    if (selectHelper.isShiftPressed) {
-      selectStartArr = []
+    selectStartArr = []
       selectEndArr = []
+    if (selectHelper.isShiftPressed) {
+      
       sitIndexArr = []
       backIndexArr = []
 
@@ -331,10 +332,10 @@ const Canvas = React.forwardRef((props, refs) => {
       sit: [...sitIndexArr],
       //  back: backIndexArr
     })
-    // if (selectHelper.isShiftPressed) {
-    //   selectStartArr = []
-    //   selectEndArr = []
-    // }
+    if (selectHelper.isShiftPressed) {
+      selectStartArr = []
+      selectEndArr = []
+    }
   }
 
   //   初始化座椅
