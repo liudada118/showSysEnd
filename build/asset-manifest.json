@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/css/main.2431def9.chunk.css",
-    "main.js": "/js/main.b958e4cb.chunk.js",
-    "runtime-main.js": "/js/runtime-main.ff1fffba.js",
-    "js/2.c96d55c8.chunk.js": "/js/2.c96d55c8.chunk.js",
-    "js/3.666fa2d8.chunk.js": "/js/3.666fa2d8.chunk.js",
+    "main.css": "/localCarData/static/css/main.2431def9.chunk.css",
+    "main.js": "/localCarData/static/js/main.e508a456.chunk.js",
+    "runtime-main.js": "/localCarData/static/js/runtime-main.af48601e.js",
+    "localCarData/static/js/2.c96d55c8.chunk.js": "/localCarData/static/js/2.c96d55c8.chunk.js",
+    "localCarData/static/js/3.666fa2d8.chunk.js": "/localCarData/static/js/3.666fa2d8.chunk.js",
     "index.html": "/index.html",
-    "js/2.c96d55c8.chunk.js.LICENSE.txt": "/js/2.c96d55c8.chunk.js.LICENSE.txt"
+    "localCarData/static/js/2.c96d55c8.chunk.js.LICENSE.txt": "/localCarData/static/js/2.c96d55c8.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "js/runtime-main.ff1fffba.js",
-    "js/2.c96d55c8.chunk.js",
-    "css/main.2431def9.chunk.css",
-    "js/main.b958e4cb.chunk.js"
+    "localCarData/static/js/runtime-main.af48601e.js",
+    "localCarData/static/js/2.c96d55c8.chunk.js",
+    "localCarData/static/css/main.2431def9.chunk.css",
+    "localCarData/static/js/main.e508a456.chunk.js"
   ]
 }

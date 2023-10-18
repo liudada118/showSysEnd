@@ -14,6 +14,15 @@ import {
 import { SelectionHelper } from "./SelectionHelper";
 import { checkRectIndex, checkRectangleIntersection, getPointCoordinate, getPointCoordinateback } from "./threeUtil1";
 
+let timer 
+
+function debounce(fn , time) {
+    if(timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      fn()
+    }, time);
+}
+
 const Canvas = React.forwardRef((props, refs) => {
 
   const backX = 1, backY = 100, backZ = 118, sitX = -3, sitY = 70, sitZ = 148, backRotationX = -Math.PI * 7 / 12
@@ -210,7 +219,7 @@ const Canvas = React.forwardRef((props, refs) => {
     document.addEventListener('pointerup', pointUp);
 
     document.addEventListener('keydown', (e) => {
-      console.log(e)
+  
       // if (e.key === 'Shift') {
       // 	this.isKey = true
       // 	if (this.element  ) {
@@ -242,8 +251,9 @@ const Canvas = React.forwardRef((props, refs) => {
             backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
 
           }
-          // console.log(backIndexArr)
-          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+          debounce(props.changeSelect.bind(this , { sit: sitIndexArr, back: backIndexArr }) , 500)
+          // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+
         }
       }
 
@@ -264,7 +274,8 @@ const Canvas = React.forwardRef((props, refs) => {
 
           }
           // console.log(backIndexArr)
-          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+          debounce(props.changeSelect.bind(this , { sit: sitIndexArr, back: backIndexArr }) , 500)
+          // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
         }
       }
 
@@ -285,7 +296,8 @@ const Canvas = React.forwardRef((props, refs) => {
 
           }
           // console.log(backIndexArr)
-          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+          debounce(props.changeSelect.bind(this , { sit: sitIndexArr, back: backIndexArr }) , 500)
+          // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
         }
       }
 
@@ -306,7 +318,8 @@ const Canvas = React.forwardRef((props, refs) => {
 
           }
           // console.log(backIndexArr)
-          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+          debounce(props.changeSelect.bind(this , { sit: sitIndexArr, back: backIndexArr }) , 500)
+          // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
         }
       }
 
@@ -319,7 +332,7 @@ const Canvas = React.forwardRef((props, refs) => {
     if (selectHelper.isShiftPressed) {
       sitIndexArr = []
       backIndexArr = []
-      props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+      // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       selectStartArr = [(event.clientX), event.clientY]
 
       sitArr = getPointCoordinate({ particles, camera, position: { x: groupX, y: groupY, z: 0 } })
@@ -379,7 +392,7 @@ const Canvas = React.forwardRef((props, refs) => {
           }
         }
         // console.log(backIndexArr)
-        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+     
         props.changeStateData({ width: width, height: height })
 
       }
@@ -390,6 +403,10 @@ const Canvas = React.forwardRef((props, refs) => {
 
 
   function pointUp(event) {
+
+    props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+
+
     if (selectHelper.isShiftPressed) {
       selectStartArr = []
       selectEndArr = []
@@ -896,139 +913,9 @@ const Canvas = React.forwardRef((props, refs) => {
     newData1 = wsPointData;
   }
 
-  function addEvent() {
-    document.addEventListener('pointerdown', function (event) {
-
-      if (selectHelper.isShiftPressed) {
-        sitIndexArr = []
-        backIndexArr = []
-        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
-        selectStartArr = [(event.clientX), event.clientY]
-
-        sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
-        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
-
-        sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
-        backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
-      }
-    });
-
-    document.addEventListener('pointermove', function (event) {
-
-      if (selectHelper.isShiftPressed) {
 
 
-        selectEndArr = [(event.clientX), event.clientY,]
-
-
-
-        selectMatrix = [...selectStartArr, ...selectEndArr]
-
-        if (selectStartArr[0] > selectEndArr[0]) {
-          // selectMatrix = [...selectEndArr , ...selectStartArr]
-          selectMatrix[0] = selectEndArr[0]
-          selectMatrix[2] = selectStartArr[0]
-        } else {
-          selectMatrix[0] = selectStartArr[0]
-          selectMatrix[2] = selectEndArr[0]
-        }
-
-        if (selectStartArr[1] > selectEndArr[1]) {
-          selectMatrix[1] = selectEndArr[1]
-          selectMatrix[3] = selectStartArr[1]
-        } else {
-          selectMatrix[1] = selectStartArr[1]
-          selectMatrix[3] = selectEndArr[1]
-        }
-
-
-        if (!controlsFlag) {
-          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
-          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
-
-          if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-          if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-
-          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
-        }
-
-      }
-    });
-
-    document.addEventListener('pointerup', function (event) {
-      if (selectHelper.isShiftPressed) {
-        selectStartArr = []
-        selectEndArr = []
-      }
-    });
-  }
-
-  function removeEvent() {
-    document.removeEventListener('pointerdown', function (event) {
-
-      if (selectHelper.isShiftPressed) {
-        sitIndexArr = []
-        backIndexArr = []
-        props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
-        selectStartArr = [(event.clientX), event.clientY]
-
-        sitArr = getPointCoordinate({ particles, camera, position: { x: -10, y: -20, z: 0 } })
-        backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: -10, y: -20, z: 0 }, width: AMOUNTX1 })
-
-        sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
-        backMatrix = [backArr[1].x, backArr[1].y, backArr[0].x, backArr[0].y]
-      }
-    });
-
-    document.removeEventListener('pointermove', function (event) {
-
-      if (selectHelper.isShiftPressed) {
-
-
-        selectEndArr = [(event.clientX), event.clientY,]
-
-
-
-        selectMatrix = [...selectStartArr, ...selectEndArr]
-
-        if (selectStartArr[0] > selectEndArr[0]) {
-          // selectMatrix = [...selectEndArr , ...selectStartArr]
-          selectMatrix[0] = selectEndArr[0]
-          selectMatrix[2] = selectStartArr[0]
-        } else {
-          selectMatrix[0] = selectStartArr[0]
-          selectMatrix[2] = selectEndArr[0]
-        }
-
-        if (selectStartArr[1] > selectEndArr[1]) {
-          selectMatrix[1] = selectEndArr[1]
-          selectMatrix[3] = selectStartArr[1]
-        } else {
-          selectMatrix[1] = selectStartArr[1]
-          selectMatrix[3] = selectEndArr[1]
-        }
-
-
-        if (!controlsFlag) {
-          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
-          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
-
-          if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-          if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-
-          props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
-        }
-
-      }
-    });
-
-    document.removeEventListener('pointerup', function (event) {
-      if (selectHelper.isShiftPressed) {
-        selectStartArr = []
-        selectEndArr = []
-      }
-    });
-  }
+ 
 
   function changePointRotation({ direction, value, type }) {
     if (type === 'back') {

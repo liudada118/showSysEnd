@@ -354,6 +354,10 @@ class Aside extends React.Component {
             ctx.lineWidth = 2;
             ctx.setLineDash([3, 3]);
             ctx.stroke();
+            console.log(arr[index])
+            ctx.font = "48px serif";
+            ctx.fillStyle = '#01F1E3'
+            ctx.fillText(arr[index], gap * (index), canvas.height - 30)
         }
 
     }

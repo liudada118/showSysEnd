@@ -219,7 +219,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "bigBed",
+      matrixName: "localCar",
       length: 0,
       local: false,
       dataArr: [],
@@ -250,7 +250,7 @@ class Home extends React.Component {
       colOneFlag: false,
       csvData: JSON.parse(localStorage.getItem('collection'))
         ? JSON.parse(localStorage.getItem('collection'))
-        : [['hunch', 'front', '标签']],
+        : [['hunch', 'front', '标签', '座椅', '靠背']],
       length: JSON.parse(localStorage.getItem('collection'))
         ? JSON.parse(localStorage.getItem('collection')).length
         : 1,
@@ -385,7 +385,7 @@ class Home extends React.Component {
         }
 
         if (this.state.colWebFlag) {
-          collection.push([this.state.hunch, this.state.front, this.state.dataName]);
+          collection.push([this.state.hunch, this.state.front, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
           localStorage.setItem('collection', JSON.stringify(collection))
           this.setState({ csvData: collection, length: collection.length });
           console.log(collection)
@@ -403,15 +403,15 @@ class Home extends React.Component {
   }
 
   colPushData() {
-    collection.push([this.state.hunch, this.state.front, this.state.dataName]);
+    collection.push([this.state.hunch, this.state.front, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
     localStorage.setItem('collection', JSON.stringify(collection))
     this.setState({ csvData: collection, length: collection.length });
   }
 
   delPushData() {
-    collection = [['hunch', 'front', '标签']]
+    collection = [['hunch', 'front', '标签', '座椅', '靠背']]
     localStorage.removeItem('collection')
-    this.setState({ collection: [['hunch', 'front', '标签']], length: 1 })
+    this.setState({ collection: [['hunch', 'front', '标签', '座椅', '靠背']], length: 1 })
   }
 
   changeWs(ip) {
@@ -534,6 +534,7 @@ class Home extends React.Component {
         wsPointData = JSON.parse(wsPointData);
       }
       wsPointDataSit = wsPointData
+      wsPointDataSit = wsPointDataSit.map((a) => Math.round(a))
       sitTypeEvent[this.state.matrixName]({ that: this, wsPointData, backFlag, local: this.state.local })
 
     }
@@ -639,7 +640,6 @@ class Home extends React.Component {
       if (!Array.isArray(wsPointDataBack)) {
         wsPointDataBack = JSON.parse(wsPointDataBack);
       }
-      console.log(wsPointDataBack)
       if (this.state.matrixName !== 'bigBed' && this.state.matrixName !== 'foot') {
         backTypeEvent[this.state.matrixName]({ that: this, jsonObject, sitFlag, local: this.state.local })
       }
@@ -843,7 +843,7 @@ class Home extends React.Component {
 
   changeSelect = (obj, type) => {
     let sit = [...obj.sit];
-    console.log(obj.sit , 'obj')
+    console.log(obj.sit, 'obj')
     if (!sit.every(a => a == 0) && this.state.carState != 'back') {
       const sitIndex = sit.length
         ? sit.map((a, index) => {
@@ -867,7 +867,7 @@ class Home extends React.Component {
         : new Array(4).fill(0);
 
       this.sitIndexArr = sitIndex;
-      console.log(sitIndex,this.state.carState , 'flag')
+      console.log(sitIndex, this.state.carState, 'flag')
       if (!sitIndex.every((a) => a == 0) && this.state.carState != 'back') {
         // thrott(this.wsSendObj.bind(this, { sitIndex }))
         this.wsSendObj({ sitIndex })
@@ -1120,6 +1120,35 @@ class Home extends React.Component {
                 <img src={minus} alt="" />
               </div>
             </Popover>
+            <div>
+              <input type="text" onChange={(e) => {
+
+                let wsPointData = (e.target.value)
+
+                if (!Array.isArray(wsPointData)) {
+                  wsPointData = JSON.parse(wsPointData);
+                }
+                wsPointDataSit = wsPointData
+                wsPointDataSit = wsPointDataSit.map((a) => Math.round(a))
+                sitTypeEvent[this.state.matrixName]({ that: this, wsPointData, local: this.state.local })
+
+
+
+              }} />
+            </div>
+
+            <input type="text"
+              onChange={(e) => {
+                wsPointDataBack = (e.target.value)
+                if (!Array.isArray(wsPointDataBack)) {
+                  wsPointDataBack = JSON.parse(wsPointDataBack);
+                }
+                const jsonObject = {
+                  backData : wsPointDataBack
+                }
+                backTypeEvent[this.state.matrixName]({ that: this, jsonObject, local: this.state.local })
+              }}
+            />
           </div>
           {this.state.matrixName == "foot" ? (
             <Popover placement="top" title={"刷新"} content={content3}>
@@ -1191,7 +1220,7 @@ class Home extends React.Component {
                 this.setState({
                   width: e.target.value
                 })
-                this.com.current.changeBox({ width: e.target.value ,height : this.state.height })
+                this.com.current.changeBox({ width: e.target.value, height: this.state.height })
               }} />
             </div>
             <div style={{ display: 'flex' }}>
@@ -1199,7 +1228,7 @@ class Home extends React.Component {
                 this.setState({
                   height: e.target.value
                 })
-                this.com.current.changeBox({ height: e.target.value , width : this.state.width })
+                this.com.current.changeBox({ height: e.target.value, width: this.state.width })
               }} />
             </div>
 
