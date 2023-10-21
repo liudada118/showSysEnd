@@ -48,7 +48,7 @@ class SelectionHelper {
 		this.onPointerUp = function () {
 
 			this.isDown = false;
-			this.onSelectOver();
+			// this.onSelectOver();
 
 		}.bind(this);
 
@@ -129,9 +129,9 @@ class SelectionHelper {
 	}
 
 	onSelectOver() {
-		// if (this.element) {
-		// 	this.element.parentElement?.removeChild(this.element);
-		// }
+		if (this.element) {
+			this.element.parentElement?.removeChild(this.element);
+		}
 
 
 	}

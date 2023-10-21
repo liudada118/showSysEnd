@@ -27,9 +27,9 @@ const Canvas = React.forwardRef((props, refs) => {
 
   const backX = 1, backY = 100, backZ = 118, sitX = -3, sitY = 70, sitZ = 148, backRotationX = -Math.PI * 7 / 12
 
-  console.log('canvas')
+
   var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper
-  let sitIndexArr = [], backIndexArr = []
+  let sitIndexArr = []  , sitIndexEndArr = [], backIndexArr = [] , backIndexEndArr = []
   var animationRequestId, colSelectFlag = false
   const sitnum1 = 32;
   const sitnum2 = 32;
@@ -63,7 +63,7 @@ const Canvas = React.forwardRef((props, refs) => {
   let dataFlag = false;
   const changeDataFlag = () => {
     dataFlag = true;
-    // console.log("first", dataFlag);
+    
   };
 
 
@@ -212,11 +212,11 @@ const Canvas = React.forwardRef((props, refs) => {
 
     selectHelper = new SelectionHelper(renderer, controls, 'selectBox');
 
-    document.addEventListener('pointerdown', pointDown);
+    renderer.domElement.addEventListener('pointerdown', pointDown);
 
-    document.addEventListener('pointermove', pointMove);
+    renderer.domElement.addEventListener('pointermove', pointMove);
 
-    document.addEventListener('pointerup', pointUp);
+    renderer.domElement.addEventListener('pointerup', pointUp);
 
     document.addEventListener('keydown', (e) => {
   
@@ -273,7 +273,7 @@ const Canvas = React.forwardRef((props, refs) => {
             backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
 
           }
-          // console.log(backIndexArr)
+         
           debounce(props.changeSelect.bind(this , { sit: sitIndexArr, back: backIndexArr }) , 500)
           // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
         }
@@ -295,7 +295,7 @@ const Canvas = React.forwardRef((props, refs) => {
             backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
 
           }
-          // console.log(backIndexArr)
+        
           debounce(props.changeSelect.bind(this , { sit: sitIndexArr, back: backIndexArr }) , 500)
           // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
         }
@@ -317,7 +317,7 @@ const Canvas = React.forwardRef((props, refs) => {
             backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
 
           }
-          // console.log(backIndexArr)
+      
           debounce(props.changeSelect.bind(this , { sit: sitIndexArr, back: backIndexArr }) , 500)
           // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
         }
@@ -354,7 +354,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
       selectMatrix = [...selectStartArr, ...selectEndArr]
 
-      // console.log(selectEndArr[0] - selectStartArr[0] ,selectEndArr[1] - selectStartArr[1]  )
+      
       const width = Math.abs(Math.round(selectEndArr[0] - selectStartArr[0]))
       const height = Math.abs(Math.round(selectEndArr[1] - selectStartArr[1]))
       if (selectStartArr[0] > selectEndArr[0]) {
@@ -381,15 +381,19 @@ const Canvas = React.forwardRef((props, refs) => {
 
         if (sitInterArr) {
           sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-          if((sitIndexArr[3] - sitIndexArr[1] < 2)&&(sitIndexArr[2] - sitIndexArr[0] < 2) ){
-            sitIndexArr = new Array(4).fill(0)
-          }
+          // if((sitIndexArr[3] - sitIndexArr[1] < 2)&&(sitIndexArr[2] - sitIndexArr[0] < 2) ){
+          //   sitIndexArr = new Array(4).fill(0)
+          // }
+          sitIndexEndArr = [...sitIndexArr]
+         
         }
         if (backInterArr) {
           backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
-          if((backIndexArr[3] - backIndexArr[1] < 2)&&(backIndexArr[2] - backIndexArr[0] < 2) ){
-            backIndexArr = new Array(4).fill(0)
-          }
+          // if((backIndexArr[3] - backIndexArr[1] < 2)&&(backIndexArr[2] - backIndexArr[0] < 2) ){
+          //   backIndexArr = new Array(4).fill(0)
+          // }
+          backIndexEndArr = [...backIndexArr]
+  
         }
         // console.log(backIndexArr)
      
@@ -403,20 +407,26 @@ const Canvas = React.forwardRef((props, refs) => {
 
 
   function pointUp(event) {
-
-    props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+    // console.log(sitIndexEndArr , backIndexEndArr , backIndexArr)
+   
 
 
     if (selectHelper.isShiftPressed) {
+      props.changeSelect({ sit: sitIndexEndArr, back: backIndexEndArr })
       selectStartArr = []
       selectEndArr = []
       colSelectFlag = false
     }
   }
 
-  function changeSelectFlag(value) {
+  function changeSelectFlag(value , flag) {
     controlsFlag = value
     selectHelper.isShiftPressed = !value
+    if(value){
+      selectHelper.onSelectOver()
+      if(flag)
+      props.changeSelect({ sit: [0,72,0,72], back: [0,72,0,144] })
+    }
   }
 
   //   初始化座椅
@@ -546,9 +556,7 @@ const Canvas = React.forwardRef((props, refs) => {
   function animate(timestamp) {
 
     const delta = timestamp - lastRender;
-    // console.log(delta)
-    // if(dataFlag){
-    //   console.log(111)
+   
     if (delta >= 1000 / 40) {
       render();
       lastRender = timestamp;
@@ -673,12 +681,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
   //  更新靠背数据
   function backRenew() {
-    // const newData = [...ndata]
-    // const date = Date.now()
-
-    // console.log(wsPointData)
-    // wsPointData = new Array(1024).fill(0)
-    // wsPointData[1023] = 100
+    
 
     ndata = [...newData].map((a, index) => (a - valuef2 < 0 ? 0 : a));
     ndataNum = ndata.reduce((a, b) => a + b, 0);
@@ -717,9 +720,7 @@ const Canvas = React.forwardRef((props, refs) => {
     // bigArrg1New[72*2] = 10000
 
     // const bigArrg1New = new Array(AMOUNTY1*AMOUNTY1).fill(1)
-    // console.log(backGeometry,scales1)
-    // const nowDate = Date.now() - date
-    // console.log(nowDate)
+   
 
     let k = 0,
       l = 0;
@@ -783,7 +784,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
 
     interp(ndata1, bigArr, sitnum1, sitInterp);
-    // console.log(bigArr.filter((a) => a > 1).length)
+    
     let bigArrs = addSide(
       bigArr,
       sitnum2 * sitInterp,
@@ -868,7 +869,7 @@ const Canvas = React.forwardRef((props, refs) => {
       controls.update();
 
     } else if (!controlsFlag) {
-      // console.log('111')
+     
       controls.keys = [];
       controls.mouseButtons = [];
 
@@ -979,7 +980,7 @@ const Canvas = React.forwardRef((props, refs) => {
       if (backInterArr) {
         backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
       }
-      console.log(selectMatrix ,backIndexArr,sitMatrix)
+      
       props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       // props.changeStateData({ width: width, height: height })
 
@@ -989,6 +990,10 @@ const Canvas = React.forwardRef((props, refs) => {
 
   }
 
+  function cancelSelect(){
+    selectHelper.onSelectOver()
+  }
+  
   useImperativeHandle(refs, () => ({
     backData: backData,
     sitData: sitData,
@@ -1000,7 +1005,8 @@ const Canvas = React.forwardRef((props, refs) => {
     actionSit: actionSit,
     actionBack: actionBack,
     changePointRotation,
-    changeBox
+    changeBox,
+    cancelSelect
   }));
   //   视图数据
 
@@ -1015,7 +1021,7 @@ const Canvas = React.forwardRef((props, refs) => {
       if (animationRequestId) cancelAnimationFrame(animationRequestId);
       document.removeEventListener('pointerdown', pointDown)
       document.removeEventListener('pointermove', pointMove)
-      document.removeEventListener('pointup', pointUp)
+      document.removeEventListener('pointerup', pointUp)
       selectHelper?.dispose()
     };
   }, []);

@@ -1115,6 +1115,9 @@ export class smoothClass {
   getSmooth(arr, smoothValue) {
     // this.value = this.value + (value - this.value) / smoothValue
     for (let i = 0; i < arr.length; i++) {
+      if(isNaN(arr[i])){
+        arr[i] = 0
+      }
       this.smoothValue[i] = this.smoothValue[i] + (arr[i] - this.smoothValue[i]) / smoothValue
     }
   }

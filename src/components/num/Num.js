@@ -143,12 +143,14 @@ export const Num = React.forwardRef((porps, refs) => {
             <div
                 className="threeBoxF"
                 style={{
-                    color: 'blue', transformStyle: 'preserve-3d',
-                    perspective: '500px',
+                    // color: 'blue', transformStyle: 'preserve-3d',
+                    // perspective: '500px',
                   
                 }}
             >
-                <div className="threeBox" style={{   transform: 'rotateX(35deg)'}}>
+                <div className="threeBox"
+                //  style={{   transform: 'rotateX(35deg)'}}
+                 >
                     {data.map((items, indexs) => {
                         return (
                             <div key={indexs} style={{ display: 'flex' }}>
@@ -162,7 +164,7 @@ export const Num = React.forwardRef((porps, refs) => {
                                                     color: 'blue',
                                                     fontSize: `${scale * 20 * 0.8}px`,
                                                     lineHeight: '1.5rem',
-                                                    transform: `translateY(${-item * 3}px)`,
+                                                    // transform: `translateY(${-item * 3}px)`,
                                                     color: `rgb(${jet(0, valuej1, item * 5)})`,
                                                 }}
                                             >

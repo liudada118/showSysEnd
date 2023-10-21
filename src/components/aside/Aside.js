@@ -346,6 +346,8 @@ class Aside extends React.Component {
         ctx.lineWidth = 2;
         ctx.stroke();
 
+
+        
         if (index != null) {
             ctx.beginPath();
             ctx.moveTo(gap * (index), canvas.height);
@@ -354,10 +356,10 @@ class Aside extends React.Component {
             ctx.lineWidth = 2;
             ctx.setLineDash([3, 3]);
             ctx.stroke();
-            console.log(arr[index])
+          
             ctx.font = "48px serif";
             ctx.fillStyle = '#01F1E3'
-            ctx.fillText(arr[index], gap * (index), canvas.height - 30)
+            ctx.fillText(arr[index-1], gap * (index), canvas.height - 30)
         }
 
     }
@@ -368,24 +370,24 @@ class Aside extends React.Component {
 
     handleCharts(arr, max, index) {
         const canvas = document.getElementById('myChart1')
-        // console.log(arr, max)
+       
         this.drawChart({ ctx: ctx1, arr, max, canvas, index })
     }
 
     handleChartsArea(arr, max, index) {
         const canvas = document.getElementById('myChart2')
         this.drawChart({ ctx: ctx2, arr, max, canvas, index })
-        // console.log(arr, max)
+       
     }
 
     handleChartsBody(arr, max, index) {
-        console.log('handleChartsBody')
+        
         const canvas = document.getElementById('myChart3')
         if(canvas){
             this.drawChart({ ctx: ctx3, arr, max, canvas, index })
         }
        
-        // console.log(arr, max)
+        
     }
 
     initCharts() {
@@ -415,7 +417,7 @@ class Aside extends React.Component {
             <div className='aside'>
                 <div className="asideContent firstAside">
                     {this.props.matrixName != 'foot' ? <><h2 className="asideTitle">Pressure Area</h2>
-                        <canvas id="myChart1" style={{ height: `${150*this.state.fontSize}px`, width: '100%' }}></canvas>
+                        <canvas id="myChart2" style={{ height: `${150*this.state.fontSize}px`, width: '100%' }}></canvas>
                         <>
                             {
                                 dataArr.map((a, index) => {
@@ -448,7 +450,7 @@ class Aside extends React.Component {
 
                     {this.props.matrixName != 'foot' ? <>
                         <div className='pressTitle standardColor'>总体压力 Total Pres</div>
-                        <canvas id="myChart2" style={{ height: `${150*this.state.fontSize}px`, width: '100%' }}></canvas>
+                        <canvas id="myChart1" style={{ height: `${150*this.state.fontSize}px`, width: '100%' }}></canvas>
                         {
                             dataArrCar.map((a, index) => {
                                 return (

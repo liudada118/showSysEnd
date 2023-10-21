@@ -587,7 +587,7 @@ class Title extends React.Component {
                   过滤值{" "}
                 </div>
                 <Slider
-                  min={1}
+                  min={0}
                   max={500}
                   onChange={(value) => {
                     localStorage.setItem("carValuef", value);

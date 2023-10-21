@@ -194,7 +194,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
                 props.data.current?.handleChartsArea(
                     props.areaArr,
                     props.max + 100,
-                    value
+                    value + 1
                 );
                 if (value == props.areaArr.length) {
                     props.wsSendObj({ play: false });
@@ -202,11 +202,12 @@ const ProgressCom = React.forwardRef((props, refs) => {
                     setPlayFlag(false)
                 }
             }
+            // console.log(props.pressArr , 'pressArr')
             if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "car10")) {
                 props.data.current?.handleCharts(
                     props.pressArr,
                     props.pressMax + 100,
-                    value
+                    value + 1
                 );
             }
 
