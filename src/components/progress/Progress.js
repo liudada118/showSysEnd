@@ -202,8 +202,9 @@ const ProgressCom = React.forwardRef((props, refs) => {
                     setPlayFlag(false)
                 }
             }
-            // console.log(props.pressArr , 'pressArr')
-            if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "car10")) {
+           
+            if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "car10" || props.matrixName == "sit10")) {
+                
                 props.data.current?.handleCharts(
                     props.pressArr,
                     props.pressMax + 100,
@@ -244,7 +245,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
 
         // 渲染当前帧的图表
         if (props.areaArr) props.data.current?.handleChartsArea(props.areaArr, props.max + 100, value + 1);
-        if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed")) {
+        if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "sit10")) {
             props.data.current?.handleCharts(props.pressArr, props.pressMax + 100, value + 1);
         }
     }
@@ -346,6 +347,12 @@ const ProgressCom = React.forwardRef((props, refs) => {
                 </div>
                 <div style={{ position: "absolute", left: "calc(50% - 300px)" }}>
                     <span style={{ color : '#fff'}}>{timeStampToDate(props.time)}</span>
+                    {props.matrixName === 'bigBed' ? <input type="text" onChange={(e) => {
+                        const value = Number(e.target.value)
+                         const line = document.querySelector(".progressLine");
+                          props.wsSendObj({ value });
+                          line.style.left = `${20 + (value * 560) / (props.length ? props.length : 1)}px`;
+                    }} /> : null}
                 </div>
 
                 

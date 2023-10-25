@@ -796,7 +796,8 @@ export const sitTypeEvent = {
     sitMax = findMax(DataArr);
     sitArea = sitPoint;
     sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1));
-    sitTotal = mmghToPress(sitPressure, sitArea);
+    // sitTotal = mmghToPress(sitPressure, sitArea);
+    sitTotal = wsPointData.reduce((a, b) => a + b, 0);
     sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal;
     sitMean = sitTotal / (sitPoint ? sitPoint : 1);
     if (
