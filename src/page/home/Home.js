@@ -649,7 +649,7 @@ class Home extends React.Component {
 
     if (jsonObject.pressArr != null) {
       const max = findMax(jsonObject.pressArr);
-      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed") {
+      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "sit10") {
         this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
         this.pressMax = max;
         this.pressArr = jsonObject.pressArr;
