@@ -684,6 +684,8 @@ export const sitTypeEvent = {
       }
     }
 
+    
+
     let DataArr;
 
     if (that.sitIndexArr.every((a) => a == 0)) {
@@ -691,7 +693,14 @@ export const sitTypeEvent = {
     } else {
       DataArr = [...selectArr];
     }
+
+  
+
     DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
+
+    that.setState({
+      pressToArea : (DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
+    })
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
     const length = DataArr.filter((a, index) => a > 0).length;
@@ -775,6 +784,8 @@ export const sitTypeEvent = {
     } else {
       DataArr = [...selectArr];
     }
+
+    
     DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
@@ -1235,6 +1246,8 @@ export const backTypeEvent = {
     that.com.current?.backData({
       wsPointData: wsPointData,
     });
+
+    
 
     const selectArr = [];
     for (let i = that.backIndexArr[0]; i < that.backIndexArr[1]; i++) {

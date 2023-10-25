@@ -326,7 +326,7 @@ const Canvas = React.forwardRef((props, refs) => {
     // const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
 
     if (sitInterArr) sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
-    console.log(sitIndexArr)
+
     // if (backInterArr) backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
     props.changeSelect({
       sit: [...sitIndexArr],
@@ -606,7 +606,6 @@ const Canvas = React.forwardRef((props, refs) => {
     const point = dataArr.filter((a) => a > 0).length
     const press = dataArr.reduce((a, b) => a + b, 0)
     const mean = press / (point == 0 ? 1 : point)
-    console.log(dataArr, press)
     props.data.current?.changeData({
       meanPres: mean.toFixed(2),
       maxPres: max,

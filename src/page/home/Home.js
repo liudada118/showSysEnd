@@ -56,7 +56,7 @@ const controlArr = [
 
 let collection = JSON.parse(localStorage.getItem('collection'))
   ? JSON.parse(localStorage.getItem('collection'))
-  : [['hunch', 'front', '标签']];
+  : [['hunch', 'front', 'flank', '标签', '座椅', '靠背']];
 
 let ws,
   ws1,
@@ -92,7 +92,7 @@ class Com extends React.Component {
     return false;
   }
   render() {
-   
+
     return <>{this.props.children}</>;
   }
 }
@@ -105,7 +105,7 @@ class CanvasCom extends React.Component {
     return this.props.matrixName != nextProps.matrixName;
   }
   render() {
-    
+
     return <>{this.props.children}</>;
   }
 }
@@ -219,7 +219,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "car",
+      matrixName: "localCar",
       length: 0,
       local: false,
       dataArr: [],
@@ -246,18 +246,19 @@ class Home extends React.Component {
       control: '',
       hunch: '',
       front: '',
+      flank: '',
       colWebFlag: false,
       colOneFlag: false,
       csvData: JSON.parse(localStorage.getItem('collection'))
         ? JSON.parse(localStorage.getItem('collection'))
-        : [['hunch', 'front', '标签', '座椅', '靠背']],
+        : [['hunch', 'front', 'flank', '标签', '座椅', '靠背']],
       length: JSON.parse(localStorage.getItem('collection'))
         ? JSON.parse(localStorage.getItem('collection')).length
         : 1,
       dataName: '',
       width: '',
-      height: ''
-
+      height: '',
+      pressToArea : 0
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -272,23 +273,23 @@ class Home extends React.Component {
 
 
   componentDidMount() {
-     
+
     document.documentElement.style.fontSize = `${window.innerWidth / 120}px`;
 
     var c2 = document.getElementById("myChartBig");
-    
+
     if (c2) ctxbig = c2.getContext("2d");
 
     var c1 = document.getElementById("myChartBig1");
-   
+
     if (c1) ctxbig1 = c1.getContext("2d");
     const ip = 'k2.bodyta.com'
-    // ws = new WebSocket(`ws://${ip}:23001/ws/data`)
-    // ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
+    ws = new WebSocket(`ws://${ip}:23001/ws/data`)
+    ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
 
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
-    ws = new WebSocket(" ws://127.0.0.1:19999");
+    // ws = new WebSocket(" ws://127.0.0.1:19999");
     // ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
     ws.onopen = () => {
       // connection opened
@@ -304,7 +305,7 @@ class Home extends React.Component {
       // connection closed
     };
 
-    ws1 = new WebSocket(" ws://127.0.0.1:19998");
+    // ws1 = new WebSocket(" ws://127.0.0.1:19998");
     // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
       // connection opened
@@ -330,24 +331,30 @@ class Home extends React.Component {
       };
       wsControl.onmessage = (e) => {
         // that.ws1Data(e)
-
+ 
         let jsonObject = (e.data);
-        
+
         if (jsonObject[0] == 1) {
           const data = jsonObject.split(' ')[1]
-          
+
 
           this.setState({
             hunch: data
           })
-        } else if (jsonObject[0] == 2) {
+        } else if (jsonObject[0] == 3) {
           const data = jsonObject.split(' ')[1]
-         
+
+          this.setState({
+            flank: data
+          })
+        }else if (jsonObject[0] == 2) {
+          const data = jsonObject.split(' ')[1]
+
           this.setState({
             front: data
           })
-          if (oneFlag && this.state.hunch && this.state.front) {
-            collection.push([this.state.hunch, this.state.front, '迎宾结束']);
+          if (oneFlag && this.state.hunch && this.state.front && this.state.flank) {
+            collection.push([this.state.hunch, this.state.front, this.state.flank ,'迎宾结束']);
             localStorage.setItem('collection', JSON.stringify(collection))
             this.setState({ csvData: collection, length: collection.length });
             oneFlag = false
@@ -383,12 +390,12 @@ class Home extends React.Component {
           }
 
         }
-
+       
         if (this.state.colWebFlag) {
-          collection.push([this.state.hunch, this.state.front, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
+          collection.push([this.state.hunch, this.state.front, this.state.flank, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
           localStorage.setItem('collection', JSON.stringify(collection))
           this.setState({ csvData: collection, length: collection.length });
-           
+
         }
 
       };
@@ -403,15 +410,15 @@ class Home extends React.Component {
   }
 
   colPushData() {
-    collection.push([this.state.hunch, this.state.front, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
+    collection.push([this.state.hunch, this.state.front, this.state.flank, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
     localStorage.setItem('collection', JSON.stringify(collection))
     this.setState({ csvData: collection, length: collection.length });
   }
 
   delPushData() {
-    collection = [['hunch', 'front', '标签', '座椅', '靠背']]
+    collection = [['hunch', 'front', 'flank', '标签', '座椅', '靠背']]
     localStorage.removeItem('collection')
-    this.setState({ collection: [['hunch', 'front', '标签', '座椅', '靠背']], length: 1 })
+    this.setState({ collection: [['hunch', 'front', 'flank', '标签', '座椅', '靠背']], length: 1 })
   }
 
   changeWs(ip) {
@@ -423,7 +430,7 @@ class Home extends React.Component {
     }
     this.initCar()
     const that = this
-  
+
 
     // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
     ws = new WebSocket(`ws://${ip}:23001/ws/data`)
@@ -457,7 +464,7 @@ class Home extends React.Component {
     ws1.onclose = (e) => {
       // connection closed
     };
-  
+
 
     wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
     // wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
@@ -470,17 +477,30 @@ class Home extends React.Component {
       let jsonObject = (e.data);
       if (jsonObject[0] == 1) {
         const data = jsonObject.split(' ')[1]
-       
+
 
         this.setState({
           hunch: data
         })
+      } else if (jsonObject[0] == 3) {
+        const data = jsonObject.split(' ')[1]
+
+        this.setState({
+          flank: data
+        })
       } else if (jsonObject[0] == 2) {
         const data = jsonObject.split(' ')[1]
-       
+
         this.setState({
           front: data
         })
+
+        if (this.state.colWebFlag) {
+          collection.push([this.state.hunch, this.state.front, this.state.flank, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
+          localStorage.setItem('collection', JSON.stringify(collection))
+          this.setState({ csvData: collection, length: collection.length });
+
+        }
       } else {
         if (controlFlag && (jsonObject === '靠背气囊充气')) {
           this.setState({
@@ -525,7 +545,7 @@ class Home extends React.Component {
           num = 0;
         }
       }
-   
+
 
       let selectArr;
       let wsPointData = jsonObject.sitData;
@@ -574,7 +594,7 @@ class Home extends React.Component {
             label: a.name,
           });
         });
-         
+
         this.setState({ dataArr: obj });
       } else {
         let obj = [];
@@ -584,7 +604,7 @@ class Home extends React.Component {
             label: a.name,
           });
         });
-         
+
         this.setState({ dataArr: obj });
       }
 
@@ -600,7 +620,7 @@ class Home extends React.Component {
       this.max = max;
       this.areaArr = jsonObject.areaArr;
       this.setState({
-        areaArr : jsonObject.areaArr
+        areaArr: jsonObject.areaArr
       })
     }
 
@@ -611,7 +631,7 @@ class Home extends React.Component {
         this.pressMax = max;
         this.pressArr = jsonObject.pressArr;
         this.setState({
-          pressArr : jsonObject.pressArr
+          pressArr: jsonObject.pressArr
         })
       }
     }
@@ -654,7 +674,7 @@ class Home extends React.Component {
 
     if (jsonObject.timeArr != null) {
       // const arr = []
-      
+
       const arr = jsonObject.timeArr//.map((a, index) => a.date);
 
       let obj = [];
@@ -689,19 +709,19 @@ class Home extends React.Component {
       this.max = max;
       this.areaArr = jsonObject.areaArr;
       this.setState({
-        areaArr : jsonObject.areaArr
+        areaArr: jsonObject.areaArr
       })
     }
 
     if (jsonObject.pressArr != null) {
       const max = findMax(jsonObject.pressArr);
-    
+
       if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "car10") {
         this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
         this.pressMax = max;
         this.pressArr = jsonObject.pressArr;
         this.setState({
-          pressArr : jsonObject.pressArr
+          pressArr: jsonObject.pressArr
         })
       }
 
@@ -715,25 +735,25 @@ class Home extends React.Component {
   };
 
   changeMatrix = (e) => {
-   
+
     // setMatrixName(e)
     this.setState({ matrixName: e });
     wsMatrixName = e;
   };
 
   handleChartsBody(arr, max, index) {
-    
+
     const canvas = document.getElementById('myChartBig')
-    
+
     if (canvas && ctxbig) {
       this.drawChart({ ctx: ctxbig, arr, max, canvas, index })
     }
   }
 
   handleChartsBody1(arr, max, index) {
-     
+
     const canvas = document.getElementById('myChartBig1')
-     
+
     if (canvas && ctxbig1) {
       this.drawChart({ ctx: ctxbig1, arr, max, canvas, index })
     }
@@ -741,36 +761,36 @@ class Home extends React.Component {
 
   initBigCtx() {
     var c2 = document.getElementById("myChartBig");
-    
+
     if (c2) ctxbig = c2.getContext("2d");
 
     var c1 = document.getElementById("myChartBig1");
-   
+
     if (c1) ctxbig1 = c1.getContext("2d");
   }
 
   initCar() {
     var c2 = document.getElementById("myChartsit");
-  
+
     if (c2) ctxsit = c2.getContext("2d");
     var c1 = document.getElementById("myChartback");
-  
+
     if (c1) ctxback = c1.getContext("2d");
   }
 
   handleChartsSit(arr, max, index) {
-    
+
     const canvas = document.getElementById('myChartsit')
-    
+
     if (canvas && ctxsit) {
       this.drawChart({ ctx: ctxsit, arr, max, canvas })
     }
   }
 
   handleChartsBack(arr, max, index) {
-    
+
     const canvas = document.getElementById('myChartback')
-    
+
     if (canvas && ctxback) {
       this.drawChart({ ctx: ctxback, arr, max, canvas })
     }
@@ -881,7 +901,7 @@ class Home extends React.Component {
         : new Array(4).fill(0);
 
       this.sitIndexArr = sitIndex;
-    
+
       if (!sitIndex.every((a) => a == 0) && this.state.carState != 'back') {
         // thrott(this.wsSendObj.bind(this, { sitIndex }))
         this.wsSendObj({ sitIndex })
@@ -894,7 +914,7 @@ class Home extends React.Component {
           selectArr.push(wsPointDataSit[i * 32 + j]);
         }
       }
-    
+
       let DataArr;
 
       if (this.sitIndexArr.every((a) => a == 0)) {
@@ -917,10 +937,10 @@ class Home extends React.Component {
       const sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1))
       // sitTotal = mmghToPress(sitPressure, sitArea)
       // sitTotal = totalToN(sitTotal)
-      sitTotal = [...DataArr].map((a) => pointToN(a)).reduce((a,b) => a+b ,0)
+      sitTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
       sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal
       sitMean = sitTotal / (sitPoint ? sitPoint : 1)
-      
+
       this.data.current?.changeData({
         meanPres: sitMean.toFixed(2),
         maxPres: sitMax.toFixed(2),
@@ -931,8 +951,8 @@ class Home extends React.Component {
       });
 
     }
-   
-    if (obj.back && !obj.back.every(a => a == 0) && this.state.carState != 'sit') { 
+
+    if (obj.back && !obj.back.every(a => a == 0) && this.state.carState != 'sit') {
       let back = [...obj.back];
       if (back.length) {
         back[2] = Math.round(back[2] / 2);
@@ -958,14 +978,14 @@ class Home extends React.Component {
         // thrott1(this.wsSendObj.bind(this, { backIndex }))
         this.wsSendObj({ backIndex })
       }
-      
+
       const selectArr = [];
       for (let i = this.backIndexArr[0]; i <= this.backIndexArr[1]; i++) {
         for (let j = 31 - this.backIndexArr[3]; j <= 31 - this.backIndexArr[2]; j++) {
           selectArr.push(wsPointDataBack[i * 32 + j]);
         }
       }
-     
+
       let DataArr;
       if (
         this.sitIndexArr.every((a) => a == 0) &&
@@ -975,7 +995,7 @@ class Home extends React.Component {
       } else {
         DataArr = [...selectArr];
       }
-   
+
       DataArr = DataArr.map((a) => a < this.state.valuef1 ? 0 : a)
       const backTotalvalue = DataArr.reduce((a, b) => a + b, 0);
       backTotal = DataArr.reduce((a, b) => a + b, 0);
@@ -987,7 +1007,7 @@ class Home extends React.Component {
       // backTotal = mmghToPress(backPressure, backArea)
       // backTotal = totalToN(backTotal, 1.3) 
       console.log(DataArr)
-      backTotal = [...DataArr].map((a) => pointToN(a)).reduce((a,b) => a+b ,0)
+      backTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
       backMax = (backMax / (backTotalvalue ? backTotalvalue : 1)) * backTotal
       backMean = backTotal / (backPoint ? backPoint : 1)
 
@@ -1020,25 +1040,25 @@ class Home extends React.Component {
         <div className="setIcons">
           <div className="setIconItem setIconItem1">
 
-          <div className="setIconItem setIconItem2" style={{ position: 'absolute', width: '60px', right: 60, color: '#5A5A89', fontWeight: 'bold' }}>
-            <div style={{ display: 'flex' }}>
-              <span>x</span><Input value={this.state.width} onChange={(e) => {
-                this.setState({
-                  width: e.target.value
-                })
-                this.com.current.changeBox({ width: e.target.value, height: this.state.height })
-              }} />
-            </div>
-            <div style={{ display: 'flex' }}>
-              <span>y</span><Input value={this.state.height} onChange={(e) => {
-                this.setState({
-                  height: e.target.value
-                })
-                this.com.current.changeBox({ height: e.target.value, width: this.state.width })
-              }} />
-            </div>
+            <div className="setIconItem setIconItem2" style={{ position: 'absolute', width: '60px', right: 60, color: '#5A5A89', fontWeight: 'bold' }}>
+              <div style={{ display: 'flex' }}>
+                <span>x</span><Input value={this.state.width} onChange={(e) => {
+                  this.setState({
+                    width: e.target.value
+                  })
+                  this.com.current.changeBox({ width: e.target.value, height: this.state.height })
+                }} />
+              </div>
+              <div style={{ display: 'flex' }}>
+                <span>y</span><Input value={this.state.height} onChange={(e) => {
+                  this.setState({
+                    height: e.target.value
+                  })
+                  this.com.current.changeBox({ height: e.target.value, width: this.state.width })
+                }} />
+              </div>
 
-          </div>
+            </div>
 
             <Popover
               placement="top"
@@ -1209,7 +1229,7 @@ class Home extends React.Component {
                   className="setIcon marginB10"
                   onClick={() => {
                     const that = this
-                   
+
                     this.track.current?.loadImg({ arrSmooth: that.arrSmooth, rightTopPropSmooth: that.rightTopPropSmooth, leftTopPropSmooth: that.leftTopPropSmooth, leftBottomPropSmooth: that.leftBottomPropSmooth, rightPropSmooth: that.rightPropSmooth, leftPropSmooth: that.leftPropSmooth, rightBottomPropSmooth: that.rightBottomPropSmooth })
                   }}
                 >
@@ -1232,13 +1252,13 @@ class Home extends React.Component {
                   this.setState({
                     selectFlag: !flag,
                   });
-                  this.com.current?.changeSelectFlag(flag , this.state.local);
+                  this.com.current?.changeSelectFlag(flag, this.state.local);
                   // this.setState({
                   //   sitIndexArr : new Array(4).fill(0),
                   //   backIndexArr : new Array(4).fill(0)
                   // })
-                  if(flag && this.state.carState === 'all'){
-                    this.setState({width : 0 , height : 0 })
+                  if (flag && this.state.carState === 'all') {
+                    this.setState({ width: 0, height: 0 })
                     this.sitIndexArr = new Array(4).fill(0)
                     this.backIndexArr = new Array(4).fill(0)
                   }
@@ -1259,7 +1279,7 @@ class Home extends React.Component {
 
 
           </div>
-         
+
         </div>
 
 
@@ -1463,6 +1483,8 @@ class Home extends React.Component {
             })}
             <p>hunch : {this.state.hunch}</p>
             <p>front : {this.state.front}</p>
+            <p>flank : {this.state.flank}</p>
+            <p>sitValue : {this.state.pressToArea}</p>
           </div>
         ) : null}
 

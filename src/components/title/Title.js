@@ -351,6 +351,7 @@ class Title extends React.Component {
                   // console.log(collection)
                   // message.success('采集成功');
                   const flag = this.props.colWebFlag
+                  console.log(flag)
                   this.props.changeStateData({ colWebFlag: !flag })
                 }
               }}>{this.props.colFlag ? '采集' : '停止'}{this.props.matrixName == 'localCar' ? this.props.length - 1 : this.state.num}
