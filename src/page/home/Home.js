@@ -14,12 +14,7 @@ import minus from "../../assets/images/Minus.png";
 import load from "../../assets/images/load.png";
 
 import refresh from "../../assets/images/refresh.png";
-import {
-  findMax,
-  findMin,
-  rotate180,
-  rotate90,
-} from "../../assets/util/util";
+import { findMax, findMin, rotate180, rotate90 } from "../../assets/util/util";
 import { rainbowTextColors } from "../../assets/util/color";
 import {
   footLine,
@@ -36,27 +31,34 @@ import { Num } from "../../components/num/Num";
 import { calFoot } from "../../assets/util/value";
 import { Heatmap } from "../../components/heatmap/canvas";
 import FootTrack from "../../components/footTrack/footTrack";
-import { backTypeEvent, carFitting, mmghToPress, pointToN, sitTypeEvent, totalToN } from "./util";
-let controlFlag = true
+import {
+  backTypeEvent,
+  carFitting,
+  mmghToPress,
+  pointToN,
+  sitTypeEvent,
+  totalToN,
+} from "./util";
+let controlFlag = true;
 const controlArr = [
-  { name: '座椅向前', info: '座椅向前', },
-  { name: '靠背向后', info: '靠背向后' },
-  { name: '靠背向前', info: '靠背向前' },
-  { name: '靠背气囊充气', info: '靠背气囊充气' },
-  { name: '靠背气囊放气', info: '靠背气囊放气' },
-  { name: '坐垫向下移动', info: '坐垫向下移动腿部气囊放气' },
-  { name: '腿部气囊放气', info: '坐垫向下移动腿部气囊放气' },
-  { name: '坐垫向上移动', info: '坐垫向上移动腿部气囊充气' },
-  { name: '腿部气囊充气', info: '坐垫向上移动腿部气囊充气' },
-  { name: '侧翼右侧气囊充气', info: '侧翼右侧气囊充气', },
-  { name: '侧翼左侧气囊充气', info: '侧翼左侧气囊充气', },
-  { name: '侧翼右侧气囊放气', info: '侧翼右侧气囊放气', },
-  { name: '侧翼左侧气囊放气', info: '侧翼左侧气囊放气', },
-]
+  { name: "座椅向前", info: "座椅向前" },
+  { name: "靠背向后", info: "靠背向后" },
+  { name: "靠背向前", info: "靠背向前" },
+  { name: "靠背气囊充气", info: "靠背气囊充气" },
+  { name: "靠背气囊放气", info: "靠背气囊放气" },
+  { name: "坐垫向下移动", info: "坐垫向下移动腿部气囊放气" },
+  { name: "腿部气囊放气", info: "坐垫向下移动腿部气囊放气" },
+  { name: "坐垫向上移动", info: "坐垫向上移动腿部气囊充气" },
+  { name: "腿部气囊充气", info: "坐垫向上移动腿部气囊充气" },
+  { name: "侧翼右侧气囊充气", info: "侧翼右侧气囊充气" },
+  { name: "侧翼左侧气囊充气", info: "侧翼左侧气囊充气" },
+  { name: "侧翼右侧气囊放气", info: "侧翼右侧气囊放气" },
+  { name: "侧翼左侧气囊放气", info: "侧翼左侧气囊放气" },
+];
 
-let collection = JSON.parse(localStorage.getItem('collection'))
-  ? JSON.parse(localStorage.getItem('collection'))
-  : [['hunch', 'front', 'flank', '标签', '座椅', '靠背']];
+let collection = JSON.parse(localStorage.getItem("collection"))
+  ? JSON.parse(localStorage.getItem("collection"))
+  : [["hunch", "front", "flank", "标签", "座椅", "靠背"]];
 
 let ws,
   ws1,
@@ -92,7 +94,6 @@ class Com extends React.Component {
     return false;
   }
   render() {
-
     return <>{this.props.children}</>;
   }
 }
@@ -105,17 +106,18 @@ class CanvasCom extends React.Component {
     return this.props.matrixName != nextProps.matrixName;
   }
   render() {
-
     return <>{this.props.children}</>;
   }
 }
 
-
 let totalArr = [],
   totalPointArr = [],
   wsMatrixName = "foot";
-let startPressure = 0, time = 0;
-let num = 0, wsPointDataSit = [], wsPointDataBack = [],
+let startPressure = 0,
+  time = 0;
+let num = 0,
+  wsPointDataSit = [],
+  wsPointDataBack = [],
   colValueFlag = false,
   meanSmooth = 0,
   maxSmooth = 0,
@@ -134,7 +136,6 @@ let num = 0, wsPointDataSit = [], wsPointDataBack = [],
   rightTopPropSmooth = 0,
   leftBottomPropSmooth = 0,
   rightBottomPropSmooth = 0,
-
   canvasWidth = 300;
 
 const text = "旋转";
@@ -169,8 +170,12 @@ const content4 = (
     <p>下载轨迹图</p>
   </div>
 );
-let ctxbig, ctxsit, ctxback, ctxbig1, oneFlag = false
-let timer
+let ctxbig,
+  ctxsit,
+  ctxback,
+  ctxbig1,
+  oneFlag = false;
+let timer;
 const thrott = (fun) => {
   if (!timer) {
     timer = setTimeout(() => {
@@ -178,9 +183,9 @@ const thrott = (fun) => {
       timer = null;
     }, 1000);
   }
-}
+};
 
-let timer1
+let timer1;
 const thrott1 = (fun) => {
   if (!timer1) {
     timer1 = setTimeout(() => {
@@ -188,8 +193,7 @@ const thrott1 = (fun) => {
       timer1 = null;
     }, 100);
   }
-}
-
+};
 
 class Home extends React.Component {
   constructor() {
@@ -219,7 +223,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "localCar",
+      matrixName: "sit10",
       length: 0,
       local: false,
       dataArr: [],
@@ -243,22 +247,22 @@ class Home extends React.Component {
       newArr: [],
       newArr1: [],
       ymax: 200,
-      control: '',
-      hunch: '',
-      front: '',
-      flank: '',
+      control: "",
+      hunch: "",
+      front: "",
+      flank: "",
       colWebFlag: false,
       colOneFlag: false,
-      csvData: JSON.parse(localStorage.getItem('collection'))
-        ? JSON.parse(localStorage.getItem('collection'))
-        : [['hunch', 'front', 'flank', '标签', '座椅', '靠背']],
-      length: JSON.parse(localStorage.getItem('collection'))
-        ? JSON.parse(localStorage.getItem('collection')).length
+      csvData: JSON.parse(localStorage.getItem("collection"))
+        ? JSON.parse(localStorage.getItem("collection"))
+        : [["hunch", "front", "flank", "标签", "座椅", "靠背"]],
+      length: JSON.parse(localStorage.getItem("collection"))
+        ? JSON.parse(localStorage.getItem("collection")).length
         : 1,
-      dataName: '',
-      width: '',
-      height: '',
-      pressToArea : 0
+      dataName: "",
+      width: "",
+      height: "",
+      pressToArea: 0,
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -270,10 +274,7 @@ class Home extends React.Component {
     this.backIndexArr = new Array(4).fill(0);
   }
 
-
-
   componentDidMount() {
-
     document.documentElement.style.fontSize = `${window.innerWidth / 120}px`;
 
     var c2 = document.getElementById("myChartBig");
@@ -283,20 +284,21 @@ class Home extends React.Component {
     var c1 = document.getElementById("myChartBig1");
 
     if (c1) ctxbig1 = c1.getContext("2d");
-    const ip = 'k2.bodyta.com'
-    ws = new WebSocket(`ws://${ip}:23001/ws/data`)
-    ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
+    const ip = "k2.bodyta.com";
+    // ws = new WebSocket(`ws://${ip}:23001/ws/data`)
+    // ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
 
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
-    // ws = new WebSocket(" ws://127.0.0.1:19999");
+    ws = new WebSocket(" ws://127.0.0.1:19999");
+    ws1 = new WebSocket(" ws://127.0.0.1:19998");
     // ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
     };
     ws.onmessage = (e) => {
-      this.wsData(e)
+      this.wsData(e);
     };
     ws.onerror = (e) => {
       // an error occurred
@@ -305,14 +307,13 @@ class Home extends React.Component {
       // connection closed
     };
 
-    // ws1 = new WebSocket(" ws://127.0.0.1:19998");
     // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
       // connection opened
       console.info("connect success");
     };
     ws1.onmessage = (e) => {
-      this.ws1Data(e)
+      this.ws1Data(e);
     };
     ws1.onerror = (e) => {
       // an error occurred
@@ -321,9 +322,8 @@ class Home extends React.Component {
       // connection closed
     };
 
-
-    if (this.state.matrixName === 'localCar') {
-      wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
+    if (this.state.matrixName === "localCar") {
+      wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`);
       // wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
       wsControl.onopen = () => {
         // connection opened
@@ -331,73 +331,85 @@ class Home extends React.Component {
       };
       wsControl.onmessage = (e) => {
         // that.ws1Data(e)
- 
-        let jsonObject = (e.data);
+
+        let jsonObject = e.data;
 
         if (jsonObject[0] == 1) {
-          const data = jsonObject.split(' ')[1]
-
+          const data = jsonObject.split(" ")[1];
 
           this.setState({
-            hunch: data
-          })
+            hunch: data,
+          });
         } else if (jsonObject[0] == 3) {
-          const data = jsonObject.split(' ')[1]
+          const data = jsonObject.split(" ")[1];
 
           this.setState({
-            flank: data
-          })
-        }else if (jsonObject[0] == 2) {
-          const data = jsonObject.split(' ')[1]
+            flank: data,
+          });
+        } else if (jsonObject[0] == 2) {
+          const data = jsonObject.split(" ")[1];
 
           this.setState({
-            front: data
-          })
-          if (oneFlag && this.state.hunch && this.state.front && this.state.flank) {
-            collection.push([this.state.hunch, this.state.front, this.state.flank ,'迎宾结束']);
-            localStorage.setItem('collection', JSON.stringify(collection))
+            front: data,
+          });
+          if (
+            oneFlag &&
+            this.state.hunch &&
+            this.state.front &&
+            this.state.flank
+          ) {
+            collection.push([
+              this.state.hunch,
+              this.state.front,
+              this.state.flank,
+              "迎宾结束",
+            ]);
+            localStorage.setItem("collection", JSON.stringify(collection));
             this.setState({ csvData: collection, length: collection.length });
-            oneFlag = false
+            oneFlag = false;
           }
         } else {
-          if (jsonObject === '迎宾结束') {
+          if (jsonObject === "迎宾结束") {
             // collection.push([this.state.hunch, this.state.front, '迎宾结束']);
             // localStorage.setItem('collection', JSON.stringify(collection))
             // this.setState({ csvData: collection, length: collection.length });
-            oneFlag = true
+            oneFlag = true;
           }
 
-          if (controlFlag && (jsonObject === '靠背气囊充气')) {
+          if (controlFlag && jsonObject === "靠背气囊充气") {
             this.setState({
-              control: [jsonObject, '侧翼左侧气囊充气', '侧翼右侧气囊充气']
-            })
-            controlFlag = false
+              control: [jsonObject, "侧翼左侧气囊充气", "侧翼右侧气囊充气"],
+            });
+            controlFlag = false;
           } else {
-
-            if (jsonObject === '侧翼左侧气囊充气') {
+            if (jsonObject === "侧翼左侧气囊充气") {
               this.setState({
-                control: [jsonObject, '侧翼右侧气囊放气']
-              })
-            } else if (jsonObject === '侧翼右侧气囊充气') {
+                control: [jsonObject, "侧翼右侧气囊放气"],
+              });
+            } else if (jsonObject === "侧翼右侧气囊充气") {
               this.setState({
-                control: [jsonObject, '侧翼左侧气囊放气']
-              })
+                control: [jsonObject, "侧翼左侧气囊放气"],
+              });
             } else {
               this.setState({
-                control: [jsonObject]
-              })
+                control: [jsonObject],
+              });
             }
           }
-
         }
-       
+
         if (this.state.colWebFlag) {
-          collection.push([this.state.hunch, this.state.front, this.state.flank, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
-          localStorage.setItem('collection', JSON.stringify(collection))
+          collection.push([
+            this.state.hunch,
+            this.state.front,
+            this.state.flank,
+            this.state.dataName,
+            JSON.stringify(wsPointDataSit),
+            JSON.stringify(wsPointDataBack),
+          ]);
+          localStorage.setItem("collection", JSON.stringify(collection));
           this.setState({ csvData: collection, length: collection.length });
-
         }
-
       };
       wsControl.onerror = (e) => {
         // an error occurred
@@ -406,40 +418,48 @@ class Home extends React.Component {
         // connection closed
       };
     }
-
   }
 
   colPushData() {
-    collection.push([this.state.hunch, this.state.front, this.state.flank, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
-    localStorage.setItem('collection', JSON.stringify(collection))
+    collection.push([
+      this.state.hunch,
+      this.state.front,
+      this.state.flank,
+      this.state.dataName,
+      JSON.stringify(wsPointDataSit),
+      JSON.stringify(wsPointDataBack),
+    ]);
+    localStorage.setItem("collection", JSON.stringify(collection));
     this.setState({ csvData: collection, length: collection.length });
   }
 
   delPushData() {
-    collection = [['hunch', 'front', 'flank', '标签', '座椅', '靠背']]
-    localStorage.removeItem('collection')
-    this.setState({ collection: [['hunch', 'front', 'flank', '标签', '座椅', '靠背']], length: 1 })
+    collection = [["hunch", "front", "flank", "标签", "座椅", "靠背"]];
+    localStorage.removeItem("collection");
+    this.setState({
+      collection: [["hunch", "front", "flank", "标签", "座椅", "靠背"]],
+      length: 1,
+    });
   }
 
   changeWs(ip) {
     if (ws) {
-      ws.close()
+      ws.close();
     }
     if (ws1) {
-      ws1.close()
+      ws1.close();
     }
-    this.initCar()
-    const that = this
-
+    this.initCar();
+    const that = this;
 
     // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
-    ws = new WebSocket(`ws://${ip}:23001/ws/data`)
+    ws = new WebSocket(`ws://${ip}:23001/ws/data`);
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
     };
     ws.onmessage = (e) => {
-      that.wsData(e)
+      that.wsData(e);
     };
     ws.onerror = (e) => {
       // an error occurred
@@ -448,7 +468,7 @@ class Home extends React.Component {
       // connection closed
     };
     // ws1 = new WebSocket(`ws://${ip}:1880/ws/data1`)
-    ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
+    ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`);
     // ws1 = new WebSocket(" ws://127.0.0.1:19998");
     // ws1 = new WebSocket("ws://192.168.31.124:1880/ws/data1")
     ws1.onopen = () => {
@@ -456,7 +476,7 @@ class Home extends React.Component {
       console.info("connect success");
     };
     ws1.onmessage = (e) => {
-      that.ws1Data(e)
+      that.ws1Data(e);
     };
     ws1.onerror = (e) => {
       // an error occurred
@@ -465,8 +485,7 @@ class Home extends React.Component {
       // connection closed
     };
 
-
-    wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`)
+    wsControl = new WebSocket(`ws://${ip}:23001/ws/msg`);
     // wsControl = new WebSocket(`ws://${ip}:1880/ws/msg`)
     wsControl.onopen = () => {
       // connection opened
@@ -474,47 +493,50 @@ class Home extends React.Component {
     };
     wsControl.onmessage = (e) => {
       // that.ws1Data(e)
-      let jsonObject = (e.data);
+      let jsonObject = e.data;
       if (jsonObject[0] == 1) {
-        const data = jsonObject.split(' ')[1]
-
+        const data = jsonObject.split(" ")[1];
 
         this.setState({
-          hunch: data
-        })
+          hunch: data,
+        });
       } else if (jsonObject[0] == 3) {
-        const data = jsonObject.split(' ')[1]
+        const data = jsonObject.split(" ")[1];
 
         this.setState({
-          flank: data
-        })
+          flank: data,
+        });
       } else if (jsonObject[0] == 2) {
-        const data = jsonObject.split(' ')[1]
+        const data = jsonObject.split(" ")[1];
 
         this.setState({
-          front: data
-        })
+          front: data,
+        });
 
         if (this.state.colWebFlag) {
-          collection.push([this.state.hunch, this.state.front, this.state.flank, this.state.dataName, JSON.stringify(wsPointDataSit), JSON.stringify(wsPointDataBack)]);
-          localStorage.setItem('collection', JSON.stringify(collection))
+          collection.push([
+            this.state.hunch,
+            this.state.front,
+            this.state.flank,
+            this.state.dataName,
+            JSON.stringify(wsPointDataSit),
+            JSON.stringify(wsPointDataBack),
+          ]);
+          localStorage.setItem("collection", JSON.stringify(collection));
           this.setState({ csvData: collection, length: collection.length });
-
         }
       } else {
-        if (controlFlag && (jsonObject === '靠背气囊充气')) {
+        if (controlFlag && jsonObject === "靠背气囊充气") {
           this.setState({
-            control: [jsonObject, '侧翼气囊充气']
-          })
-          controlFlag = false
+            control: [jsonObject, "侧翼气囊充气"],
+          });
+          controlFlag = false;
         } else {
           this.setState({
-            control: [jsonObject]
-          })
+            control: [jsonObject],
+          });
         }
-
       }
-
     };
     wsControl.onerror = (e) => {
       // an error occurred
@@ -529,14 +551,13 @@ class Home extends React.Component {
     let jsonObject = JSON.parse(e.data);
     //处理空数组
     sitDataFlag = false;
-    let backFlag
+    let backFlag;
     if (jsonObject.backFlag != null) {
-      backFlag = jsonObject.backFlag
+      backFlag = jsonObject.backFlag;
     }
 
     if (jsonObject.sitData != null) {
-
-      if (this.state.matrixName != 'car10') {
+      if (this.state.matrixName != "car10") {
         if (colValueFlag) {
           num++;
 
@@ -546,17 +567,20 @@ class Home extends React.Component {
         }
       }
 
-
       let selectArr;
       let wsPointData = jsonObject.sitData;
 
       if (!Array.isArray(wsPointData)) {
         wsPointData = JSON.parse(wsPointData);
       }
-      wsPointDataSit = wsPointData
-      wsPointDataSit = wsPointDataSit.map((a) => Math.round(a))
-      sitTypeEvent[this.state.matrixName]({ that: this, wsPointData, backFlag, local: this.state.local })
-
+      wsPointDataSit = wsPointData;
+      wsPointDataSit = wsPointDataSit.map((a) => Math.round(a));
+      sitTypeEvent[this.state.matrixName]({
+        that: this,
+        wsPointData,
+        backFlag,
+        local: this.state.local,
+      });
     }
 
     if (jsonObject.port != null) {
@@ -584,9 +608,9 @@ class Home extends React.Component {
     }
     if (jsonObject.timeArr != null) {
       // const arr = []
-      const arr = jsonObject.timeArr //.map((a, index) => a.date);
+      const arr = jsonObject.timeArr; //.map((a, index) => a.date);
 
-      if (this.state.matrixName == 'car') {
+      if (this.state.matrixName == "car") {
         let obj = [];
         arr.forEach((a, index) => {
           obj.push({
@@ -607,11 +631,10 @@ class Home extends React.Component {
 
         this.setState({ dataArr: obj });
       }
-
     }
 
     if (jsonObject.index != null) {
-      this.progress.current?.changeIndex(jsonObject.index)
+      this.progress.current?.changeIndex(jsonObject.index);
     }
 
     if (jsonObject.areaArr != null) {
@@ -620,8 +643,8 @@ class Home extends React.Component {
       this.max = max;
       this.areaArr = jsonObject.areaArr;
       this.setState({
-        areaArr: jsonObject.areaArr
-      })
+        areaArr: jsonObject.areaArr,
+      });
     }
 
     if (jsonObject.pressArr != null) {
@@ -631,15 +654,15 @@ class Home extends React.Component {
         this.pressMax = max;
         this.pressArr = jsonObject.pressArr;
         this.setState({
-          pressArr: jsonObject.pressArr
-        })
+          pressArr: jsonObject.pressArr,
+        });
       }
     }
 
     if (jsonObject.download != null) {
       message.info(jsonObject.download);
     }
-  }
+  };
 
   ws1Data = (e) => {
     let jsonObject = JSON.parse(e.data);
@@ -647,13 +670,13 @@ class Home extends React.Component {
     // if (!Array.isArray(wsPointData)) {
     //   wsPointData = JSON.parse(wsPointData);
     // }
-    let sitFlag
+    let sitFlag;
     if (jsonObject.sitFlag != null) {
-      sitFlag = jsonObject.sitFlag
+      sitFlag = jsonObject.sitFlag;
     }
 
     if (jsonObject.backData != null) {
-      if (this.state.matrixName == 'car' && !sitFlag) {
+      if (this.state.matrixName == "car" && !sitFlag) {
         if (colValueFlag) {
           num++;
 
@@ -662,20 +685,27 @@ class Home extends React.Component {
           num = 0;
         }
       }
-      wsPointDataBack = (jsonObject.backData)
+      wsPointDataBack = jsonObject.backData;
       if (!Array.isArray(wsPointDataBack)) {
         wsPointDataBack = JSON.parse(wsPointDataBack);
       }
-      if (this.state.matrixName !== 'bigBed' && this.state.matrixName !== 'foot') {
-        backTypeEvent[this.state.matrixName]({ that: this, jsonObject, sitFlag, local: this.state.local })
+      if (
+        this.state.matrixName !== "bigBed" &&
+        this.state.matrixName !== "foot"
+      ) {
+        backTypeEvent[this.state.matrixName]({
+          that: this,
+          jsonObject,
+          sitFlag,
+          local: this.state.local,
+        });
       }
-
     }
 
     if (jsonObject.timeArr != null) {
       // const arr = []
 
-      const arr = jsonObject.timeArr//.map((a, index) => a.date);
+      const arr = jsonObject.timeArr; //.map((a, index) => a.date);
 
       let obj = [];
       arr.forEach((a, index) => {
@@ -685,7 +715,6 @@ class Home extends React.Component {
         });
       });
       this.setState({ dataArr: obj });
-
     }
 
     if (jsonObject.length != null) {
@@ -700,7 +729,7 @@ class Home extends React.Component {
     }
 
     if (jsonObject.index != null) {
-      this.progress.current?.changeIndex(jsonObject.index)
+      this.progress.current?.changeIndex(jsonObject.index);
     }
 
     if (jsonObject.areaArr != null) {
@@ -709,24 +738,27 @@ class Home extends React.Component {
       this.max = max;
       this.areaArr = jsonObject.areaArr;
       this.setState({
-        areaArr: jsonObject.areaArr
-      })
+        areaArr: jsonObject.areaArr,
+      });
     }
 
     if (jsonObject.pressArr != null) {
       const max = findMax(jsonObject.pressArr);
 
-      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "car10") {
+      if (
+        this.state.matrixName == "car" ||
+        this.state.matrixName == "bigBed" ||
+        this.state.matrixName == "car10"
+      ) {
         this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
         this.pressMax = max;
         this.pressArr = jsonObject.pressArr;
         this.setState({
-          pressArr: jsonObject.pressArr
-        })
+          pressArr: jsonObject.pressArr,
+        });
       }
-
     }
-  }
+  };
 
   wsSendObj = (obj) => {
     if (ws && ws.readyState === 1) {
@@ -735,27 +767,24 @@ class Home extends React.Component {
   };
 
   changeMatrix = (e) => {
-
     // setMatrixName(e)
     this.setState({ matrixName: e });
     wsMatrixName = e;
   };
 
   handleChartsBody(arr, max, index) {
-
-    const canvas = document.getElementById('myChartBig')
+    const canvas = document.getElementById("myChartBig");
 
     if (canvas && ctxbig) {
-      this.drawChart({ ctx: ctxbig, arr, max, canvas, index })
+      this.drawChart({ ctx: ctxbig, arr, max, canvas, index });
     }
   }
 
   handleChartsBody1(arr, max, index) {
-
-    const canvas = document.getElementById('myChartBig1')
+    const canvas = document.getElementById("myChartBig1");
 
     if (canvas && ctxbig1) {
-      this.drawChart({ ctx: ctxbig1, arr, max, canvas, index })
+      this.drawChart({ ctx: ctxbig1, arr, max, canvas, index });
     }
   }
 
@@ -779,26 +808,24 @@ class Home extends React.Component {
   }
 
   handleChartsSit(arr, max, index) {
-
-    const canvas = document.getElementById('myChartsit')
+    const canvas = document.getElementById("myChartsit");
 
     if (canvas && ctxsit) {
-      this.drawChart({ ctx: ctxsit, arr, max, canvas })
+      this.drawChart({ ctx: ctxsit, arr, max, canvas });
     }
   }
 
   handleChartsBack(arr, max, index) {
-
-    const canvas = document.getElementById('myChartback')
+    const canvas = document.getElementById("myChartback");
 
     if (canvas && ctxback) {
-      this.drawChart({ ctx: ctxback, arr, max, canvas })
+      this.drawChart({ ctx: ctxback, arr, max, canvas });
     }
   }
 
   drawChart({ ctx, arr, max, canvas, index }) {
     // 清空画布
-    const data = arr.map((a) => a * 150 / max)
+    const data = arr.map((a) => (a * 150) / max);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -812,8 +839,14 @@ class Home extends React.Component {
 
     for (var i = 1; i < data.length - 2; i++) {
       var xMid = (gap * (i + 1) + gap * (i + 2)) / 2;
-      var yMid = (canvas.height - data[i + 1] + canvas.height - data[i + 2]) / 2;
-      ctx.quadraticCurveTo(gap * (i + 1), canvas.height - data[i + 1], xMid, yMid);
+      var yMid =
+        (canvas.height - data[i + 1] + canvas.height - data[i + 2]) / 2;
+      ctx.quadraticCurveTo(
+        gap * (i + 1),
+        canvas.height - data[i + 1],
+        xMid,
+        yMid
+      );
     }
 
     // 连接最后两个数据点
@@ -831,14 +864,13 @@ class Home extends React.Component {
 
     if (index != null) {
       ctx.beginPath();
-      ctx.moveTo(gap * (index), canvas.height);
-      ctx.lineTo(gap * (index), 0);
+      ctx.moveTo(gap * index, canvas.height);
+      ctx.lineTo(gap * index, 0);
       ctx.strokeStyle = "#01F1E3";
       ctx.lineWidth = 2;
       ctx.setLineDash([3, 3]);
       ctx.stroke();
     }
-
   }
 
   changeLocal = (value) => {
@@ -871,40 +903,39 @@ class Home extends React.Component {
     return value < 4
       ? 0
       : value >= 4 + 64 * 2
-        ? 64 - 1
-        : Math.round((value - 4) / 2 - 1);
+      ? 64 - 1
+      : Math.round((value - 4) / 2 - 1);
   };
 
   changeSelect = (obj, type) => {
     let sit = [...obj.sit];
 
-    if (!sit.every(a => a == 0) && this.state.carState != 'back') {
+    if (!sit.every((a) => a == 0) && this.state.carState != "back") {
       const sitIndex = sit.length
         ? sit.map((a, index) => {
-          if (this.state.matrixName === "foot") {
-            if (index == 0 || index == 1) {
-              return this.changeFootValue(a);
+            if (this.state.matrixName === "foot") {
+              if (index == 0 || index == 1) {
+                return this.changeFootValue(a);
+              } else {
+                return this.changeValue(a);
+              }
+            } else if (this.state.matrixName === "bigBed") {
+              if (index == 0 || index == 1) {
+                return this.changeBedValue(a);
+              } else {
+                return this.changeValue(a);
+              }
             } else {
               return this.changeValue(a);
             }
-          } else if (this.state.matrixName === "bigBed") {
-            if (index == 0 || index == 1) {
-              return this.changeBedValue(a);
-            } else {
-              return this.changeValue(a);
-            }
-
-          } else {
-            return this.changeValue(a);
-          }
-        })
+          })
         : new Array(4).fill(0);
 
       this.sitIndexArr = sitIndex;
 
-      if (!sitIndex.every((a) => a == 0) && this.state.carState != 'back') {
+      if (!sitIndex.every((a) => a == 0) && this.state.carState != "back") {
         // thrott(this.wsSendObj.bind(this, { sitIndex }))
-        this.wsSendObj({ sitIndex })
+        this.wsSendObj({ sitIndex });
       }
 
       const selectArr = [];
@@ -922,24 +953,23 @@ class Home extends React.Component {
       } else {
         DataArr = [...selectArr];
       }
-      DataArr = DataArr.map((a) => a < this.state.valuef1 ? 0 : a)
+      DataArr = DataArr.map((a) => (a < this.state.valuef1 ? 0 : a));
       // 框选后或者无框选的数据
       const total = DataArr.reduce((a, b) => a + b, 0);
       const length = DataArr.filter((a, index) => a > 0).length;
 
-
-      sitPoint = DataArr.filter(
-        (a) => a > 10
-      ).length;
+      sitPoint = DataArr.filter((a) => a > 10).length;
       const sitTotalvalue = DataArr.reduce((a, b) => a + b, 0);
       sitMax = findMax(DataArr);
       sitArea = sitPoint;
-      const sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1))
+      const sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1));
       // sitTotal = mmghToPress(sitPressure, sitArea)
       // sitTotal = totalToN(sitTotal)
-      sitTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
-      sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal
-      sitMean = sitTotal / (sitPoint ? sitPoint : 1)
+      sitTotal = [...DataArr]
+        .map((a) => pointToN(a))
+        .reduce((a, b) => a + b, 0);
+      sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal;
+      sitMean = sitTotal / (sitPoint ? sitPoint : 1);
 
       this.data.current?.changeData({
         meanPres: sitMean.toFixed(2),
@@ -949,10 +979,13 @@ class Home extends React.Component {
         area: sitArea,
         pressure: sitPressure,
       });
-
     }
 
-    if (obj.back && !obj.back.every(a => a == 0) && this.state.carState != 'sit') {
+    if (
+      obj.back &&
+      !obj.back.every((a) => a == 0) &&
+      this.state.carState != "sit"
+    ) {
       let back = [...obj.back];
       if (back.length) {
         back[2] = Math.round(back[2] / 2);
@@ -961,27 +994,31 @@ class Home extends React.Component {
 
       const backIndex = back.length
         ? back.map((a, index) => {
-          if (this.state.matrixName === "foot") {
-            if (index == 0 || index == 1) {
-              return this.changeFootValue(a);
+            if (this.state.matrixName === "foot") {
+              if (index == 0 || index == 1) {
+                return this.changeFootValue(a);
+              } else {
+                return this.changeValue(a);
+              }
             } else {
               return this.changeValue(a);
             }
-          } else {
-            return this.changeValue(a);
-          }
-        })
+          })
         : new Array(4).fill(0);
 
       this.backIndexArr = backIndex;
-      if (!backIndex.every((a) => a == 0) && this.state.carState != 'sit') {
+      if (!backIndex.every((a) => a == 0) && this.state.carState != "sit") {
         // thrott1(this.wsSendObj.bind(this, { backIndex }))
-        this.wsSendObj({ backIndex })
+        this.wsSendObj({ backIndex });
       }
 
       const selectArr = [];
       for (let i = this.backIndexArr[0]; i <= this.backIndexArr[1]; i++) {
-        for (let j = 31 - this.backIndexArr[3]; j <= 31 - this.backIndexArr[2]; j++) {
+        for (
+          let j = 31 - this.backIndexArr[3];
+          j <= 31 - this.backIndexArr[2];
+          j++
+        ) {
           selectArr.push(wsPointDataBack[i * 32 + j]);
         }
       }
@@ -996,34 +1033,32 @@ class Home extends React.Component {
         DataArr = [...selectArr];
       }
 
-      DataArr = DataArr.map((a) => a < this.state.valuef1 ? 0 : a)
+      DataArr = DataArr.map((a) => (a < this.state.valuef1 ? 0 : a));
       const backTotalvalue = DataArr.reduce((a, b) => a + b, 0);
       backTotal = DataArr.reduce((a, b) => a + b, 0);
       backPoint = DataArr.filter((a) => a > 10).length;
       // backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
       backMax = findMax(DataArr);
       backArea = backPoint;
-      const backPressure = carFitting(backTotal / (backPoint ? backPoint : 1))
+      const backPressure = carFitting(backTotal / (backPoint ? backPoint : 1));
       // backTotal = mmghToPress(backPressure, backArea)
-      // backTotal = totalToN(backTotal, 1.3) 
-      console.log(DataArr)
-      backTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
-      backMax = (backMax / (backTotalvalue ? backTotalvalue : 1)) * backTotal
-      backMean = backTotal / (backPoint ? backPoint : 1)
+      // backTotal = totalToN(backTotal, 1.3)
+      console.log(DataArr);
+      backTotal = [...DataArr]
+        .map((a) => pointToN(a))
+        .reduce((a, b) => a + b, 0);
+      backMax = (backMax / (backTotalvalue ? backTotalvalue : 1)) * backTotal;
+      backMean = backTotal / (backPoint ? backPoint : 1);
 
       this.data.current?.changeData({
-        meanPres: (backMean).toFixed(2),
+        meanPres: backMean.toFixed(2),
         maxPres: backMax.toFixed(2),
-        totalPres: (backTotal).toFixed(2),
+        totalPres: backTotal.toFixed(2),
         point: backPoint,
         area: backArea,
         pressure: backPressure,
       });
-
     }
-
-
-
   };
 
   changeStateData = (obj) => {
@@ -1039,32 +1074,49 @@ class Home extends React.Component {
       <div className="home">
         <div className="setIcons">
           <div className="setIconItem setIconItem1">
-
-            <div className="setIconItem setIconItem2" style={{ position: 'absolute', width: '60px', right: 60, color: '#5A5A89', fontWeight: 'bold' }}>
-              <div style={{ display: 'flex' }}>
-                <span>x</span><Input value={this.state.width} onChange={(e) => {
-                  this.setState({
-                    width: e.target.value
-                  })
-                  this.com.current.changeBox({ width: e.target.value, height: this.state.height })
-                }} />
+            <div
+              className="setIconItem setIconItem2"
+              style={{
+                position: "absolute",
+                width: "60px",
+                right: 60,
+                color: "#5A5A89",
+                fontWeight: "bold",
+              }}
+            >
+              <div style={{ display: "flex" }}>
+                <span>x</span>
+                <Input
+                  value={this.state.width}
+                  onChange={(e) => {
+                    this.setState({
+                      width: e.target.value,
+                    });
+                    this.com.current.changeBox({
+                      width: e.target.value,
+                      height: this.state.height,
+                    });
+                  }}
+                />
               </div>
-              <div style={{ display: 'flex' }}>
-                <span>y</span><Input value={this.state.height} onChange={(e) => {
-                  this.setState({
-                    height: e.target.value
-                  })
-                  this.com.current.changeBox({ height: e.target.value, width: this.state.width })
-                }} />
+              <div style={{ display: "flex" }}>
+                <span>y</span>
+                <Input
+                  value={this.state.height}
+                  onChange={(e) => {
+                    this.setState({
+                      height: e.target.value,
+                    });
+                    this.com.current.changeBox({
+                      height: e.target.value,
+                      width: this.state.width,
+                    });
+                  }}
+                />
               </div>
-
             </div>
 
-            <Popover
-              placement="top"
-              title={text}
-              content={content}
-            >
+            <Popover placement="top" title={text} content={content}>
               <div
                 className="setIcon marginB10"
                 onClick={() => {
@@ -1124,7 +1176,7 @@ class Home extends React.Component {
               placement="top"
               title={text}
               content={content1}
-            // arrow={mergedArrow}
+              // arrow={mergedArrow}
             >
               <div
                 className="setIcon"
@@ -1214,7 +1266,7 @@ class Home extends React.Component {
                     src={refresh}
                     alt=""
                     onClick={() => {
-                      this.track.current?.canvasInit()
+                      this.track.current?.canvasInit();
                     }}
                   />
                 </div>
@@ -1228,9 +1280,17 @@ class Home extends React.Component {
                 <div
                   className="setIcon marginB10"
                   onClick={() => {
-                    const that = this
+                    const that = this;
 
-                    this.track.current?.loadImg({ arrSmooth: that.arrSmooth, rightTopPropSmooth: that.rightTopPropSmooth, leftTopPropSmooth: that.leftTopPropSmooth, leftBottomPropSmooth: that.leftBottomPropSmooth, rightPropSmooth: that.rightPropSmooth, leftPropSmooth: that.leftPropSmooth, rightBottomPropSmooth: that.rightBottomPropSmooth })
+                    this.track.current?.loadImg({
+                      arrSmooth: that.arrSmooth,
+                      rightTopPropSmooth: that.rightTopPropSmooth,
+                      leftTopPropSmooth: that.leftTopPropSmooth,
+                      leftBottomPropSmooth: that.leftBottomPropSmooth,
+                      rightPropSmooth: that.rightPropSmooth,
+                      leftPropSmooth: that.leftPropSmooth,
+                      rightBottomPropSmooth: that.rightBottomPropSmooth,
+                    });
                   }}
                 >
                   <img src={load} alt="" />
@@ -1257,10 +1317,10 @@ class Home extends React.Component {
                   //   sitIndexArr : new Array(4).fill(0),
                   //   backIndexArr : new Array(4).fill(0)
                   // })
-                  if (flag && this.state.carState === 'all') {
-                    this.setState({ width: 0, height: 0 })
-                    this.sitIndexArr = new Array(4).fill(0)
-                    this.backIndexArr = new Array(4).fill(0)
+                  if (flag && this.state.carState === "all") {
+                    this.setState({ width: 0, height: 0 });
+                    this.sitIndexArr = new Array(4).fill(0);
+                    this.backIndexArr = new Array(4).fill(0);
                   }
                 }}
               >
@@ -1276,12 +1336,8 @@ class Home extends React.Component {
             /> */}
               </div>
             </Popover>
-
-
           </div>
-
         </div>
-
 
         <div
           style={{
@@ -1302,10 +1358,11 @@ class Home extends React.Component {
                   key={`${rainbowTextColors[items]}${indexs}`}
                   style={{
                     display: "flex",
-                    height: `${100 /
+                    height: `${
+                      100 /
                       rainbowTextColors.slice(0, rainbowTextColors.length - 7)
                         .length
-                      }%`,
+                    }%`,
                     alignItems: "center",
                     padding: "3px",
                     boxSizing: "border-box",
@@ -1395,10 +1452,10 @@ class Home extends React.Component {
         </CanvasCom>
 
         {this.state.numMatrixFlag == "num" &&
-          (this.state.matrixName == "foot" ||
-            this.state.matrixName == "hand" ||
-            this.state.carState == "back" ||
-            this.state.carState == "sit") ? (
+        (this.state.matrixName == "foot" ||
+          this.state.matrixName == "hand" ||
+          this.state.carState == "back" ||
+          this.state.carState == "sit") ? (
           <Num ref={this.com} />
         ) : this.state.numMatrixFlag == "heatmap" &&
           (this.state.matrixName == "foot" ||
@@ -1416,15 +1473,30 @@ class Home extends React.Component {
           </CanvasCom>
         ) : this.state.matrixName == "car" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            <CanvasCar ref={this.com} changeSelect={this.changeSelect} changeStateData={this.changeStateData} />
+            <CanvasCar
+              ref={this.com}
+              changeSelect={this.changeSelect}
+              changeStateData={this.changeStateData}
+            />
           </CanvasCom>
         ) : this.state.matrixName == "bigBed" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            <Bed ref={this.com} data={this.data} handleChartsBody={this.handleChartsBody.bind(this)} handleChartsBody1={this.handleChartsBody1.bind(this)} changeSelect={this.changeSelect} />
+            <Bed
+              ref={this.com}
+              data={this.data}
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeSelect={this.changeSelect}
+            />
           </CanvasCom>
         ) : this.state.matrixName == "sit10" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            <Sit10 ref={this.com} handleChartsBody={this.handleChartsBody.bind(this)} handleChartsBody1={this.handleChartsBody1.bind(this)} changeSelect={this.changeSelect} />
+            <Sit10
+              ref={this.com}
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeSelect={this.changeSelect}
+            />
           </CanvasCom>
         ) : (
           <CanvasCom matrixName={this.state.matrixName}>
@@ -1433,12 +1505,23 @@ class Home extends React.Component {
         )}
 
         {/* 全床压力曲线 */}
-        {this.state.matrixName === 'bigBed' ?
-          <div style={{ position: "fixed", visibility: this.state.pressChart ? 'hidden' : 'unset', width: '60%', right: "20%", bottom: "100px" }}>
-            <canvas id="myChartBig1" style={{ height: '300px', width: '100%' }}></canvas>
+        {this.state.matrixName === "bigBed" ? (
+          <div
+            style={{
+              position: "fixed",
+              visibility: this.state.pressChart ? "hidden" : "unset",
+              width: "60%",
+              right: "20%",
+              bottom: "100px",
+            }}
+          >
+            <canvas
+              id="myChartBig1"
+              style={{ height: "300px", width: "100%" }}
+            ></canvas>
             {/* <canvas id="myChartBig" style={{ height: '300px', width: '100%' }}></canvas> */}
           </div>
-          : null}
+        ) : null}
 
         {/* {this.state.matrixName === 'localCar' ?
           <div style={{ position: "fixed", display : 'flex' ,visibility: this.state.pressChart ? 'hidden' : 'unset', width: '60%', right: "20%", bottom: "100px" }}>
@@ -1448,7 +1531,7 @@ class Home extends React.Component {
           : null} */}
 
         {/* 进度条 */}
-        {this.state.local ?
+        {this.state.local ? (
           <ProgressCom
             ref={this.progress}
             dataTime={this.state.dataTime}
@@ -1460,8 +1543,9 @@ class Home extends React.Component {
             max={this.max}
             time={this.state.time}
             pressMax={this.pressMax}
-            wsSendObj={this.wsSendObj} />
-          : null}
+            wsSendObj={this.wsSendObj}
+          />
+        ) : null}
         {/* 脚型重心画图 */}
         {this.state.matrixName == "foot" ? (
           <CanvasCom matrixName={this.state.matrixName}>
@@ -1469,17 +1553,30 @@ class Home extends React.Component {
           </CanvasCom>
         ) : null}
 
-        {this.state.matrixName == 'localCar' ? (
-          <div style={{
-            position: "fixed",
-            bottom: "6%",
-            right: "20%",
-            borderRadius: "10px",
-            color: '#fff',
-            fontSize: '1.5rem'
-          }}>
+        {this.state.matrixName == "localCar" ? (
+          <div
+            style={{
+              position: "fixed",
+              bottom: "6%",
+              right: "20%",
+              borderRadius: "10px",
+              color: "#fff",
+              fontSize: "1.5rem",
+            }}
+          >
             {controlArr.map((a, index) => {
-              return (<p style={{ color: this.state.control.includes(a.info) ? '#0cf862' : '#fff', fontWeight: 'bold' }}>{a.name}</p>)
+              return (
+                <p
+                  style={{
+                    color: this.state.control.includes(a.info)
+                      ? "#0cf862"
+                      : "#fff",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {a.name}
+                </p>
+              );
             })}
             <p>hunch : {this.state.hunch}</p>
             <p>front : {this.state.front}</p>

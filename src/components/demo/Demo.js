@@ -31,6 +31,7 @@ let data = []
 //         res[i].push(data[i * 32 + j])
 //     }
 // }
+const matrixLen = 10
 let ws, pressValue = localStorage.getItem("carValuePress")
     ? JSON.parse(localStorage.getItem("carValuePress"))
     : 1000;
@@ -71,7 +72,7 @@ export default function Demo() {
     const [flag, setFlag] = useState(false)
     const [name, setName] = useState('')
     useEffect(() => {
-        ws = new WebSocket(" ws://localhost:19998");
+        ws = new WebSocket(" ws://localhost:19999");
         ws.onopen = () => {
             // connection opened
             console.info("connect success");
@@ -174,10 +175,10 @@ export default function Demo() {
 
 
                 let arr = []
-                for (let i = 0; i < 32; i++) {
+                for (let i = 0; i < matrixLen; i++) {
                     arr[i] = []
-                    for (let j = 0; j < 32; j++) {
-                        arr[i][j] = wsPointData[i * 32 + j]
+                    for (let j = 0; j < matrixLen; j++) {
+                        arr[i][j] = wsPointData[i * matrixLen + j]
                     }
                 }
                 // console.log(arr) 
