@@ -223,7 +223,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "sit10",
+      matrixName: "car",
       length: 0,
       local: false,
       dataArr: [],
@@ -251,6 +251,7 @@ class Home extends React.Component {
       hunch: "",
       front: "",
       flank: "",
+      pressValue : '',
       colWebFlag: false,
       colOneFlag: false,
       csvData: JSON.parse(localStorage.getItem("collection"))
@@ -285,13 +286,18 @@ class Home extends React.Component {
 
     if (c1) ctxbig1 = c1.getContext("2d");
     const ip = "k2.bodyta.com";
-    // ws = new WebSocket(`ws://${ip}:23001/ws/data`)
-    // ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
+    if (this.state.matrixName === 'localCar') {
+      ws = new WebSocket(`ws://${ip}:23001/ws/data`)
+      ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
+    }else{
+      ws = new WebSocket(" ws://127.0.0.1:19999");
+      ws1 = new WebSocket(" ws://127.0.0.1:19998");
+    }
+
 
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
-    ws = new WebSocket(" ws://127.0.0.1:19999");
-    ws1 = new WebSocket(" ws://127.0.0.1:19998");
+  
     // ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
     ws.onopen = () => {
       // connection opened
@@ -346,7 +352,18 @@ class Home extends React.Component {
           this.setState({
             flank: data,
           });
-        } else if (jsonObject[0] == 2) {
+        }  
+        else if (jsonObject[0] == 4) {
+          const data = jsonObject.split(" ")[1];
+
+          this.setState({
+            pressToArea: data,
+          });
+        } 
+        
+        
+        
+        else if (jsonObject[0] == 2) {
           const data = jsonObject.split(" ")[1];
 
           this.setState({
@@ -903,8 +920,8 @@ class Home extends React.Component {
     return value < 4
       ? 0
       : value >= 4 + 64 * 2
-      ? 64 - 1
-      : Math.round((value - 4) / 2 - 1);
+        ? 64 - 1
+        : Math.round((value - 4) / 2 - 1);
   };
 
   changeSelect = (obj, type) => {
@@ -913,22 +930,22 @@ class Home extends React.Component {
     if (!sit.every((a) => a == 0) && this.state.carState != "back") {
       const sitIndex = sit.length
         ? sit.map((a, index) => {
-            if (this.state.matrixName === "foot") {
-              if (index == 0 || index == 1) {
-                return this.changeFootValue(a);
-              } else {
-                return this.changeValue(a);
-              }
-            } else if (this.state.matrixName === "bigBed") {
-              if (index == 0 || index == 1) {
-                return this.changeBedValue(a);
-              } else {
-                return this.changeValue(a);
-              }
+          if (this.state.matrixName === "foot") {
+            if (index == 0 || index == 1) {
+              return this.changeFootValue(a);
             } else {
               return this.changeValue(a);
             }
-          })
+          } else if (this.state.matrixName === "bigBed") {
+            if (index == 0 || index == 1) {
+              return this.changeBedValue(a);
+            } else {
+              return this.changeValue(a);
+            }
+          } else {
+            return this.changeValue(a);
+          }
+        })
         : new Array(4).fill(0);
 
       this.sitIndexArr = sitIndex;
@@ -994,16 +1011,16 @@ class Home extends React.Component {
 
       const backIndex = back.length
         ? back.map((a, index) => {
-            if (this.state.matrixName === "foot") {
-              if (index == 0 || index == 1) {
-                return this.changeFootValue(a);
-              } else {
-                return this.changeValue(a);
-              }
+          if (this.state.matrixName === "foot") {
+            if (index == 0 || index == 1) {
+              return this.changeFootValue(a);
             } else {
               return this.changeValue(a);
             }
-          })
+          } else {
+            return this.changeValue(a);
+          }
+        })
         : new Array(4).fill(0);
 
       this.backIndexArr = backIndex;
@@ -1176,7 +1193,7 @@ class Home extends React.Component {
               placement="top"
               title={text}
               content={content1}
-              // arrow={mergedArrow}
+            // arrow={mergedArrow}
             >
               <div
                 className="setIcon"
@@ -1358,11 +1375,10 @@ class Home extends React.Component {
                   key={`${rainbowTextColors[items]}${indexs}`}
                   style={{
                     display: "flex",
-                    height: `${
-                      100 /
+                    height: `${100 /
                       rainbowTextColors.slice(0, rainbowTextColors.length - 7)
                         .length
-                    }%`,
+                      }%`,
                     alignItems: "center",
                     padding: "3px",
                     boxSizing: "border-box",
@@ -1452,10 +1468,10 @@ class Home extends React.Component {
         </CanvasCom>
 
         {this.state.numMatrixFlag == "num" &&
-        (this.state.matrixName == "foot" ||
-          this.state.matrixName == "hand" ||
-          this.state.carState == "back" ||
-          this.state.carState == "sit") ? (
+          (this.state.matrixName == "foot" ||
+            this.state.matrixName == "hand" ||
+            this.state.carState == "back" ||
+            this.state.carState == "sit") ? (
           <Num ref={this.com} />
         ) : this.state.numMatrixFlag == "heatmap" &&
           (this.state.matrixName == "foot" ||

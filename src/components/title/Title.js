@@ -165,6 +165,19 @@ class Title extends React.Component {
     })
   }
 
+  changeMatrixType(e) {
+    // this.props.handleChangeCom(e);
+    console.log(e);
+    this.props.wsSendObj({ file: e })
+    this.props.changeMatrix(e)
+    if (e === 'bigBed') {
+      this.props.initBigCtx()
+    }
+    // this.props.changeDateArr(e.info)
+    // if (ws && ws.readyState === 1)
+    //   ws.send(JSON.stringify({ sitPort: e }));
+  }
+
   render() {
     // console.log('title')
     return <div className="title">
@@ -175,16 +188,7 @@ class Title extends React.Component {
           // defaultValue={'汽车座椅'}
           placeholder="请选择对应传感器"
           onChange={(e) => {
-            // this.props.handleChangeCom(e);
-            console.log(e);
-            this.props.wsSendObj({ file: e })
-            this.props.changeMatrix(e)
-            if (e === 'bigBed') {
-              this.props.initBigCtx()
-            }
-            // this.props.changeDateArr(e.info)
-            // if (ws && ws.readyState === 1)
-            //   ws.send(JSON.stringify({ sitPort: e }));
+            this.changeMatrixType(e)
           }}
           options={sensorArr}
         />
@@ -757,7 +761,7 @@ class Title extends React.Component {
                   style={{ width: '200px' }}
                 />
               </div>
-             {this.props.matrixName != 'car' ? <> <div
+              {this.props.matrixName != 'car' ? <> <div
                 className="progerssSlide"
                 style={{
                   display: "flex",
@@ -803,40 +807,40 @@ class Title extends React.Component {
                   style={{ width: '200px' }}
                 />
               </div>
-              <div
-                className="progerssSlide"
-                style={{
-                  display: "flex",
-
-                  alignItems: "center",
-                }}
-              >
                 <div
+                  className="progerssSlide"
                   style={{
-                    color: "#468493",
-                    minWidth: "80px",
-                    textAlign: "left",
+                    display: "flex",
+
+                    alignItems: "center",
                   }}
                 >
-                  压强倍数
-                </div>
-                <Slider
-                  min={0.5}
-                  max={3}
-                  onChange={(value) => {
-                    localStorage.setItem("valueMult", value);
-                    // this.props.setValuelInit1(value);
-                    this.props.changeStateData({ valueMult: value })
-                    if (this.props.data.current) {
-                      this.props.data.current.changePressMult(value)
-                    }
-                  }}
-                  value={this.props.valueMult}
-                  step={0.1}
-                  // value={this.props.}
-                  style={{ width: '200px' }}
-                />
-              </div> </> : null}
+                  <div
+                    style={{
+                      color: "#468493",
+                      minWidth: "80px",
+                      textAlign: "left",
+                    }}
+                  >
+                    压强倍数
+                  </div>
+                  <Slider
+                    min={0.5}
+                    max={3}
+                    onChange={(value) => {
+                      localStorage.setItem("valueMult", value);
+                      // this.props.setValuelInit1(value);
+                      this.props.changeStateData({ valueMult: value })
+                      if (this.props.data.current) {
+                        this.props.data.current.changePressMult(value)
+                      }
+                    }}
+                    value={this.props.valueMult}
+                    step={0.1}
+                    // value={this.props.}
+                    style={{ width: '200px' }}
+                  />
+                </div> </> : null}
             </div>
           </div> : <div></div>
         }

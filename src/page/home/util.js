@@ -698,9 +698,9 @@ export const sitTypeEvent = {
 
     DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
 
-    that.setState({
-      pressToArea : (DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
-    })
+    // that.setState({
+    //   pressToArea : (DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
+    // })
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
     const length = DataArr.filter((a, index) => a > 0).length;
