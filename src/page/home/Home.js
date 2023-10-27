@@ -223,7 +223,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "car",
+      matrixName: "localCar",
       length: 0,
       local: false,
       dataArr: [],
@@ -264,6 +264,7 @@ class Home extends React.Component {
       width: "",
       height: "",
       pressToArea: 0,
+      newValue : 0
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -1598,6 +1599,7 @@ class Home extends React.Component {
             <p>front : {this.state.front}</p>
             <p>flank : {this.state.flank}</p>
             <p>sitValue : {this.state.pressToArea}</p>
+            <p>newValue : {this.state.newValue}</p>
           </div>
         ) : null}
 
