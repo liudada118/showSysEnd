@@ -254,7 +254,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
         changeIndex
     }));
 
-
+    console.log(props)
     return (
         <div
             className='progressContent'
@@ -347,7 +347,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
                 </div>
                 <div style={{ position: "absolute", left: "calc(50% - 300px)" }}>
                     <span style={{ color : '#fff'}}>{timeStampToDate(props.time)}</span>
-                    {props.matrixName === 'bigBed' ? <input type="text" onChange={(e) => {
+                    {props.matrixName === 'bigBed' || props.matrixName === 'car' ? <input type="text" onChange={(e) => {
                         const value = Number(e.target.value)
                          const line = document.querySelector(".progressLine");
                           props.wsSendObj({ value });

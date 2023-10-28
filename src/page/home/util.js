@@ -699,7 +699,7 @@ export const sitTypeEvent = {
     DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
 
     that.setState({
-      newValue :DataArr.filter((a) => a > 70).reduce((a,b) => a + b , 0) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
+      newValue :DataArr.filter((a) => a > 70).reduce((a,b) => a + b , 0).toFixed(2) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
     })
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
@@ -907,6 +907,8 @@ export const backTypeEvent = {
         });
     }
 
+
+
     // console.log(that.backIndexArr)
     // that.backIndexArr[2] = Math.round(that.backIndexArr[2] / 2)
     // that.backIndexArr[3] = Math.round(that.backIndexArr[3] / 2)
@@ -930,11 +932,15 @@ export const backTypeEvent = {
     } else {
       DataArr = [...selectArr];
     }
+
+
     // console.log(DataArr)
-    DataArr = DataArr.map((a) => (a < that.state.valuef1 ? 0 : a));
+    DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
+
     const backTotalvalue = DataArr.reduce((a, b) => a + b, 0);
     backTotal = DataArr.reduce((a, b) => a + b, 0);
     backPoint = DataArr.filter((a) => a > 10).length;
+    // console.log((backTotal/backPoint).toFixed(2) ,backTotal,backPoint, 'mmgh')
     // backMean = parseInt(backTotal / (backPoint ? backPoint : 1));
     backMax = findMax(DataArr);
     backArea = backPoint;
@@ -1368,10 +1374,10 @@ export const backTypeEvent = {
       that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
   },
 };
-
+// 0.0007   -0.0030   -0.0407
 export function carFitting(value) {
   const res =
-    0.0582 * Math.pow(value, 2) + -1.4553 * Math.pow(value, 1) + 11.699;
+  0.0007 * Math.pow(value, 2) + (-0.0030) * Math.pow(value, 1) + -0.0407;
   // console.log(value , res)
   return res;
 }
@@ -1404,7 +1410,7 @@ export function totalToN1(x) {
 }
 
 export function pointToN(x, mul) {
-  
+  return x
   let value = Math.pow(x, 2) * 0.00027 + 0.0379 * x + -1.7538;
   value = value < 0 ? 0 : value;
   return mul ? value * mul : value;

@@ -445,7 +445,7 @@ class Aside extends React.Component {
                 <div className="asideContent firstAside">
                     <h2 className="asideTitle">Pressure Data</h2>
                     {/* <div style={{}}> */}
-                    <span className='pressData'>{(this.state.pressure * this.state.pressMult).toFixed(2)}</span> <span style={{ color: '#999' }}>{'mmgH'}</span>
+                    <span className='pressData'>{(this.state.pressure * this.state.pressMult).toFixed(0)}</span> <span style={{ color: '#999' }}>{'mmgH'}</span>
                     {/* </div> */}
 
                     {this.props.matrixName != 'foot' ? <>
@@ -461,7 +461,7 @@ class Aside extends React.Component {
                                         </div>
                                         <div className='dataIteminfo'>
                                             <div className='standardColor'>{a.eng}</div>
-                                            <div>{this.state[arr[index]]} <span style={{ color: '#999' }}>N</span></div>
+                                            <div>{this.state[arr[index]]} <span style={{ color: '#999' }}></span></div>
                                         </div>
                                     </div>
                                 )

@@ -159,10 +159,10 @@ export function calculatePressure(x) {
   const constant = -38.228519;
 
   // const y = coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant;
-
-  return (coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant).toFixed(
+  const value = (coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant).toFixed(
     2
-  );
+  )
+  return value < 0 ? 0 : value;
 }
 
 export function pressBed(arr, value) {

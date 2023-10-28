@@ -37,18 +37,18 @@ const backOrder = 4;
 let controlsFlag = true;
 var ndata = new Array(backnum1 * backnum2).fill(0), newData = new Array(backnum1 * backnum2).fill(0), newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0), centerFlag = true;
 
-var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
-  valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
-  value1 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
-  valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
-  valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
-  ymax1 = localStorage.getItem('ymax') ? JSON.parse(localStorage.getItem('ymax')) : 200,
+var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 2655,
+  valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 3.3,
+  value1 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2.08,
+  valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 4,
+  valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 0,
+  ymax1 = localStorage.getItem('ymax') ? JSON.parse(localStorage.getItem('ymax')) : 251,
   valuej2 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
   valueg2 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
   value2 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
   valuel2 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
   valuef2 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
-  valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2,
+  valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2001,
   valuelInit2 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2;
 let enableControls = true;
 let isShiftPressed = false;
@@ -229,8 +229,11 @@ const Canvas = React.forwardRef((props, refs) => {
 
     document.addEventListener('pointerup', pointUp);
 
-
-
+    const x = localStorage.getItem('bedx')
+    if(x) group.rotation.x = -(Number(x) * 6) / 12
+    const z = localStorage.getItem('bedz')
+    if(z)  group.rotation.z = Number(z) * 6 / 12
+    
   }
 
   function pointDown(event) {

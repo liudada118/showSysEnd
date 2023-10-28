@@ -63,8 +63,8 @@ let collection = JSON.parse(localStorage.getItem("collection"))
 let ws,
   ws1,
   wsControl,
-  xvalue = 0,
-  zvalue = 0,
+  xvalue = localStorage.getItem('bedx') ? Number(localStorage.getItem('bedx')) : 0,
+  zvalue = localStorage.getItem('bedz') ? Number(localStorage.getItem('bedz')) : 0,
   sitIndexArr = new Array(4).fill(0),
   backIndexArr = new Array(4).fill(0),
   sitPress = 0,
@@ -201,19 +201,19 @@ class Home extends React.Component {
     this.state = {
       valueg1: localStorage.getItem("carValueg")
         ? JSON.parse(localStorage.getItem("carValueg"))
-        : 3.6,
+        : 3.3,
       valuej1: localStorage.getItem("carValuej")
         ? JSON.parse(localStorage.getItem("carValuej"))
-        : 335,
+        : 2655,
       valuel1: localStorage.getItem("carValuel")
         ? JSON.parse(localStorage.getItem("carValuel"))
-        : 2,
+        : 4,
       valuef1: localStorage.getItem("carValuef")
         ? JSON.parse(localStorage.getItem("carValuef"))
-        : 2,
+        : 0,
       value1: localStorage.getItem("carValue")
         ? JSON.parse(localStorage.getItem("carValue"))
-        : 2,
+        : 2.08,
       valuelInit1: localStorage.getItem("carValueInit")
         ? JSON.parse(localStorage.getItem("carValueInit"))
         : 2000,
@@ -223,7 +223,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "localCar",
+      matrixName: "car",
       length: 0,
       local: false,
       dataArr: [],
@@ -251,7 +251,7 @@ class Home extends React.Component {
       hunch: "",
       front: "",
       flank: "",
-      pressValue : '',
+      pressValue: '',
       colWebFlag: false,
       colOneFlag: false,
       csvData: JSON.parse(localStorage.getItem("collection"))
@@ -264,7 +264,7 @@ class Home extends React.Component {
       width: "",
       height: "",
       pressToArea: 0,
-      newValue : 0
+      newValue: 0
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -290,7 +290,7 @@ class Home extends React.Component {
     if (this.state.matrixName === 'localCar') {
       ws = new WebSocket(`ws://${ip}:23001/ws/data`)
       ws1 = new WebSocket(`ws://${ip}:23001/ws/data1`)
-    }else{
+    } else {
       ws = new WebSocket(" ws://127.0.0.1:19999");
       ws1 = new WebSocket(" ws://127.0.0.1:19998");
     }
@@ -298,7 +298,7 @@ class Home extends React.Component {
 
     // ws = new WebSocket(" ws://192.168.31.114:19999");
     // ws = new WebSocket(`ws://${ip}:1880/ws/data`)
-  
+
     // ws = new WebSocket("ws://192.168.31.124:1880/ws/data")
     ws.onopen = () => {
       // connection opened
@@ -353,17 +353,17 @@ class Home extends React.Component {
           this.setState({
             flank: data,
           });
-        }  
+        }
         else if (jsonObject[0] == 4) {
           const data = jsonObject.split(" ")[1];
 
           this.setState({
             pressToArea: data,
           });
-        } 
-        
-        
-        
+        }
+
+
+
         else if (jsonObject[0] == 2) {
           const data = jsonObject.split(" ")[1];
 
@@ -1067,7 +1067,7 @@ class Home extends React.Component {
         .reduce((a, b) => a + b, 0);
       backMax = (backMax / (backTotalvalue ? backTotalvalue : 1)) * backTotal;
       backMean = backTotal / (backPoint ? backPoint : 1);
-
+      console.log(backTotal)
       this.data.current?.changeData({
         meanPres: backMean.toFixed(2),
         maxPres: backMax.toFixed(2),
@@ -1158,6 +1158,7 @@ class Home extends React.Component {
                     }
                   }
 
+                  localStorage.setItem('bedx', xvalue)
                   // 汽车方向旋转
 
                   if (xvalue < 3) {
@@ -1217,7 +1218,7 @@ class Home extends React.Component {
                       this.com.current?.changeGroupRotate({ z: zvalue });
                     }
                   }
-
+                  localStorage.setItem('bedz', zvalue)
                   // 汽车方向旋转
                   if (zvalue < 3) {
                     if (
