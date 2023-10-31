@@ -64,6 +64,7 @@ let backTotal = 0,
   colValueFlag = false,
   clearFlag = false,
   lastArr = [];
+let welArr = []
 export const sitTypeEvent = {
   foot: ({ that, wsPointData }) => {
     // let resData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 2, 10, 25, 28, 31, 5, 1, 0, 0, 0, 0, 0, 0, 63, 53, 21, 20, 5, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 10, 22, 21, 5, 3, 1, 0, 0, 0, 0, 0, 0, 35, 61, 29, 14, 6, 2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 5, 11, 18, 6, 1, 1, 0, 0, 0, 0, 0, 0, 0, 5, 30, 34, 16, 13, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 18, 24, 11, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 10, 20, 17, 13, 3, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 15, 31, 27, 22, 12, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 5, 19, 20, 24, 11, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 6, 34, 48, 27, 27, 4, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 1, 3, 25, 33, 29, 12, 7, 2, 1, 1, 0, 0, 0, 0, 0, 0, 36, 67, 51, 54, 35, 7, 4, 2, 3, 1, 0, 0, 0, 0, 0, 0, 1, 4, 34, 24, 51, 38, 18, 3, 2, 0, 0, 0, 0, 0, 0, 1, 84, 86, 62, 63, 44, 13, 5, 4, 6, 2, 0, 0, 0, 0, 0, 0, 3, 6, 43, 63, 65, 81, 57, 6, 4, 0, 0, 0, 0, 0, 0, 6, 76, 85, 53, 58, 82, 12, 5, 4, 7, 2, 0, 0, 0, 0, 0, 0, 3, 7, 44, 55, 80, 100, 67, 8, 4, 0, 0, 0, 0, 0, 0, 16, 63, 77, 53, 63, 86, 7, 5, 4, 6, 2, 0, 0, 0, 0, 0, 0, 3, 14, 60, 57, 55, 55, 75, 17, 4, 0, 0, 0, 0, 0, 0, 1, 24, 57, 65, 52, 16, 5, 4, 3, 6, 2, 0, 0, 0, 0, 0, 0, 3, 11, 64, 59, 57, 84, 69, 6, 4, 0, 0, 0, 0, 0, 0, 0, 1, 4, 6, 5, 3, 2, 2, 2, 3, 1, 0, 0, 0, 0, 0, 0, 2, 4, 23, 65, 74, 71, 14, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 26, 15, 17, 20, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 1, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 2, 5, 40, 46, 45, 28, 57, 8, 5, 1, 0, 0, 0, 0, 0, 0, 2, 4, 4, 16, 37, 23, 34, 49, 5, 2, 0, 0, 0, 0, 0, 0, 1, 4, 51, 53, 36, 10, 19, 52, 7, 1, 0, 0, 0, 0, 0, 0, 2, 4, 6, 16, 15, 15, 36, 72, 30, 0, 0, 0, 0, 0, 0, 0, 0, 2, 16, 18, 28, 4, 21, 14, 5, 0, 0, 0, 0, 0, 0, 0, 1, 2, 20, 21, 3, 4, 17, 52, 11, 0, 0, 0, 0, 0, 0, 0, 0, 5, 18, 19, 21, 33, 23, 22, 21, 1, 0, 0, 0, 0, 0, 0, 1, 11, 17, 23, 4, 4, 24, 23, 15, 0, 0, 0, 0, 0, 0, 0, 3, 35, 58, 44, 46, 62, 64, 22, 15, 2, 0, 0, 0, 0, 0, 0, 2, 13, 12, 25, 44, 33, 32, 25, 19, 0, 0, 0, 0, 0, 0, 0, 5, 77, 56, 54, 65, 88, 62, 60, 39, 4, 0, 0, 0, 0, 0, 0, 5, 16, 44, 40, 53, 61, 45, 50, 86, 3, 1, 0, 0, 0, 0, 0, 5, 70, 41, 46, 60, 76, 60, 55, 54, 8, 0, 0, 0, 0, 0, 1, 13, 36, 45, 77, 54, 57, 63, 48, 89, 12, 0, 0, 0, 0, 0, 0, 0, 46, 55, 43, 54, 60, 53, 54, 62, 0, 0, 0, 0, 0, 0, 0, 26, 46, 53, 69, 59, 62, 63, 50, 72, 0, 0, 0, 0, 0, 0, 0, 3, 22, 70, 41, 48, 45, 46, 54, 70, 36, 0, 0, 0, 0, 0, 1, 40, 57, 61, 61, 65, 67, 64, 53, 56, 2, 0, 0, 0, 0, 0, 0, 1, 2, 4, 4, 12, 34, 44, 39, 69, 33, 0, 0, 0, 0, 0, 20, 65, 76, 51, 38, 18, 24, 21, 8, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 3, 13, 34, 29, 48, 5, 0, 0, 0, 0, 0, 10, 53, 43, 24, 28, 11, 5, 4, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 10, 16, 27, 21, 2, 0, 0, 0, 0, 0, 2, 46, 45, 26, 16, 3, 2, 2, 2, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 3, 1, 4, 22, 34, 35, 12, 1, 0, 0, 0, 0, 0, 1, 41, 56, 26, 14, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 3, 14, 32, 26, 5, 1, 0, 0, 0, 0, 0, 0, 41, 51, 28, 19, 6, 2, 2, 2, 1, 0, 0, 0]
@@ -95,14 +96,14 @@ export const sitTypeEvent = {
       (leftFlag
         ? leftFootValue.footType
         : 0 + rightFlag
-        ? rightFootValue.footType
-        : 0) / divisor;
+          ? rightFootValue.footType
+          : 0) / divisor;
     const footLength =
       (leftFlag
         ? leftFootValue.footLength
         : 0 + rightFlag
-        ? rightFootValue.footLength
-        : 0) / divisor;
+          ? rightFootValue.footLength
+          : 0) / divisor;
 
     footTypeSmooth = footTypeSmooth + (footType - footTypeSmooth) / 20;
 
@@ -224,7 +225,7 @@ export const sitTypeEvent = {
 
     let leftProp = parseInt(
       (leftValue * 100) /
-        (leftValue + rightValue > 0 ? leftValue + rightValue : 1)
+      (leftValue + rightValue > 0 ? leftValue + rightValue : 1)
     );
     let rightProp = 100 - leftProp;
 
@@ -549,7 +550,7 @@ export const sitTypeEvent = {
     sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1));
     // sitTotal = mmghToPress(sitPressure, sitArea)
     // sitTotal = totalToN(sitTotal);
-    sitTotal = [...DataArr].map((a) => pointToN(a)).reduce((a,b) => a+b ,0)
+    sitTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
     sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal;
     sitMean = sitTotal / (sitPoint ? sitPoint : 1);
     if (
@@ -684,7 +685,7 @@ export const sitTypeEvent = {
       }
     }
 
-    
+
 
     let DataArr;
 
@@ -694,13 +695,30 @@ export const sitTypeEvent = {
       DataArr = [...selectArr];
     }
 
-  
+
 
     DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
 
-    that.setState({
-      newValue :DataArr.filter((a) => a > 70).reduce((a,b) => a + b , 0).toFixed(2) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
-    })
+    if (DataArr.reduce((a, b) => a + b, 0) < 3000) {
+      that.setState({
+        welFlag: false
+      })
+      welArr = []
+    }
+
+    if (!that.state.welFlag) {
+      if (DataArr.reduce((a, b) => a + b, 0) > 3000) {
+        welArr.push(DataArr.filter((a) => a > 60).reduce((a, b) => a + b, 0))
+      }
+    } else {
+      that.setState({
+        newValue: (welArr.reduce((a, b) => a + b, 0) / (welArr.length == 0 ? 1 : welArr.length)).toFixed(0) //DataArr.filter((a) => a > 70).reduce((a, b) => a + b, 0).toFixed(2) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
+      })
+    }
+
+    // that.setState({
+    //   newValue: DataArr.filter((a) => a > 70).reduce((a, b) => a + b, 0).toFixed(2) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
+    // })
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
     const length = DataArr.filter((a, index) => a > 0).length;
@@ -785,7 +803,7 @@ export const sitTypeEvent = {
       DataArr = [...selectArr];
     }
 
-    
+
     DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
@@ -947,7 +965,7 @@ export const backTypeEvent = {
     backPressure = carFitting(backTotal / (backPoint ? backPoint : 1));
     // backTotal = mmghToPress(backPressure, backArea)
     // backTotal = totalToN(backTotal, 1.3);
-    backTotal = [...DataArr].map((a) => pointToN(a)).reduce((a,b) => a+b , 0)
+    backTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
     backMax = (backMax / (backTotalvalue ? backTotalvalue : 1)) * backTotal;
     backMean = backTotal / (backPoint ? backPoint : 1);
 
@@ -1254,7 +1272,7 @@ export const backTypeEvent = {
       wsPointData: wsPointData,
     });
 
-    
+
 
     const selectArr = [];
     for (let i = that.backIndexArr[0]; i < that.backIndexArr[1]; i++) {
@@ -1377,7 +1395,7 @@ export const backTypeEvent = {
 // 0.0007   -0.0030   -0.0407
 export function carFitting(value) {
   const res =
-  0.0007 * Math.pow(value, 2) + (-0.0030) * Math.pow(value, 1) + -0.0407;
+    0.0007 * Math.pow(value, 2) + (-0.0030) * Math.pow(value, 1) + -0.0407;
   // console.log(value , res)
   return res;
 }
@@ -1414,4 +1432,68 @@ export function pointToN(x, mul) {
   let value = Math.pow(x, 2) * 0.00027 + 0.0379 * x + -1.7538;
   value = value < 0 ? 0 : value;
   return mul ? value * mul : value;
+}
+
+function getValue(arr, local) {
+  let DataArr = arr
+  DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
+  // 框选后或者无框选的数据
+  const total = DataArr.reduce((a, b) => a + b, 0);
+  const length = DataArr.filter((a, index) => a > 0).length;
+
+  sitPoint = DataArr.filter((a) => a > 10).length;
+  const sitTotalvalue = DataArr.reduce((a, b) => a + b, 0);
+  sitMax = findMax(DataArr);
+  sitArea = sitPoint;
+  sitTotal = DataArr.reduce((a, b) => a + b, 0);
+  sitPressure = carFitting(sitTotal / (sitPoint ? sitPoint : 1));
+  // sitTotal = mmghToPress(sitPressure, sitArea)
+  // sitTotal = totalToN(sitTotal);
+  sitTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
+  sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal;
+  sitMean = sitTotal / (sitPoint ? sitPoint : 1);
+  if (
+    sitPoint < 80 &&
+    that.sitIndexArr.every((a) => a == 0) &&
+    that.backIndexArr.every((a) => a == 0)
+  ) {
+    sitMean = 0;
+    sitMax = 0;
+    sitTotal = 0;
+    sitPoint = 0;
+    sitArea = 0;
+    sitPressure = 0;
+  }
+  sitSmooth.getSmooth(
+    [sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure],
+    10
+  );
+
+  if (totalArr.length < 20) {
+    totalArr.push(sitSmooth.smoothValue[2]);
+  } else {
+    totalArr.shift();
+    totalArr.push(sitSmooth.smoothValue[2]);
+  }
+  const max = findMax(totalArr);
+  const max1 = findMax(totalPointArr);
+  if (local) {
+    return {
+      meanPres: sitMean.toFixed(2),
+      maxPres: sitMax.toFixed(2),
+      totalPres: sitTotal.toFixed(2),
+      point: sitPoint,
+      area: sitArea,
+      pressure: sitPressure,
+    };
+  } else {
+    return {
+      meanPres: sitSmooth.smoothValue[0].toFixed(2),
+      maxPres: sitSmooth.smoothValue[1].toFixed(2),
+      totalPres: sitSmooth.smoothValue[2].toFixed(2),
+      point: parseInt(sitSmooth.smoothValue[3]),
+      area: parseInt(sitSmooth.smoothValue[4]),
+      pressure: parseInt(sitSmooth.smoothValue[5]),
+    };
+  }
 }

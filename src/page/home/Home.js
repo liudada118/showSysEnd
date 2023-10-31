@@ -223,7 +223,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "car",
+      matrixName: "localCar",
       length: 0,
       local: false,
       dataArr: [],
@@ -264,7 +264,8 @@ class Home extends React.Component {
       width: "",
       height: "",
       pressToArea: 0,
-      newValue: 0
+      newValue: 0,
+      welFlag : false
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -392,6 +393,9 @@ class Home extends React.Component {
             // localStorage.setItem('collection', JSON.stringify(collection))
             // this.setState({ csvData: collection, length: collection.length });
             oneFlag = true;
+            this.setState({
+              welFlag : true
+            })
           }
 
           if (controlFlag && jsonObject === "靠背气囊充气") {
