@@ -152,10 +152,10 @@ const Canvas = React.forwardRef((props, refs) => {
     initSet();
     // initBack();
     // scene.add(group);
-    group.rotation.x = -(Math.PI * 2) / 12
-    group.position.x = -15
-    group.position.y = 150
-    group.position.z = 230
+    // group.rotation.x = -(Math.PI * 2) / 12
+    // group.position.x = -15
+    // group.position.y = 150
+    // group.position.z = 230
     scene.add(group);
     const helper = new THREE.GridHelper(2000, 100);
     helper.position.y = -199;
@@ -277,7 +277,7 @@ const Canvas = React.forwardRef((props, refs) => {
           backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
          
         }
-        // console.log(backIndexArr)
+        console.log(sitIndexArr)
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       }
 
@@ -341,11 +341,7 @@ const Canvas = React.forwardRef((props, refs) => {
     particles.scale.z = 0.0062;
 
 
-    particles.rotation.x = Math.PI / 2;
-    // particles.rotation.y = 0; //-Math.PI / 2;
-    // particles.rotation.y = Math.PI 
-    // particles.rotation.z = Math.PI
-    // scene.add(particles);
+    
     group.add(particles);
 
   }
@@ -551,10 +547,24 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function render() {
-   
+    // console.log(enableControls , !isShiftPressed)
     sitRenew();
-    if (enableControls && !isShiftPressed) {
+    if (controlsFlag) {
+      controls.mouseButtons = {
+        LEFT: THREE.MOUSE.PAN, // make pan the default instead of rotate
+        MIDDLE: THREE.MOUSE.ZOOM,
+        RIGHT: THREE.MOUSE.ROTATE,
+      };
+      controls.keys = [
+        ALT_KEY, // orbit
+        CTRL_KEY, // zoom
+        CMD_KEY, // pan
+      ];
       controls.update();
+    } else if (!controlsFlag) {
+      // console.log('111')
+      controls.keys = [];
+      controls.mouseButtons = [];
     }
 
     renderer.render(scene, camera);

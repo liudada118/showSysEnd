@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export function getPointCoordinate({ particles, camera, position }) {
+export function getPointCoordinate({ particles, camera, position , axis1 , angle1 }) {
     const positions = particles.geometry.attributes.position;
 
     const screenCoordinates = [];
@@ -18,8 +18,8 @@ export function getPointCoordinate({ particles, camera, position }) {
         const newVertices = vertices.clone()
         // console.log(center)
         newVertices.sub(center);
-        const axis = new THREE.Vector3(1, 0, 0); // 旋转轴，这里使用 Y 轴作为示例
-        const angle = particles.rotation.x; // 旋转角度，这里使用 90 度作为示例
+        const axis = axis1 ? new THREE.Vector3(...axis1) : new THREE.Vector3(1, 0, 0); // 旋转轴，这里使用 Y 轴作为示例
+        const angle = angle1 ? angle1 : particles.rotation.x; // 旋转角度，这里使用 90 度作为示例
 
         const quaternion = new THREE.Quaternion().setFromAxisAngle(axis, angle);
         newVertices.applyQuaternion(quaternion);

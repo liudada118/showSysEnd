@@ -40,10 +40,12 @@ const sensorArr = [
   { label: '脚型检测', value: 'foot' },
   { label: '手部检测', value: 'hand' },
   { label: '汽车座椅', value: 'car' },
-  { label: '床垫', value: 'bigBed' },
+  { label: '床垫监测', value: 'bigBed' },
   { label: '汽车靠背(量产)', value: 'car10' },
   { label: '本地自适应', value: 'localCar' },
   { label: '席悦座椅', value: 'sit10' },
+  {label : '小床监测' ,value : 'smallBed'},
+  {label : '小矩阵1' ,value : 'smallM'}
 ]
 
 
@@ -308,7 +310,14 @@ class Title extends React.Component {
 
         }
 
-
+        <Button onClick={() => {
+          this.props.wsSendObj({
+            sitClose : true ,
+            backClose : true
+          })
+        }} className='titleButton'>
+          关闭串口
+        </Button>
 
         {this.props.matrixName == 'car' || this.props.matrixName == 'car10' || this.props.matrixName == 'localCar' ?
 

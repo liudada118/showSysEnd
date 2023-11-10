@@ -6,6 +6,8 @@ import Car10 from "../../components/three/car10";
 import Canvas from "../../components/three/Three";
 import CanvasHand from "../../components/three/hand";
 import Bed from "../../components/three/Bed";
+import SmallBed from "../../components/three/smallBed";
+import SmallM from "../../components/three/smallM";
 import Sit10 from "../../components/three/sit10";
 import Aside from "../../components/aside/Aside";
 import ProgressCom from "../../components/progress/Progress";
@@ -223,7 +225,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "localCar",
+      matrixName: "smallM",
       length: 0,
       local: false,
       dataArr: [],
@@ -265,7 +267,9 @@ class Home extends React.Component {
       height: "",
       pressToArea: 0,
       newValue: 0,
-      welFlag : false
+      welFlag: false,
+      leg : 0,
+      butt : 0,
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -394,7 +398,7 @@ class Home extends React.Component {
             // this.setState({ csvData: collection, length: collection.length });
             oneFlag = true;
             this.setState({
-              welFlag : true
+              welFlag: true
             })
           }
 
@@ -419,8 +423,26 @@ class Home extends React.Component {
             }
           }
         }
+        const sitArr = []
+        for (let i = 0; i < 10; i++) {
+          sitArr[i] = 0
+          for (let j = 0; j < 10; j++) {
+            sitArr[i] += wsPointDataSit[i * 10 + j]
+          }
+        }
 
+        const backArr = []
+        for (let i = 0; i < 10; i++) {
+          backArr[i] = 0
+          for (let j = 0; j < 10; j++) {
+            backArr[i] += wsPointDataBack[i * 10 + j]
+          }
+        }
+
+        // console.log(sitArr ,backArr)
         if (this.state.colWebFlag) {
+
+
           collection.push([
             this.state.hunch,
             this.state.front,
@@ -428,6 +450,10 @@ class Home extends React.Component {
             this.state.dataName,
             JSON.stringify(wsPointDataSit),
             JSON.stringify(wsPointDataBack),
+            'sit',
+            ...sitArr,
+            'back',
+            ...backArr
           ]);
           localStorage.setItem("collection", JSON.stringify(collection));
           this.setState({ csvData: collection, length: collection.length });
@@ -975,7 +1001,7 @@ class Home extends React.Component {
       } else {
         DataArr = [...selectArr];
       }
-      DataArr = DataArr.map((a) => (a < this.state.valuef1 ? 0 : a));
+      // DataArr = DataArr.map((a) => (a < 5 ? 0 : a));
       // 框选后或者无框选的数据
       const total = DataArr.reduce((a, b) => a + b, 0);
       const length = DataArr.filter((a, index) => a > 0).length;
@@ -1055,7 +1081,7 @@ class Home extends React.Component {
         DataArr = [...selectArr];
       }
 
-      DataArr = DataArr.map((a) => (a < this.state.valuef1 ? 0 : a));
+      // DataArr = DataArr.map((a) => (a < 5 ? 0 : a));
       const backTotalvalue = DataArr.reduce((a, b) => a + b, 0);
       backTotal = DataArr.reduce((a, b) => a + b, 0);
       backPoint = DataArr.filter((a) => a > 10).length;
@@ -1520,11 +1546,37 @@ class Home extends React.Component {
               changeSelect={this.changeSelect}
             />
           </CanvasCom>
-        ) : (
+        ) : this.state.matrixName == "smallBed" ? (
           <CanvasCom matrixName={this.state.matrixName}>
-            <Car10 ref={this.com} changeSelect={this.changeSelect} />
+            <SmallBed
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeSelect={this.changeSelect}
+            />
           </CanvasCom>
-        )}
+        ) :this.state.matrixName == "smallM" ? (
+          <CanvasCom matrixName={this.state.matrixName}>
+            <SmallM
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeSelect={this.changeSelect}
+            />
+          </CanvasCom>
+        ) :
+
+          (
+            <CanvasCom matrixName={this.state.matrixName}>
+              <Car10 ref={this.com} changeSelect={this.changeSelect} />
+            </CanvasCom>
+          )}
 
         {/* 全床压力曲线 */}
         {this.state.matrixName === "bigBed" ? (
@@ -1604,7 +1656,10 @@ class Home extends React.Component {
             <p>front : {this.state.front}</p>
             <p>flank : {this.state.flank}</p>
             <p>sitValue : {this.state.pressToArea}</p>
-            <p>newValue : {this.state.newValue}</p>
+            {/* wsPointData.filter(a => a > 40).length > 45 ? 2 : wsPointData.filter(a => a > 40).length <10  ? 0 : 1 */}
+            <p>体型类型 : {this.state.newValue > 45 ? 2 : this.state.newValue < 10 ? 0 : 1} -- {this.state.newValue}</p>
+            <p>leg : {this.state.leg < 600 ? 0 : this.state.leg} </p>
+            <p>butt : {this.state.butt < 600 ? 0 : this.state.butt}</p>
           </div>
         ) : null}
 

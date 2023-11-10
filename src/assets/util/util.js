@@ -186,6 +186,26 @@ export function interp(smallMat, bigMat, Length, num) {
   }
 }
 
+export function interpSmall(smallMat, width, height, interp1, interp2) {
+  // for (let x = 1; x <= Length; x++) {
+  //   for (let y = 1; y <= Length; y++) {
+  //     bigMat[
+  //       Length * num * (num * (y - 1)) +
+  //       (Length * num * num) / 2 +
+  //       num * (x - 1) +
+  //       num / 2
+  //     ] = smallMat[Length * (y - 1) + x - 1] * 10;
+  //   }
+  // }
+  const bigMat = new Array((width * interp1) * (height * interp2)).fill(0)
+  for(let i = 0 ; i < height ; i++){
+    for(let j = 0 ; j < width ; j ++){
+      bigMat[width * i * Math.floor(interp1/2) * height * j * Math.floor(interp2/2) + height * j * Math.floor(interp2/2) + Math.floor(interp2/2)] = smallMat[i*width + j] * 10
+    }
+  }
+  return bigMat
+}
+
 export function interp1016(smallMat, bigMat, height, width, num) {
   for (let x = 1; x <= height; x++) {
     for (let y = 1; y <= width; y++) {
@@ -1027,7 +1047,7 @@ export function discoverSureCurve(detectedArr, num) {
   });
 }
 
-export function calFootType(arr , valueFlag) {
+export function calFootType(arr, valueFlag) {
   // 将脚每一行求和
   const newArr = arr.map((a) => a < valueFlag ? 0 : a)
   const leftArr = []
@@ -1042,7 +1062,7 @@ export function calFootType(arr , valueFlag) {
   // 找到整个脚的索引和重量
   const leftFoot = [], leftFootValue = []
   leftArr.forEach((a, index) => {
-    if (a > valueFlag*2) {
+    if (a > valueFlag * 2) {
       leftFoot.push(index)
       leftFootValue.push(a)
     }
@@ -1061,14 +1081,14 @@ export function calFootType(arr , valueFlag) {
   for (let i = 1; i < leftFootValue.length; i++) {
     if (leftFootValue[i] - leftFootValue[i - 1] < 0 && ((leftFootValue[i + 1] - leftFootValue[i]) / leftFootValue[i]) > 0.2) {
       footStart = i + 1 + leftFoot[0]
-      if(i > leftFootValue.length*0.4){
-        footStart = leftFoot[0] 
+      if (i > leftFootValue.length * 0.4) {
+        footStart = leftFoot[0]
       }
       break
     }
   }
 
-  if(!footStart){
+  if (!footStart) {
     footStart = leftFoot[0]
   }
   let footEnd = leftFoot[leftFoot.length - 1]
@@ -1103,7 +1123,7 @@ export function calFootType(arr , valueFlag) {
   // console.log(footStart ,contentPoint  , totalFootPoint)
 
   const prop = contentPoint / (totalFootPoint ? totalFootPoint : 1)
-  return {footType : prop , footLength : leftFoot.length}
+  return { footType: prop, footLength: leftFoot.length }
 
 }
 
@@ -1115,7 +1135,7 @@ export class smoothClass {
   getSmooth(arr, smoothValue) {
     // this.value = this.value + (value - this.value) / smoothValue
     for (let i = 0; i < arr.length; i++) {
-      if(isNaN(arr[i])){
+      if (isNaN(arr[i])) {
         arr[i] = 0
       }
       this.smoothValue[i] = this.smoothValue[i] + (arr[i] - this.smoothValue[i]) / smoothValue
@@ -1125,7 +1145,7 @@ export class smoothClass {
 
 export function timeStampToDate(data) {
 
-  if(typeof data !== 'number'){
+  if (typeof data !== 'number') {
     return ''
   }
   var date = new Date(data);  // 参数需要毫秒数，所以这里将秒数乘于 1000

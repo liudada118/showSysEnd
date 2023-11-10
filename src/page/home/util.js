@@ -297,9 +297,7 @@ export const sitTypeEvent = {
     //   });
     //   that.com.current?.sitData({
     //     wsPointData: sitData,
-    //     arr: arrSmooth
-    //   });
-    //   that.com.current?.changeDataFlag();
+    //     arr: arrSmooth 
     // }
 
     // 数字矩阵 点图 热力图
@@ -537,7 +535,7 @@ export const sitTypeEvent = {
     } else {
       DataArr = [...selectArr];
     }
-    DataArr = DataArr.map((a) => (a < that.state.valuef1 ? 0 : a));
+    // DataArr = DataArr.map((a) => (a < 5 ? 0 : a));
     // 框选后或者无框选的数据
     const total = DataArr.reduce((a, b) => a + b, 0);
     const length = DataArr.filter((a, index) => a > 0).length;
@@ -554,7 +552,7 @@ export const sitTypeEvent = {
     sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal;
     sitMean = sitTotal / (sitPoint ? sitPoint : 1);
     if (
-      sitPoint < 80 &&
+      sitPoint < 40 &&
       that.sitIndexArr.every((a) => a == 0) &&
       that.backIndexArr.every((a) => a == 0)
     ) {
@@ -685,7 +683,12 @@ export const sitTypeEvent = {
       }
     }
 
-
+    const legArr = [...wsPointData].splice(0,40)
+    const buttArr = [...wsPointData].splice(40,100)
+    that.setState({
+      leg : legArr.reduce((a,b) => a + b , 0).toFixed(0),
+      butt : buttArr.reduce((a,b) => a + b , 0).toFixed(0)
+    })
 
     let DataArr;
 
@@ -706,15 +709,17 @@ export const sitTypeEvent = {
       welArr = []
     }
 
-    if (!that.state.welFlag) {
-      if (DataArr.reduce((a, b) => a + b, 0) > 3000) {
-        welArr.push(DataArr.filter((a) => a > 60).reduce((a, b) => a + b, 0))
-      }
-    } else {
-      that.setState({
-        newValue: (welArr.reduce((a, b) => a + b, 0) / (welArr.length == 0 ? 1 : welArr.length)).toFixed(0) //DataArr.filter((a) => a > 70).reduce((a, b) => a + b, 0).toFixed(2) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
-      })
-    }
+    // if (!that.state.welFlag) {
+    //   if (DataArr.reduce((a, b) => a + b, 0) > 3000) {
+    //     welArr.push(DataArr.filter((a) => a > 60).reduce((a, b) => a + b, 0))
+    //   }
+    // } else {
+    //   that.setState({
+    //     newValue: (welArr.reduce((a, b) => a + b, 0) / (welArr.length == 0 ? 1 : welArr.length)).toFixed(0) //DataArr.filter((a) => a > 70).reduce((a, b) => a + b, 0).toFixed(2) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
+    //   })
+    // }
+    // console.log(wsPointData.filter(a => a > 40).length)
+    
 
     // that.setState({
     //   newValue: DataArr.filter((a) => a > 70).reduce((a, b) => a + b, 0).toFixed(2) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
@@ -878,6 +883,11 @@ export const sitTypeEvent = {
     if (!that.state.local)
       that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
   },
+  smallBed({that, wsPointData}){
+    that.com.current?.sitData({
+      wsPointData: wsPointData,
+    });
+  }
 };
 
 export const backTypeEvent = {
@@ -953,7 +963,7 @@ export const backTypeEvent = {
 
 
     // console.log(DataArr)
-    DataArr = DataArr.map((a) => (a < 10 ? 0 : a));
+    // DataArr = DataArr.map((a) => (a < 5 ? 0 : a));
 
     const backTotalvalue = DataArr.reduce((a, b) => a + b, 0);
     backTotal = DataArr.reduce((a, b) => a + b, 0);
@@ -972,7 +982,7 @@ export const backTypeEvent = {
     // backPressure = carFitting(backTotal / (backPoint ? backPoint : 1))
 
     if (
-      backPoint < 80 &&
+      backPoint < 40 &&
       that.sitIndexArr.every((a) => a == 0) &&
       that.backIndexArr.every((a) => a == 0) &&
       !local
@@ -1272,7 +1282,13 @@ export const backTypeEvent = {
       wsPointData: wsPointData,
     });
 
-
+    const type = wsPointData.filter(a => a > 40).length > 45 ? 2 : wsPointData.filter(a => a > 40).length <10  ? 0 : 1
+    
+    // console.log(legArr , buttArr)
+    that.setState({
+      newValue : wsPointData.filter(a => a > 40).length,
+      
+    })
 
     const selectArr = [];
     for (let i = that.backIndexArr[0]; i < that.backIndexArr[1]; i++) {
@@ -1428,7 +1444,7 @@ export function totalToN1(x) {
 }
 
 export function pointToN(x, mul) {
-  return x
+  return x * 0.03
   let value = Math.pow(x, 2) * 0.00027 + 0.0379 * x + -1.7538;
   value = value < 0 ? 0 : value;
   return mul ? value * mul : value;
@@ -1452,18 +1468,7 @@ function getValue(arr, local) {
   sitTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
   sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal;
   sitMean = sitTotal / (sitPoint ? sitPoint : 1);
-  if (
-    sitPoint < 80 &&
-    that.sitIndexArr.every((a) => a == 0) &&
-    that.backIndexArr.every((a) => a == 0)
-  ) {
-    sitMean = 0;
-    sitMax = 0;
-    sitTotal = 0;
-    sitPoint = 0;
-    sitArea = 0;
-    sitPressure = 0;
-  }
+  
   sitSmooth.getSmooth(
     [sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure],
     10

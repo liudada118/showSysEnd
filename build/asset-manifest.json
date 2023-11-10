@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/localCar/static/css/main.3d08f892.chunk.css",
-    "main.js": "/localCar/static/js/main.c3fe2457.chunk.js",
-    "runtime-main.js": "/localCar/static/js/runtime-main.f643fa25.js",
-    "localCar/static/js/2.33cb3619.chunk.js": "/localCar/static/js/2.33cb3619.chunk.js",
-    "localCar/static/js/3.a6c34399.chunk.js": "/localCar/static/js/3.a6c34399.chunk.js",
+    "main.js": "/localCar/static/js/main.71722dc6.chunk.js",
+    "runtime-main.js": "/localCar/static/js/runtime-main.4d60282d.js",
+    "localCar/static/js/2.fca4f421.chunk.js": "/localCar/static/js/2.fca4f421.chunk.js",
+    "localCar/static/js/3.554f88c2.chunk.js": "/localCar/static/js/3.554f88c2.chunk.js",
     "index.html": "/index.html",
-    "localCar/static/js/2.33cb3619.chunk.js.LICENSE.txt": "/localCar/static/js/2.33cb3619.chunk.js.LICENSE.txt"
+    "localCar/static/js/2.fca4f421.chunk.js.LICENSE.txt": "/localCar/static/js/2.fca4f421.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "localCar/static/js/runtime-main.f643fa25.js",
-    "localCar/static/js/2.33cb3619.chunk.js",
+    "localCar/static/js/runtime-main.4d60282d.js",
+    "localCar/static/js/2.fca4f421.chunk.js",
     "localCar/static/css/main.3d08f892.chunk.css",
-    "localCar/static/js/main.c3fe2457.chunk.js"
+    "localCar/static/js/main.71722dc6.chunk.js"
   ]
 }
