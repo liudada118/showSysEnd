@@ -87,7 +87,7 @@ const Canvas = React.forwardRef((props, refs) => {
     ).fill(0),
     smoothBig = new Array(
       (sitnum1 * sitInterp1 + sitOrder * 2) *
-      (sitnum2 * sitInterp2 + sitOrder * 2) * 2
+      (sitnum2 * sitInterp2 + sitOrder * 2)
     ).fill(0);
   let i = 0;
   let ws,
@@ -483,18 +483,19 @@ const Canvas = React.forwardRef((props, refs) => {
   function sitRenew() {
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
-
+    ndata1 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,11,19,28,24,13,0,0,0,18,25,25,16,17,19,18,0,0,0,21,0,0,0,0,0,0,0,0,39,35,0,0,0,0,0,0,0,0,39,35,0,0,0,0,0,0,0,0,16,27,18,18,0,0,0,0,0,0,29,21,21,21,15,15,17,0,11,0,39,17,22,22,16,21,26,23,29,44,0,0,0,0,0,19,15,29,15,22,0,0,0,0,0,10,14,24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+   
     const realArr = []
-    for (let i = 0; i < 64; i++) {
-      let num = 0
-      for (let j = 0; j < 32; j++) {
-        num += ndata1[j * 64 + i]
-      }
-      smoothValue = smoothValue + (num / 32 - smoothValue) / 3
-      realArr.push(smoothValue)
-    }
-
-    props.handleChartsBody1(realArr, ymax1 / 2)
+    // for (let i = 0; i < 64; i++) {
+    //   let num = 0
+    //   for (let j = 0; j < 32; j++) {
+    //     num += ndata1[j * 64 + i]
+    //   }
+    //   smoothValue = smoothValue + (num / 32 - smoothValue) / 3
+    //   realArr.push(smoothValue)
+    // }
+    //
+    // props.handleChartsBody1(realArr, ymax1 / 2)
 
     ndata1Num = ndata1.reduce((a, b) => a + b, 0);
     if (ndata1Num < valuelInit1) {
@@ -503,42 +504,47 @@ const Canvas = React.forwardRef((props, refs) => {
 
 
     // interp(ndata1, bigArr, sitnum1, sitInterp1);
-    const bigArr = interpSmall(ndata1, 32, 10, 5, 4)
+    const bigArr = interpSmall(ndata1, 10, 32, 4, 5)
+      // console.log(bigArr.length ,bigArr.filter((a) => a > 5),ndata1.filter((a) => a > 5))
     let bigArrs = addSide(
       bigArr,
-      sitnum2 * sitInterp1,
-      sitnum1 * sitInterp2,
+     
+      sitnum2 * sitInterp2,
+      sitnum1 * sitInterp1,
+    
       sitOrder,
-      sitOrder
+      sitOrder,
+      0
     );
-
+    // // let bigArrs = bigArr
     gaussBlur_1(
       bigArrs,
       bigArrg,
-      sitnum2 * sitInterp1 + sitOrder * 2,
-      sitnum1 * sitInterp2 + sitOrder * 2,
+
+      sitnum2 * sitInterp2 + sitOrder * 2,
+        sitnum1 * sitInterp1+ sitOrder * 2,
       valueg1
     );
-
+    // console.log(bigArrg.filter((a) => a > 5),bigArrs.filter(a => a>10),bigArr.filter(a => a>10))
     bodyArr = []
 
     // for (let i = 0; i < 72; i++) {
     //   for (let j = 0; j < 72; j++) {
     //     bigArrg1New[(i * 2) * 72 + j] = bigArrg[i * 72 + j]
     //     bigArrg1New[(i * 2 + 1) * 72 + (j)] = bigArrg[i * 72 + j]
-    //     // bigArrg1New[(i * 2 + 1) * 72 + j] = bigArrg1[i * 72 + j]
+    //     // bigArrw[(i * 2 + 1) * 72 + j] = bigArrg1[i * 72 + j]
     //   }
     // }
 
-    for (let ix = 0; ix < AMOUNTX; ix++) {
-      let num = 0
-      for (let iy = 0; iy < AMOUNTY; iy++) {
-        num += bigArrg[ix * AMOUNTY + iy]
-      }
-      bodyArr.push(parseInt(num / AMOUNTY))
-    }
-
-    props.handleChartsBody(bodyArr, ymax1)
+    // for (let ix = 0; ix < AMOUNTX; ix++) {
+    //   let num = 0
+    //   for (let iy = 0; iy < AMOUNTY; iy++) {
+    //     num += bigArrg[ix * AMOUNTY + iy]
+    //   }
+    //   bodyArr.push(parseInt(num / AMOUNTY))
+    // }
+    //
+    // props.handleChartsBody(bodyArr, ymax1)
 
 
 
@@ -552,13 +558,14 @@ const Canvas = React.forwardRef((props, refs) => {
 
     for (let ix = 0; ix < AMOUNTX; ix++) {
       for (let iy = 0; iy < AMOUNTY; iy++) {
-        const value = bigArrg1New[l] * 10;
+        // console.log(bigArr)
+        const value = bigArrg[l] * 10;
 
         //柔化处理smooth
         smoothBig[l] = smoothBig[l] + (value - smoothBig[l]) / valuel1;
 
         positions[k] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // x
-        positions[k + 1] = smoothBig[l] / value1; // y
+        positions[k + 1] = smoothBig[l] * value1; // y
         positions[k + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2; // z
         let rgb
 

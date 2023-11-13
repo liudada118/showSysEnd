@@ -197,12 +197,19 @@ export function interpSmall(smallMat, width, height, interp1, interp2) {
   //     ] = smallMat[Length * (y - 1) + x - 1] * 10;
   //   }
   // }
+  // 32, 10, 4, 5
   const bigMat = new Array((width * interp1) * (height * interp2)).fill(0)
   for(let i = 0 ; i < height ; i++){
     for(let j = 0 ; j < width ; j ++){
-      bigMat[width * i * Math.floor(interp1/2) * height * j * Math.floor(interp2/2) + height * j * Math.floor(interp2/2) + Math.floor(interp2/2)] = smallMat[i*width + j] * 10
+      bigMat[(width * interp1) * i* interp2 + (j * interp1)
+
+        // + (width * interp1) * Math.floor(interp2/2)
+
+        // + Math.floor(interp1/2)
+       ] = smallMat[i*width + j] * 10
     }
   }
+  // console.log(bigMat.length)
   return bigMat
 }
 
