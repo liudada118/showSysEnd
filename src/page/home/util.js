@@ -10,6 +10,7 @@ import {
   arr10to5,
   handLine,
   rotateArray90Degrees,
+  pressSmallBed,
 } from "../../assets/util/line";
 import {
   calFootType,
@@ -886,6 +887,14 @@ export const sitTypeEvent = {
   smallBed({that, wsPointData}){
     that.com.current?.sitData({
       wsPointData: wsPointData,
+    });
+  },
+  smallM({that, wsPointData}){
+
+    const res = pressSmallBed(wsPointData , 32,32)
+
+    that.com.current?.sitData({
+      wsPointData: res,
     });
   }
 };

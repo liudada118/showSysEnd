@@ -241,6 +241,55 @@ export function press(arr, width, height, type = "row") {
   return wsPointData;
 }
 
+export function pressSmallBed(arr, width, height, type = "row") {
+  let wsPointData = [...arr];
+
+  if (type == "row") {
+    let colArr = [];
+    for (let i = 0; i < height; i++) {
+      let total = 0;
+      for (let j = 0; j < width; j++) {
+        total += wsPointData[i * width + j];
+      }
+      colArr.push(total);
+    }
+    // //////okok
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        wsPointData[i * width + j] = parseInt(
+          (wsPointData[i * width + j] /
+            (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) *
+          1000
+        );
+      }
+    }
+  } else {
+    let colArr = [];
+    for (let i = 0; i < height; i++) {
+      let total = 0;
+      for (let j = 0; j < width; j++) {
+        total += wsPointData[j * height + i];
+      }
+      colArr.push(total);
+    }
+    // //////okok
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        wsPointData[j * height + i] = parseInt(
+          (wsPointData[j * height + i] /
+            (280 - colArr[i] == 0 ? 1 : 280 - colArr[i])) *
+          1000
+        );
+      }
+    }
+  }
+
+  //////
+
+  // wsPointData = wsPointData.map((a,index) => {return calculateY(a)})
+  return wsPointData;
+}
+
 export function pressNew({ arr, width, height, type = "row", value }) {
   let wsPointData = [...arr];
   if (type == "row") {

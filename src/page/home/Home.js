@@ -225,7 +225,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "smallM",
+      matrixName: "smallBed",
       length: 0,
       local: false,
       dataArr: [],

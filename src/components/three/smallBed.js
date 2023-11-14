@@ -481,7 +481,7 @@ const Canvas = React.forwardRef((props, refs) => {
   function sitRenew() {
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
-
+    
     const realArr = []
     for (let i = 0; i < 64; i++) {
       let num = 0
