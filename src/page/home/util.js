@@ -889,9 +889,14 @@ export const sitTypeEvent = {
       wsPointData: wsPointData,
     });
   },
-  smallM({that, wsPointData}){
-
-    const res = pressSmallBed(wsPointData , 32,32)
+  smallM({that, wsPointData,press}){
+    let res
+    if(press){
+      res = pressSmallBed(wsPointData , 32,32)
+    }else{
+      res = wsPointData
+    }
+     
 
     that.com.current?.sitData({
       wsPointData: res,

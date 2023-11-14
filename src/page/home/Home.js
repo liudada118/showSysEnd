@@ -628,6 +628,7 @@ class Home extends React.Component {
         wsPointData,
         backFlag,
         local: this.state.local,
+        press : this.state.press,
       });
     }
 
@@ -1663,7 +1664,7 @@ class Home extends React.Component {
           </div>
         ) : null}
 
-        {/* <div style={{ position: "fixed", bottom: "20px", color: "#fff" }}>
+        <div style={{ position: "fixed", bottom: "20px", color: "#fff" }}>
           <div
             style={{ border: "1px solid #01F1E3" }}
             onClick={() => {
@@ -1686,7 +1687,7 @@ class Home extends React.Component {
           >
             {this.state.pressNum ? "压力算法" : "不压力算法"}
           </div>
-        </div> */}
+        </div>
         {/* <div style={{ position: "fixed", right: "20%", bottom: "20px" }}>
           {this.state.newArr.length
             ? this.state.newArr.map((a, indexs) => {
