@@ -886,14 +886,15 @@ export const sitTypeEvent = {
   },
   smallBed({ that, wsPointData, compen }) {
     // console.log(compen)
+    const arr = [...wsPointData]
     for (let i = 0; i < 32; i++) {
       for (let j = 0; j < 32; j++) {
-        wsPointData[i * 32 + j] = wsPointData[i * 32 + j] * (1 + Math.floor(i / 8) * compen / 100)
+        arr[i * 32 + j] = arr[i * 32 + j] * (1 + Math.floor(i / 8) * compen / 100)
       }
     }
 
     that.com.current?.sitData({
-      wsPointData: wsPointData,
+      wsPointData: arr,
     });
   },
   smallM({ that, wsPointData, press }) {
