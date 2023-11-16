@@ -770,7 +770,8 @@ class Title extends React.Component {
                   style={{ width: '200px' }}
                 />
               </div>
-              {this.props.matrixName != 'car' ? <> <div
+              {this.props.matrixName != 'car' ? <> 
+              <div
                 className="progerssSlide"
                 style={{
                   display: "flex",
@@ -850,6 +851,56 @@ class Title extends React.Component {
                     style={{ width: '200px' }}
                   />
                 </div> </> : null}
+              {
+                this.props.matrixName == 'smallBed' ?  <div
+                className="progerssSlide"
+                style={{
+                  display: "flex",
+
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#468493",
+                    minWidth: "80px",
+                    textAlign: "left",
+                  }}
+                >
+                  补偿
+                </div>
+                <Slider
+                  min={0}
+                  max={100}
+                  onChange={(value) => {
+                    localStorage.setItem("compen", value);
+                    // this.props.setValuelInit1(value);
+                    this.props.changeStateData({ compen: value })
+                    this.props.wsSendObj({
+                      compen : value
+                    })
+                    // if (this.props.com.current) {
+                    //   if (this.props.com.current.sitValue) {
+                    //     this.props.com.current.sitValue({
+                    //       ymax: value,
+                    //     });
+                    //   }
+                    //   if (this.props.com.current.backValue) {
+                    //     this.props.com.current.backValue({
+                    //       ymax: value,
+                    //     });
+                    //   }
+                    // }
+
+
+                  }}
+                  value={this.props.compen}
+                  step={1}
+                  // value={this.props.}
+                  style={{ width: '200px' }}
+                />
+              </div> : null
+              }
             </div>
           </div> : <div></div>
         }

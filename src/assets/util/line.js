@@ -258,7 +258,7 @@ export function pressSmallBed(arr, width, height, type = "row") {
       for (let j = 0; j < width; j++) {
         wsPointData[i * width + j] = parseInt(
           (wsPointData[i * width + j] /
-            (1245 - colArr[i] == 0 ? 1 : 1245 - colArr[i])) *
+            (280 - colArr[i] == 0 ? 1 : 280 - colArr[i])) *
           1000
         );
       }

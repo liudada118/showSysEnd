@@ -222,10 +222,13 @@ class Home extends React.Component {
       valueMult: localStorage.getItem("valueMult")
         ? JSON.parse(localStorage.getItem("valueMult"))
         : 1,
+      compen: localStorage.getItem("valueMult")
+        ? JSON.parse(localStorage.getItem("valueMult"))
+        : 0,
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "smallBed",
+      matrixName: "hand",
       length: 0,
       local: false,
       dataArr: [],
@@ -268,8 +271,8 @@ class Home extends React.Component {
       pressToArea: 0,
       newValue: 0,
       welFlag: false,
-      leg : 0,
-      butt : 0,
+      leg: 0,
+      butt: 0,
     };
     this.com = React.createRef();
     this.data = React.createRef();
@@ -628,7 +631,7 @@ class Home extends React.Component {
         wsPointData,
         backFlag,
         local: this.state.local,
-        press : this.state.press,
+        press: this.state.press,
       });
     }
 
@@ -1559,7 +1562,7 @@ class Home extends React.Component {
               changeSelect={this.changeSelect}
             />
           </CanvasCom>
-        ) :this.state.matrixName == "smallM" ? (
+        ) : this.state.matrixName == "smallM" ? (
           <CanvasCom matrixName={this.state.matrixName}>
             <SmallM
               ref={this.com}
