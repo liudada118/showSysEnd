@@ -242,8 +242,11 @@ export function press(arr, width, height, type = "row") {
 }
 
 export function pressSmallBed({arr, width, height, type = 'row' , num = 100}) {
+  
   let wsPointData = [...arr];
-
+  if(num === 0){
+    return wsPointData
+  }
   if (type == "row") {
     let colArr = [];
     for (let i = 0; i < height; i++) {
