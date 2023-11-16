@@ -33,7 +33,7 @@ const sitInterp = 2;
 const sitOrder = 4;
 let totalArr = [],
   totalPointArr = [];
-
+let compen1 = localStorage.getItem('compen') ? JSON.parse(localStorage.getItem('compen')) : 0
 let controlsFlag = true;
 var newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0), centerFlag = true;
 
@@ -481,7 +481,14 @@ const Canvas = React.forwardRef((props, refs) => {
   function sitRenew() {
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
-    
+    console.log(ndata1)
+
+    for (let i = 0; i < 32; i++) {
+      for (let j = 0; j < 32; j++) {
+        ndata1[i * 32 + j] = ndata1[i * 32 + j] * (1 + Math.floor(i / 8)*compen1/100)
+      }
+    }
+
     const realArr = []
     for (let i = 0; i < 64; i++) {
       let num = 0
@@ -616,7 +623,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
       const maxTotal = findMax(totalArr);
 
-      if (!props.local)
+      if (props.local)
         props.data.current?.handleCharts(totalArr, maxTotal + 1000);
 
       if (totalPointArr.length < 20) {
@@ -627,7 +634,7 @@ const Canvas = React.forwardRef((props, refs) => {
       }
 
       const max1 = findMax(totalPointArr);
-      if (!props.local){props.data.current?.handleChartsArea(totalPointArr, max1 + 100);}
+      if (props.local){props.data.current?.handleChartsArea(totalPointArr, max1 + 100);}
       timeS = 0;
     }
     particles.geometry.attributes.position.needsUpdate = true;
@@ -684,7 +691,7 @@ const Canvas = React.forwardRef((props, refs) => {
   // 座椅数据
   function sitValue(prop) {
 
-    const { valuej, valueg, value, valuel, valuef, valuelInit, ymax } = prop;
+    const { valuej, valueg, value, valuel, valuef, valuelInit, ymax,compen } = prop;
     if (valuej) valuej1 = valuej;
     if (valueg) valueg1 = valueg;
     if (value) value1 = value;
@@ -692,6 +699,7 @@ const Canvas = React.forwardRef((props, refs) => {
     if (valuef) valuef1 = valuef;
     if (valuelInit) valuelInit1 = valuelInit;
     if (ymax) ymax1 = ymax;
+    if(compen) compen1 = compen
 
   }
   function sitData(prop) {

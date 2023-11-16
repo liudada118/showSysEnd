@@ -222,13 +222,13 @@ class Home extends React.Component {
       valueMult: localStorage.getItem("valueMult")
         ? JSON.parse(localStorage.getItem("valueMult"))
         : 1,
-      compen: localStorage.getItem("valueMult")
-        ? JSON.parse(localStorage.getItem("valueMult"))
+      compen: localStorage.getItem("compen")
+        ? JSON.parse(localStorage.getItem("compen"))
         : 0,
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "hand",
+      matrixName: "smallBed",
       length: 0,
       local: false,
       dataArr: [],
@@ -311,6 +311,9 @@ class Home extends React.Component {
     ws.onopen = () => {
       // connection opened
       console.info("connect success");
+      this.wsSendObj({
+        file : this.state.matrixName
+      })
     };
     ws.onmessage = (e) => {
       this.wsData(e);
@@ -326,6 +329,9 @@ class Home extends React.Component {
     ws1.onopen = () => {
       // connection opened
       console.info("connect success");
+      this.wsSendObj({
+        file : this.state.matrixName
+      })
     };
     ws1.onmessage = (e) => {
       this.ws1Data(e);
@@ -469,6 +475,8 @@ class Home extends React.Component {
         // connection closed
       };
     }
+
+    
   }
 
   colPushData() {
@@ -632,7 +640,7 @@ class Home extends React.Component {
         backFlag,
         local: this.state.local,
         press: this.state.press,
-        compen : this.state.compen
+        // compen : this.state.compen
       });
     }
 
@@ -1466,6 +1474,7 @@ class Home extends React.Component {
           valuel1={this.state.valuel1}
           valuej1={this.state.valuej1}
           valuelInit1={this.state.valuelInit1}
+          compen={this.state.compen}
           ymax={this.state.ymax}
           ref={this.title}
           com={this.com}

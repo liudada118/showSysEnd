@@ -879,18 +879,18 @@ class Title extends React.Component {
                     this.props.wsSendObj({
                       compen : value
                     })
-                    // if (this.props.com.current) {
-                    //   if (this.props.com.current.sitValue) {
-                    //     this.props.com.current.sitValue({
-                    //       ymax: value,
-                    //     });
-                    //   }
-                    //   if (this.props.com.current.backValue) {
-                    //     this.props.com.current.backValue({
-                    //       ymax: value,
-                    //     });
-                    //   }
-                    // }
+                    if (this.props.com.current) {
+                      if (this.props.com.current.sitValue) {
+                        this.props.com.current.sitValue({
+                          compen: value,
+                        });
+                      }
+                      if (this.props.com.current.backValue) {
+                        this.props.com.current.backValue({
+                          compen: value,
+                        });
+                      }
+                    }
 
 
                   }}
