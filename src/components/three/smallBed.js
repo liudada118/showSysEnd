@@ -17,10 +17,11 @@ import {
   jetWhite2,
   jetgGrey,
   findMax,
-  interp
+  interp,
 } from "../../assets/util/util";
 
 import './index.scss'
+import { press, pressSmallBed } from "../../assets/util/line";
 
 const group = new THREE.Group();
 const sitInit = 0;
@@ -34,6 +35,7 @@ const sitOrder = 4;
 let totalArr = [],
   totalPointArr = [];
 let compen1 = localStorage.getItem('compen') ? JSON.parse(localStorage.getItem('compen')) : 0
+let pressValue = localStorage.getItem('press') ? JSON.parse(localStorage.getItem('press')) : 0
 let controlsFlag = true;
 var newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0), centerFlag = true;
 
@@ -481,13 +483,15 @@ const Canvas = React.forwardRef((props, refs) => {
   function sitRenew() {
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
-    console.log(ndata1)
+    // console.log(ndata1)
 
     for (let i = 0; i < 32; i++) {
       for (let j = 0; j < 32; j++) {
         ndata1[i * 32 + j] = ndata1[i * 32 + j] * (1 + Math.floor(i / 8)*compen1/100)
       }
     }
+
+    ndata1 = pressSmallBed({arr : ndata1 , width : 32 , height : 32 , type : 'col' , num : pressValue})
 
     const realArr = []
     for (let i = 0; i < 64; i++) {
@@ -691,7 +695,7 @@ const Canvas = React.forwardRef((props, refs) => {
   // 座椅数据
   function sitValue(prop) {
 
-    const { valuej, valueg, value, valuel, valuef, valuelInit, ymax,compen } = prop;
+    const { valuej, valueg, value, valuel, valuef, valuelInit, ymax,compen,press } = prop;
     if (valuej) valuej1 = valuej;
     if (valueg) valueg1 = valueg;
     if (value) value1 = value;
@@ -700,6 +704,7 @@ const Canvas = React.forwardRef((props, refs) => {
     if (valuelInit) valuelInit1 = valuelInit;
     if (ymax) ymax1 = ymax;
     if(compen) compen1 = compen
+    if(press) pressValue = press
 
   }
   function sitData(prop) {

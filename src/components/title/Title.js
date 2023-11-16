@@ -44,8 +44,8 @@ const sensorArr = [
   { label: '汽车靠背(量产)', value: 'car10' },
   { label: '本地自适应', value: 'localCar' },
   { label: '席悦座椅', value: 'sit10' },
-  {label : '小床监测' ,value : 'smallBed'},
-  {label : '小矩阵1' ,value : 'smallM'}
+  { label: '小床监测', value: 'smallBed' },
+  { label: '小矩阵1', value: 'smallM' }
 ]
 
 
@@ -312,8 +312,8 @@ class Title extends React.Component {
 
         <Button onClick={() => {
           this.props.wsSendObj({
-            sitClose : true ,
-            backClose : true
+            sitClose: true,
+            backClose: true
           })
         }} className='titleButton'>
           关闭串口
@@ -770,53 +770,53 @@ class Title extends React.Component {
                   style={{ width: '200px' }}
                 />
               </div>
-              {this.props.matrixName != 'car' ? <> 
-              <div
-                className="progerssSlide"
-                style={{
-                  display: "flex",
-
-                  alignItems: "center",
-                }}
-              >
+              {this.props.matrixName != 'car' ? <>
                 <div
+                  className="progerssSlide"
                   style={{
-                    color: "#468493",
-                    minWidth: "80px",
-                    textAlign: "left",
+                    display: "flex",
+
+                    alignItems: "center",
                   }}
                 >
-                  yMax
+                  <div
+                    style={{
+                      color: "#468493",
+                      minWidth: "80px",
+                      textAlign: "left",
+                    }}
+                  >
+                    yMax
+                  </div>
+                  <Slider
+                    min={1}
+                    max={1000}
+                    onChange={(value) => {
+                      localStorage.setItem("ymax", value);
+                      // this.props.setValuelInit1(value);
+                      this.props.changeStateData({ ymax: value })
+
+                      if (this.props.com.current) {
+                        if (this.props.com.current.sitValue) {
+                          this.props.com.current.sitValue({
+                            ymax: value,
+                          });
+                        }
+                        if (this.props.com.current.backValue) {
+                          this.props.com.current.backValue({
+                            ymax: value,
+                          });
+                        }
+                      }
+
+
+                    }}
+                    value={this.props.ymax}
+                    step={10}
+                    // value={this.props.}
+                    style={{ width: '200px' }}
+                  />
                 </div>
-                <Slider
-                  min={1}
-                  max={1000}
-                  onChange={(value) => {
-                    localStorage.setItem("ymax", value);
-                    // this.props.setValuelInit1(value);
-                    this.props.changeStateData({ ymax: value })
-
-                    if (this.props.com.current) {
-                      if (this.props.com.current.sitValue) {
-                        this.props.com.current.sitValue({
-                          ymax: value,
-                        });
-                      }
-                      if (this.props.com.current.backValue) {
-                        this.props.com.current.backValue({
-                          ymax: value,
-                        });
-                      }
-                    }
-
-
-                  }}
-                  value={this.props.ymax}
-                  step={10}
-                  // value={this.props.}
-                  style={{ width: '200px' }}
-                />
-              </div>
                 <div
                   className="progerssSlide"
                   style={{
@@ -852,54 +852,105 @@ class Title extends React.Component {
                   />
                 </div> </> : null}
               {
-                this.props.matrixName == 'smallBed' ?  <div
-                className="progerssSlide"
-                style={{
-                  display: "flex",
+                this.props.matrixName == 'smallBed' ?
+                <>
+                  <div
+                    className="progerssSlide"
+                    style={{
+                      display: "flex",
 
-                  alignItems: "center",
-                }}
-              >
-                <div
-                  style={{
-                    color: "#468493",
-                    minWidth: "80px",
-                    textAlign: "left",
-                  }}
-                >
-                  补偿
-                </div>
-                <Slider
-                  min={0}
-                  max={100}
-                  onChange={(value) => {
-                    localStorage.setItem("compen", value);
-                    // this.props.setValuelInit1(value);
-                    this.props.changeStateData({ compen: value })
-                    this.props.wsSendObj({
-                      compen : value
-                    })
-                    if (this.props.com.current) {
-                      if (this.props.com.current.sitValue) {
-                        this.props.com.current.sitValue({
-                          compen: value,
-                        });
-                      }
-                      if (this.props.com.current.backValue) {
-                        this.props.com.current.backValue({
-                          compen: value,
-                        });
-                      }
-                    }
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        color: "#468493",
+                        minWidth: "80px",
+                        textAlign: "left",
+                      }}
+                    >
+                      补偿
+                    </div>
+                    <Slider
+                      min={0}
+                      max={100}
+                      onChange={(value) => {
+                        localStorage.setItem("compen", value);
+                        // this.props.setValuelInit1(value);
+                        this.props.changeStateData({ compen: value })
+                        this.props.wsSendObj({
+                          compen: value
+                        })
+                        if (this.props.com.current) {
+                          if (this.props.com.current.sitValue) {
+                            this.props.com.current.sitValue({
+                              compen: value,
+                            });
+                          }
+                          if (this.props.com.current.backValue) {
+                            this.props.com.current.backValue({
+                              compen: value,
+                            });
+                          }
+                        }
 
 
-                  }}
-                  value={this.props.compen}
-                  step={1}
-                  // value={this.props.}
-                  style={{ width: '200px' }}
-                />
-              </div> : null
+                      }}
+                      value={this.props.compen}
+                      step={1}
+                      // value={this.props.}
+                      style={{ width: '200px' }}
+                    />
+                  </div>
+                  <div
+                    className="progerssSlide"
+                    style={{
+                      display: "flex",
+
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      style={{
+                        color: "#468493",
+                        minWidth: "80px",
+                        textAlign: "left",
+                      }}
+                    >
+                      分压数值
+                    </div>
+                    <Slider
+                      min={200}
+                      max={3000}
+                      onChange={(value) => {
+                        localStorage.setItem("press", value);
+                        // this.props.setValuelInit1(value);
+                        this.props.changeStateData({ press: value })
+                        this.props.wsSendObj({
+                          press: value
+                        })
+                        if (this.props.com.current) {
+                          if (this.props.com.current.sitValue) {
+                            this.props.com.current.sitValue({
+                              press: value,
+                            });
+                          }
+                          if (this.props.com.current.backValue) {
+                            this.props.com.current.backValue({
+                              press: value,
+                            });
+                          }
+                        }
+
+
+                      }}
+                      value={this.props.press}
+                      step={1}
+                      // value={this.props.}
+                      style={{ width: '200px' }}
+                    />
+                  </div>
+                </> : null
               }
             </div>
           </div> : <div></div>

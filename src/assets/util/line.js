@@ -241,7 +241,7 @@ export function press(arr, width, height, type = "row") {
   return wsPointData;
 }
 
-export function pressSmallBed(arr, width, height, type = "row") {
+export function pressSmallBed({arr, width, height, type = 'row' , num = 100}) {
   let wsPointData = [...arr];
 
   if (type == "row") {
@@ -258,8 +258,8 @@ export function pressSmallBed(arr, width, height, type = "row") {
       for (let j = 0; j < width; j++) {
         wsPointData[i * width + j] = parseInt(
           (wsPointData[i * width + j] /
-            (280 - colArr[i] == 0 ? 1 : 280 - colArr[i])) *
-          1000
+            (num - colArr[i] == 0 ? 1 : num - colArr[i])) *
+          100
         );
       }
     }
@@ -272,13 +272,14 @@ export function pressSmallBed(arr, width, height, type = "row") {
       }
       colArr.push(total);
     }
+    console.log(colArr)
     // //////okok
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
         wsPointData[j * height + i] = parseInt(
           (wsPointData[j * height + i] /
-            (280 - colArr[i] == 0 ? 1 : 280 - colArr[i])) *
-          1000
+            (num - colArr[i] == 0 ? 1 : num - colArr[i])) *
+          100
         );
       }
     }

@@ -225,6 +225,9 @@ class Home extends React.Component {
       compen: localStorage.getItem("compen")
         ? JSON.parse(localStorage.getItem("compen"))
         : 0,
+      press: localStorage.getItem("press")
+        ? JSON.parse(localStorage.getItem("press"))
+        : 0,
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
@@ -312,7 +315,7 @@ class Home extends React.Component {
       // connection opened
       console.info("connect success");
       this.wsSendObj({
-        file : this.state.matrixName
+        file: this.state.matrixName
       })
     };
     ws.onmessage = (e) => {
@@ -330,7 +333,7 @@ class Home extends React.Component {
       // connection opened
       console.info("connect success");
       this.wsSendObj({
-        file : this.state.matrixName
+        file: this.state.matrixName
       })
     };
     ws1.onmessage = (e) => {
@@ -476,7 +479,7 @@ class Home extends React.Component {
       };
     }
 
-    
+
   }
 
   colPushData() {
@@ -1566,7 +1569,6 @@ class Home extends React.Component {
               ref={this.com}
               data={this.data}
               local={this.state.local}
-
               handleChartsBody={this.handleChartsBody.bind(this)}
               handleChartsBody1={this.handleChartsBody1.bind(this)}
               changeSelect={this.changeSelect}
