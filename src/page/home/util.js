@@ -684,11 +684,11 @@ export const sitTypeEvent = {
       }
     }
 
-    const legArr = [...wsPointData].splice(0,40)
-    const buttArr = [...wsPointData].splice(40,100)
+    const legArr = [...wsPointData].splice(0, 40)
+    const buttArr = [...wsPointData].splice(40, 100)
     that.setState({
-      leg : legArr.reduce((a,b) => a + b , 0).toFixed(0),
-      butt : buttArr.reduce((a,b) => a + b , 0).toFixed(0)
+      leg: legArr.reduce((a, b) => a + b, 0).toFixed(0),
+      butt: buttArr.reduce((a, b) => a + b, 0).toFixed(0)
     })
 
     let DataArr;
@@ -720,7 +720,7 @@ export const sitTypeEvent = {
     //   })
     // }
     // console.log(wsPointData.filter(a => a > 40).length)
-    
+
 
     // that.setState({
     //   newValue: DataArr.filter((a) => a > 70).reduce((a, b) => a + b, 0).toFixed(2) //(DataArr.reduce((a,b) => a + b , 0) / DataArr.filter((a) => a > 10).length).toFixed(2)
@@ -884,19 +884,26 @@ export const sitTypeEvent = {
     if (!that.state.local)
       that.data.current?.handleChartsArea(totalPointArr, max1 + 100);
   },
-  smallBed({that, wsPointData}){
+  smallBed({ that, wsPointData, compen }) {
+    // console.log(compen)
+    for (let i = 0; i < 32; i++) {
+      for (let j = 0; j < 32; j++) {
+        wsPointData[i * 32 + j] = wsPointData[i * 32 + j] * (1 + Math.floor(i / 8) * compen / 100)
+      }
+    }
+
     that.com.current?.sitData({
       wsPointData: wsPointData,
     });
   },
-  smallM({that, wsPointData,press}){
+  smallM({ that, wsPointData, press }) {
     let res
-    if(press){
-      res = pressSmallBed(wsPointData , 32,32)
-    }else{
+    if (press) {
+      res = pressSmallBed(wsPointData, 32, 32)
+    } else {
       res = wsPointData
     }
-     
+
 
     that.com.current?.sitData({
       wsPointData: res,
@@ -1296,12 +1303,12 @@ export const backTypeEvent = {
       wsPointData: wsPointData,
     });
 
-    const type = wsPointData.filter(a => a > 40).length > 45 ? 2 : wsPointData.filter(a => a > 40).length <10  ? 0 : 1
-    
+    const type = wsPointData.filter(a => a > 40).length > 45 ? 2 : wsPointData.filter(a => a > 40).length < 10 ? 0 : 1
+
     // console.log(legArr , buttArr)
     that.setState({
-      newValue : wsPointData.filter(a => a > 40).length,
-      
+      newValue: wsPointData.filter(a => a > 40).length,
+
     })
 
     const selectArr = [];
@@ -1482,7 +1489,7 @@ function getValue(arr, local) {
   sitTotal = [...DataArr].map((a) => pointToN(a)).reduce((a, b) => a + b, 0)
   sitMax = (sitMax / (sitTotalvalue ? sitTotalvalue : 1)) * sitTotal;
   sitMean = sitTotal / (sitPoint ? sitPoint : 1);
-  
+
   sitSmooth.getSmooth(
     [sitMean, sitMax, sitTotal, sitPoint, sitArea, sitPressure],
     10

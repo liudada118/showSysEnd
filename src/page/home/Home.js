@@ -632,6 +632,7 @@ class Home extends React.Component {
         backFlag,
         local: this.state.local,
         press: this.state.press,
+        compen : this.state.compen
       });
     }
 
