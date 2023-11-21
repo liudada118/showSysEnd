@@ -275,7 +275,7 @@ export function pressSmallBed({arr, width, height, type = 'row' , num = 100}) {
       }
       colArr.push(total);
     }
-    console.log(colArr)
+    // console.log(colArr)
     // //////okok
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {

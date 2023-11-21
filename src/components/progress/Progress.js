@@ -245,7 +245,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
 
         // 渲染当前帧的图表
         if (props.areaArr) props.data.current?.handleChartsArea(props.areaArr, props.max + 100, value + 1);
-        if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "sit10")) {
+        if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "sit10"|| props.matrixName == "smallBed")) {
             props.data.current?.handleCharts(props.pressArr, props.pressMax + 100, value + 1);
         }
     }

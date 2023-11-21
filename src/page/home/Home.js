@@ -8,6 +8,8 @@ import CanvasHand from "../../components/three/hand";
 import Bed from "../../components/three/Bed";
 import SmallBed from "../../components/three/smallBed";
 import SmallM from "../../components/three/smallM";
+import SmallRect from "../../components/three/smallRect";
+import SmallShort from "../../components/three/Short";
 import Sit10 from "../../components/three/sit10";
 import Aside from "../../components/aside/Aside";
 import ProgressCom from "../../components/progress/Progress";
@@ -231,7 +233,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "smallBed",
+      matrixName: "rect",
       length: 0,
       local: false,
       dataArr: [],
@@ -713,7 +715,7 @@ class Home extends React.Component {
 
     if (jsonObject.pressArr != null) {
       const max = findMax(jsonObject.pressArr);
-      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "sit10") {
+      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "sit10"|| this.state.matrixName == "smallBed") {
         this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
         this.pressMax = max;
         this.pressArr = jsonObject.pressArr;
@@ -971,9 +973,17 @@ class Home extends React.Component {
         : Math.round((value - 4) / 2 - 1);
   };
 
+  changeSmallBedValue = (value) => {
+    return value < 4
+      ? 0
+      : value >= 4 + 64 * 2
+        ? 32 - 1
+        : Math.round((value - 4) / 4 - 1);
+  };
+
   changeSelect = (obj, type) => {
     let sit = [...obj.sit];
-
+    // console.log(sit)
     if (!sit.every((a) => a == 0) && this.state.carState != "back") {
       const sitIndex = sit.length
         ? sit.map((a, index) => {
@@ -989,7 +999,13 @@ class Home extends React.Component {
             } else {
               return this.changeValue(a);
             }
-          } else {
+          }else if(this.state.matrixName === "smallBed") {
+            if (index == 0 || index == 1) {
+              return this.changeSmallBedValue(a);
+            } else {
+              return this.changeValue(a);
+            }
+          }else {
             return this.changeValue(a);
           }
         })
@@ -1577,6 +1593,30 @@ class Home extends React.Component {
         ) : this.state.matrixName == "smallM" ? (
           <CanvasCom matrixName={this.state.matrixName}>
             <SmallM
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeSelect={this.changeSelect}
+            />
+          </CanvasCom>
+        ) : this.state.matrixName == "rect" ? (
+          <CanvasCom matrixName={this.state.matrixName}>
+            <SmallRect
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeSelect={this.changeSelect}
+            />
+          </CanvasCom>
+        ) : this.state.matrixName == "short" ? (
+          <CanvasCom matrixName={this.state.matrixName}>
+            <SmallShort
               ref={this.com}
               data={this.data}
               local={this.state.local}

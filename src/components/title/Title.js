@@ -45,7 +45,9 @@ const sensorArr = [
   { label: '本地自适应', value: 'localCar' },
   { label: '席悦座椅', value: 'sit10' },
   { label: '小床监测', value: 'smallBed' },
-  { label: '小矩阵1', value: 'smallM' }
+  { label: '小矩阵1', value: 'smallM' },
+  { label: '矩阵2', value: 'rect' },
+  { label: 'T-short', value: 'short' },
 ]
 
 

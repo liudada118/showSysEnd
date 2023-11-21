@@ -909,6 +909,16 @@ export const sitTypeEvent = {
     that.com.current?.sitData({
       wsPointData: res,
     });
+  },
+  short({ that, wsPointData, press }){
+    that.com.current?.sitData({
+      wsPointData: wsPointData,
+    });
+  },
+  rect({ that, wsPointData, press }){
+    that.com.current?.sitData({
+      wsPointData: wsPointData,
+    });
   }
 };
 

@@ -126,6 +126,12 @@ export default function Demo() {
           for (let j = 0; j < 32; j++) {
             arr[i][j] = wsPointData[i * 32 + j];
           }
+          arr[i][32] = i
+          
+        }
+        arr[32] = []
+        for (let i = 0; i < 32; i++) {
+          arr[32][i] = i
         }
         // console.log(arr)
         setData(arr);
