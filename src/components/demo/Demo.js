@@ -99,7 +99,7 @@ export default function Demo() {
       if (jsonObject.sitData != null) {
         wsPointData = jsonObject.sitData;
 
-        wsPointData = wsPointData.map((a) => (a < 5 ? 0 : a));
+        // wsPointData = wsPointData.map((a) => (a < 5 ? 0 : a));
 
         if (colFalg) {
           collection.push([[...wsPointData], name]);
