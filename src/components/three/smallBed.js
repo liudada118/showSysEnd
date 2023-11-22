@@ -484,6 +484,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
     ndata1 = [...newData1].map((a, index) => (a - valuef1 < 0 ? 0 : a));
     // console.log(ndata1)
+    ndata1 = pressSmallBed({arr : ndata1 , width : 32 , height : 32 , type : 'col' , num : pressValue})
 
     for (let i = 0; i < 32; i++) {
       for (let j = 0; j < 32; j++) {
@@ -491,7 +492,7 @@ const Canvas = React.forwardRef((props, refs) => {
       }
     }
 
-    ndata1 = pressSmallBed({arr : ndata1 , width : 32 , height : 32 , type : 'col' , num : pressValue})
+    
 
     const realArr = []
     for (let i = 0; i < 64; i++) {
