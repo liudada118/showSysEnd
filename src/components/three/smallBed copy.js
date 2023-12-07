@@ -37,19 +37,13 @@ let totalArr = [],
 let controlsFlag = true;
 var newData1 = new Array(sitnum1 * sitnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0), centerFlag = true;
 
-var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 2655,
-  valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 3.3,
-  value1 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2.08,
-  valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 4,
-  valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 0,
-  ymax1 = localStorage.getItem('ymax') ? JSON.parse(localStorage.getItem('ymax')) : 251,
-  valuej2 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
-  valueg2 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
-  value2 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
-  valuel2 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
-  valuef2 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
-  valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2001,
-  valuelInit2 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2;
+var valuej1 = initValue.valuej1,
+  valueg1 = initValue.valueg1,
+  value1 = initValue.value1,
+  valuel1 = initValue.valuel1,
+  valuef1 = initValue.valuef1,
+  ymax1 = initValue.ymax1,
+  valuelInit1 = initValue.valuelInit1
 let enableControls = true;
 let isShiftPressed = false;
 

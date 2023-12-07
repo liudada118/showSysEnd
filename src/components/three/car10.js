@@ -44,6 +44,7 @@ const Canvas = React.forwardRef((props, refs) => {
     valuef2 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
     valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2000,
     valuelInit2 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2000;
+
   let particles,
     particles1,
     particlesRect,
@@ -218,7 +219,7 @@ const Canvas = React.forwardRef((props, refs) => {
       props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       selectStartArr = [(event.clientX), event.clientY]
 
-      sitArr = getPointCoordinate({ particles, camera, position: { x: group.position.x, y: group.position.y, z: group.position.z} })
+      sitArr = getPointCoordinate({ particles, camera, position: { x: group.position.x, y: group.position.y, z: group.position.z } })
       backArr = getPointCoordinateback({ particles: particles1, camera, position: { x: group.position.x, y: group.position.y, z: group.position.z }, width: AMOUNTX1 })
 
       sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
@@ -263,7 +264,7 @@ const Canvas = React.forwardRef((props, refs) => {
           backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
 
         }
-       
+
         props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
       }
 
@@ -761,14 +762,14 @@ const Canvas = React.forwardRef((props, refs) => {
     // console.log(ndata.length)
 
 
-    for (let i = 0; i < 5;i++) {
+    for (let i = 0; i < 5; i++) {
 
-      for (let j = 0; j < 5;j++) {
+      for (let j = 0; j < 5; j++) {
         let num = 0
 
         for (let k = 0; k < 2; k++) {
           for (let z = 0; z < 2; z++) {
-            num += ndata[(i*2 + k) * 10 + j*2 + z]
+            num += ndata[(i * 2 + k) * 10 + j * 2 + z]
             // console.log(i + k, j + z)
           }
         }

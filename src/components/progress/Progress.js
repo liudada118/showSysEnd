@@ -203,7 +203,7 @@ const ProgressCom = React.forwardRef((props, refs) => {
                 }
             }
            
-            if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "car10" || props.matrixName == "sit10")) {
+            if (props.pressArr && (props.matrixName == "car" || props.matrixName == "bigBed" || props.matrixName == "car10" || props.matrixName == "sit10"|| props.matrixName == "smallBed")) {
                 
                 props.data.current?.handleCharts(
                     props.pressArr,

@@ -199,14 +199,14 @@ export function interpSmall(smallMat, width, height, interp1, interp2) {
   // }
   // 32, 10, 4, 5
   const bigMat = new Array((width * interp1) * (height * interp2)).fill(0)
-  for(let i = 0 ; i < height ; i++){
-    for(let j = 0 ; j < width ; j ++){
-      bigMat[(width * interp1) * i* interp2 + (j * interp1)
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      bigMat[(width * interp1) * i * interp2 + (j * interp1)
 
         // + (width * interp1) * Math.floor(interp2/2)
 
         // + Math.floor(interp1/2)
-       ] = smallMat[i*width + j] * 10
+      ] = smallMat[i * width + j] * 10
     }
   }
   // console.log(bigMat.length)
@@ -1151,7 +1151,7 @@ export class smoothClass {
 }
 
 export function timeStampToDate(data) {
-
+  console.log(data)
   if (typeof data !== 'number') {
     return ''
   }
@@ -1162,8 +1162,39 @@ export function timeStampToDate(data) {
   let D = date.getDate() + ' ';
   let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
   let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
-  let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
-
+  let s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()) + ':' ;
+  let us =  date % 1000 
   // document.write(Y+M+D+h+m+s);
-  return Y + M + D + h + m + s
+  return Y + M + D + h + m + s + us
+}
+
+export const initValue = {
+  valueg1: localStorage.getItem("carValueg")
+    ? JSON.parse(localStorage.getItem("carValueg"))
+    : 3.3,
+  valuej1: localStorage.getItem("carValuej")
+    ? JSON.parse(localStorage.getItem("carValuej"))
+    : 2655,
+  valuel1: localStorage.getItem("carValuel")
+    ? JSON.parse(localStorage.getItem("carValuel"))
+    : 4,
+  valuef1: localStorage.getItem("carValuef")
+    ? JSON.parse(localStorage.getItem("carValuef"))
+    : 0,
+  value1: localStorage.getItem("carValue")
+    ? JSON.parse(localStorage.getItem("carValue"))
+    : 2.08,
+  valuelInit1: localStorage.getItem("carValueInit")
+    ? JSON.parse(localStorage.getItem("carValueInit"))
+    : 500,
+  valueMult: localStorage.getItem("valueMult")
+    ? JSON.parse(localStorage.getItem("valueMult"))
+    : 1,
+  compen: localStorage.getItem("compen")
+    ? JSON.parse(localStorage.getItem("compen"))
+    : 0,
+  press: localStorage.getItem("press")
+    ? JSON.parse(localStorage.getItem("press"))
+    : 0,
+  ymax1: localStorage.getItem('ymax') ? JSON.parse(localStorage.getItem('ymax')) : 251,
 }

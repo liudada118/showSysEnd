@@ -854,7 +854,7 @@ class Title extends React.Component {
                   />
                 </div> </> : null}
               {
-                this.props.matrixName == 'smallBed' ?
+                this.props.matrixName == '111' ?
                 <>
                   <div
                     className="progerssSlide"

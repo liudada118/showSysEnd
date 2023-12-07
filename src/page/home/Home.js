@@ -18,7 +18,7 @@ import minus from "../../assets/images/Minus.png";
 import load from "../../assets/images/load.png";
 
 import refresh from "../../assets/images/refresh.png";
-import { findMax, findMin, rotate180, rotate90 } from "../../assets/util/util";
+import { findMax, findMin, initValue, rotate180, rotate90 } from "../../assets/util/util";
 import { rainbowTextColors } from "../../assets/util/color";
 import {
   footLine,
@@ -203,37 +203,19 @@ class Home extends React.Component {
   constructor() {
     super();
     this.state = {
-      valueg1: localStorage.getItem("carValueg")
-        ? JSON.parse(localStorage.getItem("carValueg"))
-        : 3.3,
-      valuej1: localStorage.getItem("carValuej")
-        ? JSON.parse(localStorage.getItem("carValuej"))
-        : 2655,
-      valuel1: localStorage.getItem("carValuel")
-        ? JSON.parse(localStorage.getItem("carValuel"))
-        : 4,
-      valuef1: localStorage.getItem("carValuef")
-        ? JSON.parse(localStorage.getItem("carValuef"))
-        : 0,
-      value1: localStorage.getItem("carValue")
-        ? JSON.parse(localStorage.getItem("carValue"))
-        : 2.08,
-      valuelInit1: localStorage.getItem("carValueInit")
-        ? JSON.parse(localStorage.getItem("carValueInit"))
-        : 2000,
-      valueMult: localStorage.getItem("valueMult")
-        ? JSON.parse(localStorage.getItem("valueMult"))
-        : 1,
-      compen: localStorage.getItem("compen")
-        ? JSON.parse(localStorage.getItem("compen"))
-        : 0,
-      press: localStorage.getItem("press")
-        ? JSON.parse(localStorage.getItem("press"))
-        : 0,
+      valueg1: initValue.valueg1,
+      valuej1: initValue.valuej1,
+      valuel1: initValue.valuel1,
+      valuef1: initValue.valuef1,
+      value1: initValue.value1,
+      valuelInit1: initValue.valuelInit1,
+      valueMult: initValue.valueMult,
+      compen: initValue.compen,
+      press: initValue.press,
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "rect",
+      matrixName: "smallBed",
       length: 0,
       local: false,
       dataArr: [],
@@ -317,7 +299,9 @@ class Home extends React.Component {
       // connection opened
       console.info("connect success");
       this.wsSendObj({
-        file: this.state.matrixName
+        file: this.state.matrixName,
+        sitClose: true,
+        backClose: true
       })
     };
     ws.onmessage = (e) => {
@@ -335,7 +319,9 @@ class Home extends React.Component {
       // connection opened
       console.info("connect success");
       this.wsSendObj({
-        file: this.state.matrixName
+        file: this.state.matrixName,
+        sitClose: true,
+        backClose: true
       })
     };
     ws1.onmessage = (e) => {
@@ -660,6 +646,7 @@ class Home extends React.Component {
 
       this.setState({
         port: port,
+
       });
     }
     if (jsonObject.length != null) {
@@ -676,7 +663,7 @@ class Home extends React.Component {
       // const arr = []
       const arr = jsonObject.timeArr; //.map((a, index) => a.date);
 
-      if (this.state.matrixName == "car") {
+      // if (this.state.matrixName == "car") {
         let obj = [];
         arr.forEach((a, index) => {
           obj.push({
@@ -686,17 +673,17 @@ class Home extends React.Component {
         });
 
         this.setState({ dataArr: obj });
-      } else {
-        let obj = [];
-        arr.forEach((a, index) => {
-          obj.push({
-            value: a.date,
-            label: a.name,
-          });
-        });
+      // } else {
+      //   let obj = [];
+      //   arr.forEach((a, index) => {
+      //     obj.push({
+      //       value: a.date,
+      //       label: a.name,
+      //     });
+      //   });
 
-        this.setState({ dataArr: obj });
-      }
+      //   this.setState({ dataArr: obj });
+      // }
     }
 
     if (jsonObject.index != null) {
@@ -715,7 +702,7 @@ class Home extends React.Component {
 
     if (jsonObject.pressArr != null) {
       const max = findMax(jsonObject.pressArr);
-      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "sit10"|| this.state.matrixName == "smallBed") {
+      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "sit10" || this.state.matrixName == "smallBed") {
         this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
         this.pressMax = max;
         this.pressArr = jsonObject.pressArr;
@@ -999,13 +986,13 @@ class Home extends React.Component {
             } else {
               return this.changeValue(a);
             }
-          }else if(this.state.matrixName === "smallBed") {
+          } else if (this.state.matrixName === "smallBed") {
             if (index == 0 || index == 1) {
               return this.changeSmallBedValue(a);
             } else {
               return this.changeValue(a);
             }
-          }else {
+          } else {
             return this.changeValue(a);
           }
         })
