@@ -633,28 +633,15 @@ export const sitTypeEvent = {
       newArr: dataArr,
     });
   },
-  hand: ({ that, wsPointData }) => {
+  hand: ({ that, wsPointData,local }) => {
     if (that.state.numMatrixFlag == "normal") {
       wsPointData = handLine(wsPointData);
-
       that.com.current?.sitData({
         wsPointData: wsPointData,
+        local : that.state.local
       });
 
-      let sitData = [],
-        backData = [];
-      for (let i = 0; i < 32; i++) {
-        for (let j = 0; j < 32; j++) {
-          if (j < 16) {
-            sitData.push(wsPointData[i * 32 + j]);
-          } else {
-            backData.push(wsPointData[i * 32 + j]);
-          }
-        }
-      }
-
-      const footLength = calFoot(sitData, 16, 32);
-      console.log(footLength);
+     
     } else if (that.state.numMatrixFlag == "heatmap") {
       that.com.current?.bthClickHandle(wsPointData);
     }
@@ -892,7 +879,7 @@ export const sitTypeEvent = {
     //     arr[i * 32 + j] = arr[i * 32 + j] * (1 + Math.floor(i / 8) * compen / 100)
     //   }
     // }
-
+    console.log(JSON.stringify(wsPointData))
     that.com.current?.sitData({
       wsPointData: arr,
     });

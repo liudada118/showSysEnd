@@ -1168,6 +1168,24 @@ export function timeStampToDate(data) {
   return Y + M + D + h + m + s + us
 }
 
+export function timeStampToDateNospace(data) {
+  console.log(data)
+  if (typeof data !== 'number') {
+    return ''
+  }
+  var date = new Date(data);  // 参数需要毫秒数，所以这里将秒数乘于 1000
+  let Y = date.getFullYear() + '-';
+  // let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+  let M = (date.getMonth() + 1) + '-';
+  let D = date.getDate() + '-';
+  let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + '-';
+  let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + '-';
+  let s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()) + '-' ;
+  let us =  date % 1000 
+  // document.write(Y+M+D+h+m+s);
+  return Y + M + D + h + m + s + us
+}
+
 export const initValue = {
   valueg1: localStorage.getItem("carValueg")
     ? JSON.parse(localStorage.getItem("carValueg"))

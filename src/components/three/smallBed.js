@@ -19,6 +19,7 @@ import {
   findMax,
   interp,
   initValue,
+  jetWhite3,
 } from "../../assets/util/util";
 
 import './index.scss'
@@ -372,7 +373,7 @@ const Canvas = React.forwardRef((props, refs) => {
       transparent: true,
       //   color: 0xffffff,
       map: spite,
-      size: 1,
+      size: 1.2,
     });
     sitGeometry.setAttribute("scale", new THREE.BufferAttribute(scales, 1));
     sitGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
@@ -571,16 +572,16 @@ const Canvas = React.forwardRef((props, refs) => {
 
           if (ix >= sitIndexArr[0] && ix < sitIndexArr[1] && iy >= sitIndexArr[2] && iy < sitIndexArr[3]) {
             // rgb = [255, 0, 0];
-            rgb = jet(0, valuej1, smoothBig[l]);
+            rgb = jetWhite3(0, valuej1, smoothBig[l]);
             // scales1[l] = 2;
             // positions1[k + 1] = smoothBig[l] / value2 - 1000
             dataArr.push(bigArrg1New[l])
           } else {
-            rgb = jetgGrey(0, valuej1, smoothBig[l]);
+            rgb = jetWhite3(0, valuej1, smoothBig[l]);
             // scales1[l] = 1;
           }
         } else {
-          rgb = jet(0, valuej1, smoothBig[l]);
+          rgb = jetWhite3(0, valuej1, smoothBig[l]);
           // scales1[l] = 1;
         }
 

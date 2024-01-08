@@ -86,6 +86,9 @@ const Canvas = React.forwardRef((props, refs) => {
   const AMOUNTY1 = backnum2 * backInterp + backOrder * 2;
   const SEPARATION = 100;
   let group = new THREE.Group();
+
+    
+
   let valuej1 = 200,
     valueg1 = 2,
     value1 = 5,

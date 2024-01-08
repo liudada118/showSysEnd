@@ -1,10 +1,12 @@
 import React from 'react'
-import { Menu, Slider, Button, Select, message } from 'antd';
+import { Menu, Slider, Button, Select, message, Divider, Space } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import exchange from '../../assets/images/exchange.png'
 import option from '../../assets/images/Option.png'
 import './title.scss'
 import Input from 'antd/es/input/Input';
 import { CSVLink, CSVDownload } from 'react-csv';
+import { timeStampToDate, timeStampToDateNospace } from '../../assets/util/util';
 
 let collection = JSON.parse(localStorage.getItem('collection'))
   ? JSON.parse(localStorage.getItem('collection'))
@@ -75,8 +77,16 @@ class Title extends React.Component {
         : 1,
       ip: localStorage.getItem('ip') ? localStorage.getItem('ip') : '',
 
-      dataName: ''
+      dataName: '',
+      items: localStorage.getItem('sitType') ? JSON.parse(localStorage.getItem('sitType')) : [],
+      name: '',
+      items1 : localStorage.getItem('sitType1') ? JSON.parse(localStorage.getItem('sitType1')) : [],
+      name1: '',
+      realname : '',
+      realname1 : ''
     }
+    this.inputRef = React.createRef(null)
+    this.inputRef1 = React.createRef(null)
   }
 
   componentDidMount() {
@@ -169,6 +179,18 @@ class Title extends React.Component {
     })
   }
 
+  onChange = (value) => {
+    // this.props.changeStateData({ dataName: })
+    this.setState({realname : value})
+    this.setState({ colName: value + this.state.realname1+ timeStampToDateNospace(Date.parse(new Date())) })
+  };
+
+  onSearch = (value) => {
+    console.log('search:', value);
+  };
+
+  filterOption = (input, option) =>
+    (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
   changeMatrixType(e) {
     // this.props.handleChangeCom(e);
     console.log(e);
@@ -181,6 +203,42 @@ class Title extends React.Component {
     // if (ws && ws.readyState === 1)
     //   ws.send(JSON.stringify({ sitPort: e }));
   }
+
+ 
+  onNameChange = (event) => {
+    this.setState({ name: event.target.value });
+    console.log(event.target.value)
+    // this.setState({ colName:  event.target.value + timeStampToDateNospace(Date.parse(new Date())) })
+  };
+  addItem = (e) => {
+    e.preventDefault();
+    const items = this.state.items
+    this.setState({ items: [...items, this.state.name], name: '' });
+    // this.setState({});
+    localStorage.setItem('sitType', JSON.stringify([...items, this.state.name]))
+    setTimeout(() => {
+      this.inputRef.current?.focus();
+    }, 0);
+  };
+
+  onChange1 = (value) => {
+    this.setState({realname1 : value})
+    this.setState({ colName: this.state.realname + value + timeStampToDateNospace(Date.parse(new Date())) })
+  };
+
+  onNameChange1 = (event) => {
+    this.setState({ name1: event.target.value });
+  };
+  addItem1 = (e) => {
+    e.preventDefault();
+    const items = this.state.items1
+    this.setState({ items1: [...items, this.state.name1], name1: '' });
+    // this.setState({});
+    localStorage.setItem('sitType1', JSON.stringify([...items, this.state.name1]))
+    setTimeout(() => {
+      this.inputRef.current?.focus();
+    }, 0);
+  };
 
   render() {
     // console.log('title')
@@ -332,7 +390,7 @@ class Title extends React.Component {
           : null}
         {!this.props.local ?
           <>
-            {this.props.matrixName == 'car' ? <Input placeholder='输入采集文件名称' onChange={(e) => { this.setState({ colName: e.target.value }) }} /> : null}
+            {/* {this.props.matrixName == 'car' ? <Input placeholder='输入采集文件名称' onChange={(e) => { this.setState({ colName: e.target.value }) }} /> : null} */}
 
             {this.props.matrixName == 'localCar' ?
               <Input placeholder='输入采集标签' onChange={(e) => { this.props.changeStateData({ dataName: e.target.value }) }} />
@@ -346,6 +404,7 @@ class Title extends React.Component {
                   const flag = this.props.colFlag
                   const formattedDate = Date.now()
                   if (flag) {
+                    console.log(this.state.colName)
                     if (this.state.colName) {
                       this.props.wsSendObj({ flag: true, colName: this.state.colName + ' ' + formattedDate })
                     } else {
@@ -419,6 +478,94 @@ class Title extends React.Component {
             this.props.wsSendObj({ variety: true })
           }} >压力变化</Button> : null
         }
+
+        {/* {
+          this.props.matrixName === 'hand' ? <Select
+            showSearch
+            placeholder="Select a person"
+            optionFilterProp="children"
+            onChange={this.onChange}
+            onSearch={this.onSearch}
+            filterOption={this.filterOption}
+            options={[
+              {
+                value: 'jack',
+                label: 'Jack',
+              },
+              {
+                value: 'lucy',
+                label: 'Lucy',
+              },
+              {
+                value: 'tom',
+                label: 'Tom',
+              },
+            ]}
+          /> : null
+        } */}
+
+         <>
+          <Select
+            style={{ width: 250 }}
+            placeholder="特征标签1"
+            onChange={this.onChange}
+            dropdownRender={(menu) => (
+              <>
+                {menu}
+                <Divider style={{ margin: '8px 0' }} />
+                <Space style={{ padding: '0 8px 4px' }}>
+                  <Input
+                    placeholder="Please enter item"
+                    ref={this.inputRef}
+                    value={this.state.name}
+                    onChange={this.onNameChange}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                  <Button type="text" icon={<PlusOutlined />} onClick={this.addItem}>
+                    添加
+                  </Button>
+                  <Button type="text" onClick={() => {
+                    this.setState({ items: [] })
+                    localStorage.removeItem('sitType')
+                  }}>
+                    删除
+                  </Button>
+                </Space>
+              </>
+            )}
+            options={this.state.items.map((item) => ({ label: item, value: item }))}
+          />
+          <Select
+            style={{ width: 250 }}
+            placeholder="特征标签2"
+            onChange={this.onChange1}
+            dropdownRender={(menu) => (
+              <>
+                {menu}
+                <Divider style={{ margin: '8px 0' }} />
+                <Space style={{ padding: '0 8px 4px' }}>
+                  <Input
+                    placeholder="Please enter item"
+                    ref={this.inputRef1}
+                    value={this.state.name1}
+                    onChange={this.onNameChange1}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                  <Button type="text" icon={<PlusOutlined />} onClick={this.addItem1}>
+                    添加
+                  </Button>
+                  <Button type="text" onClick={() => {
+                    this.setState({ items1: [] })
+                    localStorage.removeItem('sitType1')
+                  }}>
+                    删除
+                  </Button>
+                </Space>
+              </>
+            )}
+            options={this.state.items1.map((item) => ({ label: item, value: item }))}
+          />
+        </> 
 
         {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {
           const flag = this.props.pressChart
@@ -855,104 +1002,104 @@ class Title extends React.Component {
                 </div> </> : null}
               {
                 this.props.matrixName == '111' ?
-                <>
-                  <div
-                    className="progerssSlide"
-                    style={{
-                      display: "flex",
-
-                      alignItems: "center",
-                    }}
-                  >
+                  <>
                     <div
+                      className="progerssSlide"
                       style={{
-                        color: "#468493",
-                        minWidth: "80px",
-                        textAlign: "left",
+                        display: "flex",
+
+                        alignItems: "center",
                       }}
                     >
-                      补偿
+                      <div
+                        style={{
+                          color: "#468493",
+                          minWidth: "80px",
+                          textAlign: "left",
+                        }}
+                      >
+                        补偿
+                      </div>
+                      <Slider
+                        min={0}
+                        max={100}
+                        onChange={(value) => {
+                          localStorage.setItem("compen", value);
+                          // this.props.setValuelInit1(value);
+                          this.props.changeStateData({ compen: value })
+                          this.props.wsSendObj({
+                            compen: value
+                          })
+                          if (this.props.com.current) {
+                            if (this.props.com.current.sitValue) {
+                              this.props.com.current.sitValue({
+                                compen: value,
+                              });
+                            }
+                            if (this.props.com.current.backValue) {
+                              this.props.com.current.backValue({
+                                compen: value,
+                              });
+                            }
+                          }
+
+
+                        }}
+                        value={this.props.compen}
+                        step={1}
+                        // value={this.props.}
+                        style={{ width: '200px' }}
+                      />
                     </div>
-                    <Slider
-                      min={0}
-                      max={100}
-                      onChange={(value) => {
-                        localStorage.setItem("compen", value);
-                        // this.props.setValuelInit1(value);
-                        this.props.changeStateData({ compen: value })
-                        this.props.wsSendObj({
-                          compen: value
-                        })
-                        if (this.props.com.current) {
-                          if (this.props.com.current.sitValue) {
-                            this.props.com.current.sitValue({
-                              compen: value,
-                            });
-                          }
-                          if (this.props.com.current.backValue) {
-                            this.props.com.current.backValue({
-                              compen: value,
-                            });
-                          }
-                        }
-
-
-                      }}
-                      value={this.props.compen}
-                      step={1}
-                      // value={this.props.}
-                      style={{ width: '200px' }}
-                    />
-                  </div>
-                  <div
-                    className="progerssSlide"
-                    style={{
-                      display: "flex",
-
-                      alignItems: "center",
-                    }}
-                  >
                     <div
+                      className="progerssSlide"
                       style={{
-                        color: "#468493",
-                        minWidth: "80px",
-                        textAlign: "left",
+                        display: "flex",
+
+                        alignItems: "center",
                       }}
                     >
-                      分压数值
+                      <div
+                        style={{
+                          color: "#468493",
+                          minWidth: "80px",
+                          textAlign: "left",
+                        }}
+                      >
+                        分压数值
+                      </div>
+                      <Slider
+                        min={200}
+                        max={3000}
+                        onChange={(value) => {
+                          localStorage.setItem("press", value);
+                          // this.props.setValuelInit1(value);
+                          this.props.changeStateData({ press: value })
+                          this.props.wsSendObj({
+                            press: value
+                          })
+                          if (this.props.com.current) {
+                            if (this.props.com.current.sitValue) {
+                              this.props.com.current.sitValue({
+                                press: value,
+                              });
+                            }
+                            if (this.props.com.current.backValue) {
+                              this.props.com.current.backValue({
+                                press: value,
+                              });
+                            }
+                          }
+
+
+                        }}
+                        value={this.props.press}
+                        step={1}
+                        // value={this.props.}
+                        style={{ width: '200px' }}
+                      />
                     </div>
-                    <Slider
-                      min={200}
-                      max={3000}
-                      onChange={(value) => {
-                        localStorage.setItem("press", value);
-                        // this.props.setValuelInit1(value);
-                        this.props.changeStateData({ press: value })
-                        this.props.wsSendObj({
-                          press: value
-                        })
-                        if (this.props.com.current) {
-                          if (this.props.com.current.sitValue) {
-                            this.props.com.current.sitValue({
-                              press: value,
-                            });
-                          }
-                          if (this.props.com.current.backValue) {
-                            this.props.com.current.backValue({
-                              press: value,
-                            });
-                          }
-                        }
-
-
-                      }}
-                      value={this.props.press}
-                      step={1}
-                      // value={this.props.}
-                      style={{ width: '200px' }}
-                    />
-                  </div>
-                </> : null
+                  </> : null
               }
             </div>
           </div> : <div></div>

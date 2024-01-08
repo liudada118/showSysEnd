@@ -92,7 +92,7 @@ export function handLine(arr, flag) {
   return wsPointData;
 }
 
-export function zeroLine(arr) {
+export function zeroLine(arr ,max , min) {
   let wsPointData = [...arr];
   let colArr = [],
     rowArr = [];

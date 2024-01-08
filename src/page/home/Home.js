@@ -107,6 +107,10 @@ class CanvasCom extends React.Component {
     super(props);
   }
   shouldComponentUpdate(nextProps, nextState) {
+    if(this.props.local !== null || this.props.local !== undefined  ){
+      console.log('hand')
+      return this.props.matrixName != nextProps.matrixName || this.props.local != nextProps.local
+    }
     return this.props.matrixName != nextProps.matrixName;
   }
   render() {
@@ -215,7 +219,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "smallBed",
+      matrixName: "hand",
       length: 0,
       local: false,
       dataArr: [],
@@ -239,7 +243,7 @@ class Home extends React.Component {
       newArr: [],
       newArr1: [],
       ymax: 200,
-      control: "",
+      control: [],
       hunch: "",
       front: "",
       flank: "",
@@ -402,23 +406,55 @@ class Home extends React.Component {
             })
           }
 
-          if (controlFlag && jsonObject === "靠背气囊充气") {
+          // if (controlFlag && (jsonObject === "靠背气囊充气" || jsonObject.split('|').includes("靠背气囊充气"))) {
+          //   this.setState({
+          //     // control: [jsonObject, "侧翼气囊充气"],
+          //     control : ['座椅向前|-2000']
+          //   });
+          //   controlFlag = false;
+          // } else {
+          //   this.setState({
+          //     // control: [jsonObject],
+          //     control : ['座椅向前|-2000']
+          //   });
+          // }
+
+          // if(jsonObject)
+          // jsonObject = '靠背向后|2000'
+          let newjson
+          if (jsonObject.includes('|')) {
+            newjson = jsonObject.split('|')[0]
             this.setState({
-              control: [jsonObject, "侧翼左侧气囊充气", "侧翼右侧气囊充气"],
+              backTime: jsonObject.split('|')[1]
+            })
+          } else {
+            newjson = jsonObject
+          }
+
+          if (controlFlag && (newjson === "靠背气囊充气")) {
+
+            this.setState({
+              control: [newjson, "侧翼左侧气囊充气", "侧翼右侧气囊充气"],
             });
+
+
             controlFlag = false;
           } else {
-            if (jsonObject === "侧翼左侧气囊充气") {
+            if (newjson === "侧翼左侧气囊充气") {
+
               this.setState({
-                control: [jsonObject, "侧翼右侧气囊放气"],
+                control: [newjson, "侧翼右侧气囊放气"],
+
               });
-            } else if (jsonObject === "侧翼右侧气囊充气") {
+            } else if (newjson === "侧翼右侧气囊充气") {
               this.setState({
-                control: [jsonObject, "侧翼左侧气囊放气"],
+                control: [newjson, "侧翼左侧气囊放气"],
+
               });
             } else {
               this.setState({
-                control: [jsonObject],
+                control: [newjson],
+
               });
             }
           }
@@ -576,14 +612,16 @@ class Home extends React.Component {
           this.setState({ csvData: collection, length: collection.length });
         }
       } else {
-        if (controlFlag && jsonObject === "靠背气囊充气") {
+        if (controlFlag && (jsonObject === "靠背气囊充气" || jsonObject.split('|').includes("靠背气囊充气"))) {
           this.setState({
             control: [jsonObject, "侧翼气囊充气"],
+            // control : ['座椅向前|-2000']
           });
           controlFlag = false;
         } else {
           this.setState({
             control: [jsonObject],
+            // control : ['座椅向前|-2000']
           });
         }
       }
@@ -664,15 +702,16 @@ class Home extends React.Component {
       const arr = jsonObject.timeArr; //.map((a, index) => a.date);
 
       // if (this.state.matrixName == "car") {
-        let obj = [];
-        arr.forEach((a, index) => {
-          obj.push({
-            value: a.info,
-            label: a.name,
-          });
-        });
+      let obj = [];
 
-        this.setState({ dataArr: obj });
+      arr.forEach((a, index) => {
+        obj.push({
+          value: a.info || a.date,
+          label: a.name || a.date,
+        });
+      });
+
+      this.setState({ dataArr: obj });
       // } else {
       //   let obj = [];
       //   arr.forEach((a, index) => {
@@ -702,7 +741,7 @@ class Home extends React.Component {
 
     if (jsonObject.pressArr != null) {
       const max = findMax(jsonObject.pressArr);
-      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "sit10" || this.state.matrixName == "smallBed") {
+      if (this.state.matrixName == "car" || this.state.matrixName == "bigBed" || this.state.matrixName == "sit10" ||this.state.matrixName == "hand" || this.state.matrixName == "smallBed") {
         this.data.current?.handleCharts(jsonObject.pressArr, max + 100);
         this.pressMax = max;
         this.pressArr = jsonObject.pressArr;
@@ -812,6 +851,23 @@ class Home extends React.Component {
       }
     }
   };
+
+  searchName(arr, name) {
+    // console.log(arr,name)
+    // arr.forEach((a,index) => {
+    //   if(a == name || a.split('|').includes(name)){
+    //     // console.log('yes')
+    //     return a.split('|')[1]
+    //   }
+    // })
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] == name || arr[i].split('|').includes(name)) {
+        // console.log('yes')
+        return arr[i].split('|')[1]
+      }
+    }
+    return false
+  }
 
   wsSendObj = (obj) => {
     if (ws && ws.readyState === 1) {
@@ -1137,6 +1193,7 @@ class Home extends React.Component {
   };
 
   render() {
+    console.log(this.state.local)
     return (
       <div className="home">
         <div className="setIcons">
@@ -1518,7 +1575,7 @@ class Home extends React.Component {
         <CanvasCom matrixName={this.state.matrixName}>
           <Aside ref={this.data} matrixName={this.state.matrixName} />
         </CanvasCom>
-
+            
         {this.state.numMatrixFlag == "num" &&
           (this.state.matrixName == "foot" ||
             this.state.matrixName == "hand" ||
@@ -1536,8 +1593,17 @@ class Home extends React.Component {
             <Canvas ref={this.com} changeSelect={this.changeSelect} />
           </CanvasCom>
         ) : this.state.matrixName == "hand" ? (
-          <CanvasCom matrixName={this.state.matrixName}>
-            <CanvasHand ref={this.com} />
+          <CanvasCom matrixName={this.state.matrixName}   
+          local={this.state.local}
+          >
+            <CanvasHand
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeStateData={this.changeStateData}
+              changeSelect={this.changeSelect} />
           </CanvasCom>
         ) : this.state.matrixName == "car" ? (
           <CanvasCom matrixName={this.state.matrixName}>
@@ -1583,7 +1649,6 @@ class Home extends React.Component {
               ref={this.com}
               data={this.data}
               local={this.state.local}
-
               handleChartsBody={this.handleChartsBody.bind(this)}
               handleChartsBody1={this.handleChartsBody1.bind(this)}
               changeSelect={this.changeSelect}
@@ -1682,6 +1747,7 @@ class Home extends React.Component {
             }}
           >
             {controlArr.map((a, index) => {
+              // console.log(this.searchName(this.state.control, a.info))
               return (
                 <p
                   style={{
@@ -1701,8 +1767,8 @@ class Home extends React.Component {
             <p>sitValue : {this.state.pressToArea}</p>
             {/* wsPointData.filter(a => a > 40).length > 45 ? 2 : wsPointData.filter(a => a > 40).length <10  ? 0 : 1 */}
             <p>体型类型 : {this.state.newValue > 45 ? 2 : this.state.newValue < 10 ? 0 : 1} -- {this.state.newValue}</p>
-            <p>leg : {this.state.leg < 600 ? 0 : this.state.leg} </p>
-            <p>butt : {this.state.butt < 600 ? 0 : this.state.butt}</p>
+            <p>backtime : {this.state.backTime}</p>
+
           </div>
         ) : null}
 

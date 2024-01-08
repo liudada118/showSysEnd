@@ -5,14 +5,18 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 // import { SelectionBox } from 'three/addons/interactive/SelectionBox.js';
 // import { SelectionHelper } from 'three/addons/interactive/SelectionHelper.js';
+import { SelectionHelper } from "./SelectionHelper";
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { TextureLoader } from "three";
+import { checkRectIndex, checkRectangleIntersection, getPointCoordinate, getPointCoordinateback } from "./threeUtil1";
 import {
   addSide,
+  findMax,
   gaussBlur_1,
   interp,
   interp1016,
   jet,
+  jetgGrey,
 } from "../../assets/util/util";
 // import { withData } from "./WithData";
 
@@ -33,22 +37,43 @@ let controlsFlag = true;
 var ndata = new Array(backnum1 * backnum2).fill(0), ndata1 = new Array(sitnum1 * sitnum2).fill(0);
 
 var valuej1 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
-valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
-value1 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
-valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
-valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
-valuej2 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
-valueg2 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
-value2 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
-valuel2 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
-valuef2 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
-valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2,
-valuelInit2 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2;
+  valueg1 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
+  value1 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
+  valuel1 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
+  valuef1 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
+  valuej2 = localStorage.getItem('carValuej') ? JSON.parse(localStorage.getItem('carValuej')) : 200,
+  valueg2 = localStorage.getItem('carValueg') ? JSON.parse(localStorage.getItem('carValueg')) : 2,
+  value2 = localStorage.getItem('carValue') ? JSON.parse(localStorage.getItem('carValue')) : 2,
+  valuel2 = localStorage.getItem('carValuel') ? JSON.parse(localStorage.getItem('carValuel')) : 2,
+  valuef2 = localStorage.getItem('carValuef') ? JSON.parse(localStorage.getItem('carValuef')) : 2,
+  valuelInit1 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2,
+  valuelInit2 = localStorage.getItem('carValueInit') ? JSON.parse(localStorage.getItem('carValueInit')) : 2;
 let enableControls = true;
 let isShiftPressed = false;
 
+let timer
+
+function debounce(fn, time) {
+  if (timer) clearTimeout(timer)
+  timer = setTimeout(() => {
+    fn()
+  }, time);
+}
+
+var FPS = 10;
+var timeS = 0;
+var renderT = 1 / FPS;
+let totalArr = [],
+  totalPointArr = [];
+  let local
 
 const Canvas = React.forwardRef((props, refs) => {
+  console.log('render')
+  local = props.local
+  
+  var newDiv, newDiv1, selectStartArr = [], selectEndArr = [], sitArr, backArr, sitMatrix = [], backMatrix = [], selectMatrix = [], selectHelper = {}//new SelectionHelper(renderer, controls, 'selectBox');
+  let sitIndexArr = [], sitIndexEndArr = [], backIndexArr = [], backIndexEndArr = []
+  var animationRequestId, colSelectFlag = false
   let dataFlag = false;
   const changeDataFlag = () => {
     dataFlag = true;
@@ -110,12 +135,12 @@ const Canvas = React.forwardRef((props, refs) => {
   const AMOUNTY1 = backnum2 * backInterp + backOrder * 2;
   const SEPARATION = 100;
   let group = new THREE.Group();
-
+  const groupX = 5, groupY = 150, groupZ = 230
   let positions1;
   let colors1, scales1;
   let positions;
   let colors, scales;
-
+  
   function init() {
     container = document.getElementById(`canvas`);
     // camera
@@ -144,10 +169,10 @@ const Canvas = React.forwardRef((props, refs) => {
     initSet();
     // initBack();
     // scene.add(group);
-    group.rotation.x = -(Math.PI * 2) / 12
-    group.position.x = -15
-    group.position.y = 150
-    group.position.z = 230
+    // group.rotation.x = -(Math.PI * 2) / 12
+    group.position.x = groupX
+    group.position.y = groupY
+    group.position.z = groupZ
     scene.add(group);
     const helper = new THREE.GridHelper(2000, 100);
     helper.position.y = -199;
@@ -198,14 +223,214 @@ const Canvas = React.forwardRef((props, refs) => {
 
     window.addEventListener("resize", onWindowResize);
 
-    renderer.domElement.addEventListener(
-      "click",
-      () => {
+    selectHelper = new SelectionHelper(renderer, controls, 'selectBox');
 
-      },
-      false
-    );
+    renderer.domElement.addEventListener('pointerdown', pointDown);
+
+    renderer.domElement.addEventListener('pointermove', pointMove);
+
+    renderer.domElement.addEventListener('pointerup', pointUp);
+
+    document.addEventListener('keydown', (e) => {
+
+      // if (e.key === 'Shift') {
+      // 	this.isKey = true
+      // 	if (this.element  ) {
+      // 		if(this.shiftFlag < 1){
+      // 			console.log('element')
+      // 		this.shiftFlag ++
+      // 		this.element.addEventListener('mousedown', this.elementDown)
+      // 		}else{
+      // 			this.shiftFlag = 2
+      // 		}
+
+      // 	}
+      // }
+
+      if (e.key === 'ArrowUp') {
+
+        selectHelper.element.style.top = parseInt(selectHelper.element.style.top) - 1 + 'px'
+
+        const elementLocal = selectHelper.element.getBoundingClientRect()
+        const selectMatrix = [elementLocal.left, elementLocal.top, elementLocal.right, elementLocal.bottom]
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) {
+            sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          }
+          if (backInterArr) {
+            backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          }
+          debounce(props.changeSelect.bind(this, { sit: sitIndexArr, back: backIndexArr }), 500)
+          // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+
+        }
+      }
+
+      if (e.key === 'ArrowDown') {
+        selectHelper.element.style.top = parseInt(selectHelper.element.style.top) + 1 + 'px'
+
+        const elementLocal = selectHelper.element.getBoundingClientRect()
+        const selectMatrix = [elementLocal.left, elementLocal.top, elementLocal.right, elementLocal.bottom]
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) {
+            sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          }
+          if (backInterArr) {
+            backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          }
+
+          debounce(props.changeSelect.bind(this, { sit: sitIndexArr, back: backIndexArr }), 500)
+          // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+      }
+
+      if (e.key === 'ArrowLeft') {
+        selectHelper.element.style.left = parseInt(selectHelper.element.style.left) - 1 + 'px'
+
+        const elementLocal = selectHelper.element.getBoundingClientRect()
+        const selectMatrix = [elementLocal.left, elementLocal.top, elementLocal.right, elementLocal.bottom]
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) {
+            sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          }
+          if (backInterArr) {
+            backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          }
+
+          debounce(props.changeSelect.bind(this, { sit: sitIndexArr, back: backIndexArr }), 500)
+          // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+      }
+
+      if (e.key === 'ArrowRight') {
+        selectHelper.element.style.left = parseInt(selectHelper.element.style.left) + 1 + 'px'
+
+        const elementLocal = selectHelper.element.getBoundingClientRect()
+        const selectMatrix = [elementLocal.left, elementLocal.top, elementLocal.right, elementLocal.bottom]
+        if (!controlsFlag) {
+          const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+          const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+          if (sitInterArr) {
+            sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          }
+          if (backInterArr) {
+            backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+
+          }
+
+          debounce(props.changeSelect.bind(this, { sit: sitIndexArr, back: backIndexArr }), 500)
+          // props.changeSelect({ sit: sitIndexArr, back: backIndexArr })
+        }
+      }
+
+    })
+
   }
+
+  function pointDown(event) {
+    if (selectHelper.isShiftPressed) {
+      sitIndexArr = []
+
+      selectStartArr = [(event.clientX), event.clientY]
+
+      sitArr = getPointCoordinate({ particles, camera, position: { x: groupX, y: groupY, z: groupZ } })
+
+
+      sitMatrix = [sitArr[0].x, sitArr[0].y, sitArr[1].x, sitArr[1].y]
+
+      colSelectFlag = true
+    }
+  }
+
+  function pointMove(event) {
+    if (selectHelper.isShiftPressed && colSelectFlag) {
+
+
+      selectEndArr = [(event.clientX), event.clientY,]
+
+
+
+      selectMatrix = [...selectStartArr, ...selectEndArr]
+
+
+      const width = Math.abs(Math.round(selectEndArr[0] - selectStartArr[0]))
+      const height = Math.abs(Math.round(selectEndArr[1] - selectStartArr[1]))
+      if (selectStartArr[0] > selectEndArr[0]) {
+        // selectMatrix = [...selectEndArr , ...selectStartArr]
+        selectMatrix[0] = selectEndArr[0]
+        selectMatrix[2] = selectStartArr[0]
+      } else {
+        selectMatrix[0] = selectStartArr[0]
+        selectMatrix[2] = selectEndArr[0]
+      }
+
+      if (selectStartArr[1] > selectEndArr[1]) {
+        selectMatrix[1] = selectEndArr[1]
+        selectMatrix[3] = selectStartArr[1]
+      } else {
+        selectMatrix[1] = selectStartArr[1]
+        selectMatrix[3] = selectEndArr[1]
+      }
+
+
+      if (!controlsFlag) {
+        const sitInterArr = checkRectangleIntersection(selectMatrix, sitMatrix)
+        const backInterArr = checkRectangleIntersection(selectMatrix, backMatrix)
+
+        if (sitInterArr) {
+          sitIndexArr = checkRectIndex(sitMatrix, sitInterArr, AMOUNTX, AMOUNTY)
+          // if((sitIndexArr[3] - sitIndexArr[1] < 2)&&(sitIndexArr[2] - sitIndexArr[0] < 2) ){
+          //   sitIndexArr = new Array(4).fill(0)
+          // }
+          sitIndexEndArr = [...sitIndexArr]
+
+        }
+        if (backInterArr) {
+          backIndexArr = checkRectIndex(backMatrix, backInterArr, AMOUNTX1, AMOUNTY1)
+          // if((backIndexArr[3] - backIndexArr[1] < 2)&&(backIndexArr[2] - backIndexArr[0] < 2) ){
+          //   backIndexArr = new Array(4).fill(0)
+          // }
+          backIndexEndArr = [...backIndexArr]
+
+        }
+        // console.log(backIndexArr)
+
+        props.changeStateData({ width: width, height: height })
+
+      }
+
+    }
+  }
+
+
+
+  function pointUp(event) {
+    // console.log(sitIndexEndArr , backIndexEndArr , backIndexArr)
+
+
+
+    if (selectHelper.isShiftPressed) {
+      props.changeSelect({ sit: sitIndexEndArr, back: backIndexEndArr })
+      selectStartArr = []
+      selectEndArr = []
+      colSelectFlag = false
+    }
+  }
+
+
   //   初始化座椅
   function initSet() {
     const numParticles = AMOUNTX * AMOUNTY;
@@ -256,7 +481,7 @@ const Canvas = React.forwardRef((props, refs) => {
     particles.scale.z = 0.0062;
 
 
-    particles.rotation.x = Math.PI / 2;
+    particles.rotation.x = Math.PI / 3;
     // particles.rotation.y = 0; //-Math.PI / 2;
     // particles.rotation.y = Math.PI 
     // particles.rotation.z = Math.PI
@@ -264,64 +489,6 @@ const Canvas = React.forwardRef((props, refs) => {
     group.add(particles);
 
   }
-  // 初始化靠背
-  // function initBack() {
-  //   // points 靠背
-  //   const numParticles1 = AMOUNTX1 * AMOUNTY1;
-
-  //   positions1 = new Float32Array(numParticles1 * 3);
-  //   scales1 = new Float32Array(numParticles1);
-  //   colors1 = new Float32Array(numParticles1 * 3);
-  //   let k = 0,
-  //     l = 0;
-
-  //   for (let ix = 0; ix < AMOUNTX1; ix++) {
-  //     for (let iy = 0; iy < AMOUNTY1; iy++) {
-  //       positions1[k] = ix * SEPARATION - (AMOUNTX1 * SEPARATION) / 2; // x
-  //       positions1[k + 1] = 0; // y
-  //       positions1[k + 2] = iy * SEPARATION - (AMOUNTY1 * SEPARATION) / 2; // z
-
-  //       scales1[l] = 1;
-  //       colors1[k] = 0 / 255;
-  //       colors1[k + 1] = 0 / 255;
-  //       colors1[k + 2] = 255 / 255;
-  //       k += 3;
-  //       l++;
-  //     }
-  //   }
-
-  //   backGeometry = new THREE.BufferGeometry();
-  //   backGeometry.setAttribute(
-  //     "position",
-  //     new THREE.BufferAttribute(positions1, 3)
-  //   );
-  //   backGeometry.setAttribute("scale", new THREE.BufferAttribute(scales1, 1));
-  //   backGeometry.setAttribute("color", new THREE.BufferAttribute(colors1, 3));
-  //   const spite = new THREE.TextureLoader().load("./circle.png");
-  //   const material1 = new THREE.PointsMaterial({
-  //     vertexColors: true,
-  //     transparent: true,
-  //     map: spite,
-  //     size: 2,
-  //   });
-
-  //   particles1 = new THREE.Points(backGeometry, material1);
-  //   particles1.geometry.attributes.position.needsUpdate = true;
-  //   particles1.geometry.attributes.color.needsUpdate = true;
-
-  //   particles1.scale.x = 0.0062;
-  //   particles1.scale.y = 0.0062;
-  //   particles1.scale.z = 0.0062;
-
-
-  //   particles1.position.x = 30;
-  //   particles1.rotation.x = Math.PI / 2
-  //   // particles1.rotation.y = Math.PI 
-  //   // particles1.rotation.z = Math.PI
-  //   // scene.add(particles1);
-  //   group.add(particles1);
-  // }
-  //
 
   function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -337,14 +504,24 @@ const Canvas = React.forwardRef((props, refs) => {
   function animate() {
     animationRequestId = requestAnimationFrame(animate);
     const date = new Date().getTime();
-
     render();
+  }
+
+
+  function changeSelectFlag(value, flag) {
+    controlsFlag = value
+    selectHelper.isShiftPressed = !value
+    if (value) {
+      selectHelper.onSelectOver()
+      if (flag)
+        props.changeSelect({ sit: [0, 72, 0, 72] })
+    }
   }
 
 
   //  更新靠背数据
   // function backRenew() {
- 
+
   //   // valueg2 = 2
   //   // valuej2 = 500 
   //   // value2 =2
@@ -403,11 +580,11 @@ const Canvas = React.forwardRef((props, refs) => {
 
   //  更新座椅数据
   function sitRenew() {
-    // console.log(valuej1)
+    // console.log(props)
     // valueg1 = 2
     // valuej1 = 500 
     // value1 =2
-  
+
     interp(ndata1, bigArr, sitnum1, sitInterp);
     // console.log(first)
     let bigArrs = addSide(
@@ -428,7 +605,7 @@ const Canvas = React.forwardRef((props, refs) => {
 
     let k = 0,
       l = 0;
-
+    let dataArr = []
     for (let ix = 0; ix < AMOUNTX; ix++) {
       for (let iy = 0; iy < AMOUNTY; iy++) {
         const value = bigArrg[l] * 10;
@@ -439,7 +616,25 @@ const Canvas = React.forwardRef((props, refs) => {
         positions[k] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // x
         positions[k + 1] = smoothBig[l] / value1; // y
         positions[k + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2; // z
-        const rgb = jet(0, valuej1, smoothBig[l]);
+
+        let rgb
+
+        if (sitIndexArr && !sitIndexArr.every((a) => a == 0)) {
+
+          if (ix >= sitIndexArr[0] && ix < sitIndexArr[1] && iy >= sitIndexArr[2] && iy < sitIndexArr[3]) {
+            // rgb = [255, 0, 0];
+            rgb = jet(0, valuej1, smoothBig[l]);
+            // scales1[l] = 2;
+            // positions1[k + 1] = smoothBig[l] / value2 - 1000
+            dataArr.push(bigArrg[l])
+          } else {
+            rgb = jetgGrey(0, valuej1, smoothBig[l]);
+            // scales1[l] = 1;
+          }
+        } else {
+          rgb = jet(0, valuej1, smoothBig[l]);
+          // scales1[l] = 1;
+        }
 
         colors[k] = rgb[0] / 255;
         colors[k + 1] = rgb[1] / 255;
@@ -448,6 +643,55 @@ const Canvas = React.forwardRef((props, refs) => {
         k += 3;
         l++;
       }
+    }
+
+
+    if (!sitIndexArr.length || sitIndexArr.every((a) => a == 0)) {
+      dataArr = bigArrg
+    }
+
+
+    var T = clock.getDelta();
+    timeS = timeS + T;
+    if (timeS > renderT) {
+      console.log(local,props.local)
+      dataArr = dataArr.filter((a) => a > valuej1 * 0.025)
+      const max = findMax(dataArr)
+      const point = dataArr.filter((a) => a > 0).length
+      const press = dataArr.reduce((a, b) => a + b, 0)
+      const mean = press / (point == 0 ? 1 : point)
+      props.data.current?.changeData({
+        meanPres: mean.toFixed(2),
+        maxPres: max,
+        point: point,
+        // area: areaSmooth.toFixed(0),
+        totalPres: press,
+        // pressure: pressureSmooth.toFixed(2),
+      });
+
+      if (totalArr.length < 20) {
+        totalArr.push(press);
+      } else {
+        totalArr.shift();
+        totalArr.push(press);
+      }
+
+      const maxTotal = findMax(totalArr);
+    
+      if (!local)
+        props.data.current?.handleCharts(totalArr, maxTotal + 1000);
+
+      if (totalPointArr.length < 20) {
+        totalPointArr.push(point);
+      } else {
+        totalPointArr.shift();
+        totalPointArr.push(point);
+      }
+
+      const max1 = findMax(totalPointArr);
+      if (!local) 
+        props.data.current?.handleChartsArea(totalPointArr, max1 + 100); 
+      timeS = 0;
     }
 
     particles.geometry.attributes.position.needsUpdate = true;
@@ -461,10 +705,26 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function render() {
-   
+
     sitRenew();
-    if (enableControls && !isShiftPressed) {
+    if (controlsFlag) {
+      controls.mouseButtons = {
+        LEFT: THREE.MOUSE.PAN, // make pan the default instead of rotate
+        MIDDLE: THREE.MOUSE.ZOOM,
+        RIGHT: THREE.MOUSE.ROTATE,
+      };
+      controls.keys = [
+        ALT_KEY, // orbit
+        CTRL_KEY, // zoom
+        CMD_KEY, // pan
+      ];
       controls.update();
+
+    } else if (!controlsFlag) {
+
+      controls.keys = [];
+      controls.mouseButtons = [];
+
     }
 
     renderer.render(scene, camera);
@@ -532,13 +792,14 @@ const Canvas = React.forwardRef((props, refs) => {
     }
     console.log(ndata1, 111)
   }
-  function sitData(prop) {
+  function sitData(prop , local) {
 
     if (i < 50) {
       i++;
     } else {
       i = 0;
     }
+    local = local
     const {
       wsPointData: wsPointData,
       valuej,
@@ -575,12 +836,12 @@ const Canvas = React.forwardRef((props, refs) => {
   }
 
   function changeGroupRotate(obj) {
-    console.log(group.rotation)
+
     if (typeof obj.x === 'number') {
-      group.rotation.x = -(Math.PI * 2 + (obj.x) * 4) / 12
+      group.rotation.x = -((obj.x) * 6) / 12
     }
-    if (typeof obj.y === 'number') {
-      group.rotation.y = -(obj.y) * 6 / 12
+    if (typeof obj.z === 'number') {
+      particles.rotation.z = (obj.z) * 6 / 12
     }
   }
 
@@ -622,6 +883,7 @@ const Canvas = React.forwardRef((props, refs) => {
     changeDataFlag: changeDataFlag,
     sitValue,
     backValue,
+    changeSelectFlag,
     // backRenew,
     sitRenew,
     changeGroupRotate,
@@ -641,7 +903,7 @@ const Canvas = React.forwardRef((props, refs) => {
       controls.keys = null
     }
   }
-  
+
   // 按键放开事件处理函数
   function onKeyUp(event) {
     if (event.key === 'Shift') {
@@ -660,7 +922,7 @@ const Canvas = React.forwardRef((props, refs) => {
     }
   }
 
- 
+
 
 
 
@@ -676,7 +938,7 @@ const Canvas = React.forwardRef((props, refs) => {
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
 
-    return () => { 
+    return () => {
       cancelAnimationFrame(animationRequestId);
     };
   }, []);
