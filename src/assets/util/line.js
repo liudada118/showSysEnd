@@ -92,6 +92,53 @@ export function handLine(arr, flag) {
   return wsPointData;
 }
 
+export function CarTqLine(arr) {
+  let newArr = []
+  for (let i = 0; i < 10; i++) {
+    for (let j = 22; j < 32; j++) {
+      newArr.push(arr[i * 32 + j])
+    }
+  }
+
+  for (let i = 0; i < 2; i++) {
+    for (let j = 0; j < 10; j++) {
+      [newArr[i*10 + j] ,newArr[(4-i)*10 + j] ] = [newArr[(4-i)*10 + j],newArr[i*10 + j] , ]
+    }
+  }
+  
+
+
+  newArr =  rotateArrayCounter90Degrees(newArr,10,10)
+
+  for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 10; j++) {
+      [newArr[i*10 + j] ,newArr[(9-i)*10 + j] ] = [newArr[(9-i)*10 + j],newArr[i*10 + j] , ]
+    }
+  }
+  
+  return newArr;
+}
+
+export function matColLine(arr){
+  let newArr = []
+  for (let i = 0; i < 16; i++) {
+    for (let j = 0; j < 10; j++) {
+      newArr.push(arr[i * 32 + j])
+    }
+  }
+
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 10; j++) {
+      [newArr[(i)*10 + j], newArr[(7-i)*10 + j]] = [newArr[(7-i)*10  + j], newArr[(i)*10 + j]]
+    }
+  }
+
+  const arr1 = newArr.splice(0, 10 * 8)
+  newArr = newArr.concat(arr1)
+
+  return newArr;
+}
+
 export function zeroLine(arr ,max , min) {
   let wsPointData = [...arr];
   let colArr = [],

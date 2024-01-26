@@ -5,6 +5,8 @@ import CanvasCar from "../../components/three/carnewTest copy";
 import Car10 from "../../components/three/car10";
 import Canvas from "../../components/three/Three";
 import CanvasHand from "../../components/three/hand";
+import MatCol from "../../components/three/matCol";
+import CarTq from "../../components/three/carTq";
 import Bed from "../../components/three/Bed";
 import SmallBed from "../../components/three/smallBed";
 import SmallM from "../../components/three/smallM";
@@ -219,7 +221,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "hand",
+      matrixName: "sitCol",
       length: 0,
       local: false,
       dataArr: [],
@@ -1355,33 +1357,7 @@ class Home extends React.Component {
                 <img src={minus} alt="" />
               </div>
             </Popover>
-
-            {/* <div>
-              <input type="text" onChange={(e) => {
-
-                let wsPointData = (e.target.value)
-
-                if (!Array.isArray(wsPointData)) {
-                  wsPointData = JSON.parse(wsPointData);
-                }
-                wsPointDataSit = wsPointData
-                wsPointDataSit = wsPointDataSit.map((a) => Math.round(a))
-                sitTypeEvent[this.state.matrixName]({ that: this, wsPointData, local: this.state.local })
-              }} />
-            </div>
-
-            <input type="text"
-              onChange={(e) => {
-                wsPointDataBack = (e.target.value)
-                if (!Array.isArray(wsPointDataBack)) {
-                  wsPointDataBack = JSON.parse(wsPointDataBack);
-                }
-                const jsonObject = {
-                  backData : wsPointDataBack
-                }
-                backTypeEvent[this.state.matrixName]({ that: this, jsonObject, local: this.state.local })
-              }}
-            /> */}
+            
           </div>
           {this.state.matrixName == "foot" ? (
             <Popover placement="top" title={"刷新"} content={content3}>
@@ -1422,12 +1398,7 @@ class Home extends React.Component {
                 </div>
               </Popover>
             ) : null}
-            {/* <div className='setIcon marginB10' onClick={() => {
-           
-              this.wsSendObj({ flag: false })
-            }}>
-              <img src={stop} alt="" />
-            </div> */}
+            
             <Popover placement="top" title={text2} content={content2}>
               <div
                 className="setIcon"
@@ -1438,10 +1409,7 @@ class Home extends React.Component {
                     selectFlag: !flag,
                   });
                   this.com.current?.changeSelectFlag(flag, this.state.local);
-                  // this.setState({
-                  //   sitIndexArr : new Array(4).fill(0),
-                  //   backIndexArr : new Array(4).fill(0)
-                  // })
+                
                   if (flag && this.state.carState === "all") {
                     this.setState({ width: 0, height: 0 });
                     this.sitIndexArr = new Array(4).fill(0);
@@ -1597,6 +1565,45 @@ class Home extends React.Component {
           local={this.state.local}
           >
             <CanvasHand
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeStateData={this.changeStateData}
+              changeSelect={this.changeSelect} />
+          </CanvasCom>
+        ) : this.state.matrixName == "sitCol" ? (
+          <CanvasCom matrixName={this.state.matrixName}   
+          local={this.state.local}
+          >
+            <CanvasHand
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeStateData={this.changeStateData}
+              changeSelect={this.changeSelect} />
+          </CanvasCom>
+        ) : this.state.matrixName == "matCol" ? (
+          <CanvasCom matrixName={this.state.matrixName}   
+          local={this.state.local}
+          >
+            <MatCol
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeStateData={this.changeStateData}
+              changeSelect={this.changeSelect} />
+          </CanvasCom>
+        ) : this.state.matrixName == "CarTq" ? (
+          <CanvasCom matrixName={this.state.matrixName}   
+          local={this.state.local}
+          >
+            <CarTq
               ref={this.com}
               data={this.data}
               local={this.state.local}

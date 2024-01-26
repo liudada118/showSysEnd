@@ -584,7 +584,6 @@ const Canvas = React.forwardRef((props, refs) => {
     // valueg1 = 2
     // valuej1 = 500 
     // value1 =2
-
     interp(ndata1, bigArr, sitnum1, sitInterp);
     // console.log(first)
     let bigArrs = addSide(

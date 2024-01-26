@@ -418,7 +418,7 @@ export class CanvasDemo extends React.Component {
     LinearGradientColor2: '#499BE6'
   }
   render() {
-
+    console.log(this.props)
     const { width, height, canvaswidth, canvasheight } = this.props
     return (
       <div style={{ width: width, height: height, padding: 10 }}>

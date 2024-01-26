@@ -38,6 +38,8 @@ const carItems = [
   },
 ];
 
+let loadData = ''
+
 const sensorArr = [
   { label: '脚型检测', value: 'foot' },
   { label: '手部检测', value: 'hand' },
@@ -50,6 +52,9 @@ const sensorArr = [
   { label: '小矩阵1', value: 'smallM' },
   { label: '矩阵2', value: 'rect' },
   { label: 'T-short', value: 'short' },
+  { label: '唐群座椅', value: 'CarTq' },
+  { label: '座椅采集', value: 'sitCol' },
+  { label: '小床褥采集', value: 'matCol' },
 ]
 
 
@@ -80,18 +85,44 @@ class Title extends React.Component {
       dataName: '',
       items: localStorage.getItem('sitType') ? JSON.parse(localStorage.getItem('sitType')) : [],
       name: '',
-      items1 : localStorage.getItem('sitType1') ? JSON.parse(localStorage.getItem('sitType1')) : [],
+      items1: localStorage.getItem('sitType1') ? JSON.parse(localStorage.getItem('sitType1')) : [],
       name1: '',
-      realname : '',
-      realname1 : ''
+      realname: '',
+      realname1: '',
+      loadName: ''
     }
     this.inputRef = React.createRef(null)
     this.inputRef1 = React.createRef(null)
   }
 
   componentDidMount() {
-
+    if(this.props.matrixName === 'sitCol'){
+      if (localStorage.getItem('sitType1')) {
+        console.log('localSetState')
+        this.setState({
+          items1: ['正常_1', '脊柱侧弯_2', '前倾_3', '驼背_4', '二郎腿_5', ...JSON.parse(localStorage.getItem('sitType1'))]
+        })
+      } else {
+        console.log('setState')
+        this.setState({
+          items1: ['正常_1', '脊柱侧弯_2', '前倾_3', '驼背_4', '二郎腿_5']
+        })
+      }
+    }else if(this.props.matrixName === 'matCol'){
+      if (localStorage.getItem('sitType1')) {
+        console.log('localSetState')
+        this.setState({
+          items1: ['其他_1', '平躺_2', '侧睡_3', '趴睡_4', '其他_5', ...JSON.parse(localStorage.getItem('sitType1'))]
+        })
+      } else {
+        console.log('setState')
+        this.setState({
+          items1: ['其他_1', '平躺_2', '侧睡_3', '趴睡_4', '其他_5',]
+        })
+      }
+    }
   }
+
 
   onClick = (e) => {
     console.log('click ', e.key);
@@ -181,8 +212,8 @@ class Title extends React.Component {
 
   onChange = (value) => {
     // this.props.changeStateData({ dataName: })
-    this.setState({realname : value})
-    this.setState({ colName: value + this.state.realname1+ timeStampToDateNospace(Date.parse(new Date())) })
+    this.setState({ realname: value })
+    this.setState({ colName: value + this.state.realname1 })
   };
 
   onSearch = (value) => {
@@ -198,13 +229,38 @@ class Title extends React.Component {
     this.props.changeMatrix(e)
     if (e === 'bigBed') {
       this.props.initBigCtx()
+    }else if(e === 'sitCol'){
+      if (localStorage.getItem('sitType1')) {
+        console.log('localSetState')
+        this.setState({
+          items1: ['正常_1', '脊柱侧弯_2', '前倾_3', '驼背_4', '二郎腿_5', ...JSON.parse(localStorage.getItem('sitType1'))]
+        })
+      } else {
+        console.log('setState')
+        this.setState({
+          items1: ['正常_1', '脊柱侧弯_2', '前倾_3', '驼背_4', '二郎腿_5']
+        })
+      }
+    }else if(e === 'matCol'){
+      if (localStorage.getItem('sitType1')) {
+        console.log('localSetState')
+        this.setState({
+          items1: ['其他_1', '平躺_2', '侧睡_3', '趴睡_4', '其他_5', ...JSON.parse(localStorage.getItem('sitType1'))]
+        })
+      } else {
+        console.log('setState')
+        this.setState({
+          items1: ['其他_1', '平躺_2', '侧睡_3', '趴睡_4', '其他_5',]
+        })
+      }
     }
+
     // this.props.changeDateArr(e.info)
     // if (ws && ws.readyState === 1)
     //   ws.send(JSON.stringify({ sitPort: e }));
   }
 
- 
+
   onNameChange = (event) => {
     this.setState({ name: event.target.value });
     console.log(event.target.value)
@@ -222,8 +278,8 @@ class Title extends React.Component {
   };
 
   onChange1 = (value) => {
-    this.setState({realname1 : value})
-    this.setState({ colName: this.state.realname + value + timeStampToDateNospace(Date.parse(new Date())) })
+    this.setState({ realname1: value })
+    this.setState({ colName: this.state.realname + value })
   };
 
   onNameChange1 = (event) => {
@@ -406,13 +462,18 @@ class Title extends React.Component {
                   if (flag) {
                     console.log(this.state.colName)
                     if (this.state.colName) {
-                      this.props.wsSendObj({ flag: true, colName: this.state.colName + ' ' + formattedDate })
+                      this.props.wsSendObj({ flag: true, colName: this.state.colName+ '_' + timeStampToDateNospace(formattedDate) + ' ' + formattedDate })
+                      loadData = this.state.colName + '_' + timeStampToDateNospace(formattedDate) + ' ' + formattedDate
                     } else {
                       this.props.wsSendObj({ flag: true, time: formattedDate })
                     }
+                    // this.setState({loadName : this.state.colName + timeStampToDateNospace(formattedDate)+ ' ' + formattedDate})
 
                   } else {
                     this.props.wsSendObj({ flag: flag })
+                    if (this.props.matrixName == 'sitCol' || this.props.matrixName == 'matCol') {
+                      this.props.wsSendObj({ download: loadData })
+                    }
                   }
                   // console.log(flag)
                   // this.props.setColFlag(!flag)
@@ -504,7 +565,7 @@ class Title extends React.Component {
           /> : null
         } */}
 
-         <>
+        <>
           <Select
             style={{ width: 250 }}
             placeholder="特征标签1"
@@ -565,7 +626,7 @@ class Title extends React.Component {
             )}
             options={this.state.items1.map((item) => ({ label: item, value: item }))}
           />
-        </> 
+        </>
 
         {this.props.matrixName === 'bigBed' ? <Button className='titleButton' onClick={() => {
           const flag = this.props.pressChart

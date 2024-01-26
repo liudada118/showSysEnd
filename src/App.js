@@ -7,6 +7,7 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 // import Local from './components/foot/Num32DetectLocal'
 import Home from './page/home/Home'
 import Demo from "./components/demo/Demo";
+import Demo24 from "./components/demo/Demo2419";
 import Block from "./components/demo/Block";
 import DemoC from "./components/demo/Demo copy";
 import DemoBed from "./components/demo/DemoBed";
@@ -18,6 +19,7 @@ function App() {
         <Route exact path="/" element={<Home />} />
         <Route exact path="/heatmap" element={<Heatmap />} />
         <Route exact path="/num" element={<Demo />} />
+        <Route exact path="/carNum" element={<Demo24 />} />
         <Route exact path="/block" element={<Block />} />
         <Route exact path="/num32" element={<DemoC />} />
         <Route exact path="/numBed" element={<DemoBed />} />

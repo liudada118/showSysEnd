@@ -183,7 +183,9 @@ export default function Demo() {
 
       if (jsonObject.sitData != null) {
         wsPointData = jsonObject.sitData;
-        wsPointData = handLine(wsPointData);
+
+        
+        // wsPointData = handLine(wsPointData);
         // wsPointData = zeroLine(wsPointData , 30, 5);
         
         // wsPointData = wsPointData.map((a) => (a < 5 ? 0 : a));

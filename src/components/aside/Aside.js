@@ -259,7 +259,7 @@ class Com extends React.Component {
 const arr = ['meanPres', 'maxPres', 'totalPres', 'presStan']
 const arrArea = ['point', 'area',]
 const footArr = ['meanPres', 'maxPres', 'point', 'area',]
-let ctx1, ctx2,ctx3
+let ctx1, ctx2, ctx3
 class Aside extends React.Component {
     constructor() {
         super()
@@ -275,7 +275,7 @@ class Aside extends React.Component {
             pressMult: localStorage.getItem("valueMult")
                 ? JSON.parse(localStorage.getItem("valueMult"))
                 : 1,
-            fontSize : 1
+            fontSize: 1
         }
         this.canvas = React.createRef()
     }
@@ -289,7 +289,7 @@ class Aside extends React.Component {
     componentDidMount() {
 
         this.setState({
-            fontSize : window.innerWidth / 1920
+            fontSize: window.innerWidth / 1920
         })
 
         var c = document.getElementById("myChart1");
@@ -347,7 +347,7 @@ class Aside extends React.Component {
         ctx.stroke();
 
 
-        
+
         if (index != null) {
             ctx.beginPath();
             ctx.moveTo(gap * (index), canvas.height);
@@ -356,10 +356,10 @@ class Aside extends React.Component {
             ctx.lineWidth = 2;
             ctx.setLineDash([3, 3]);
             ctx.stroke();
-          
+
             ctx.font = "48px serif";
             ctx.fillStyle = '#01F1E3'
-            ctx.fillText(arr[index-1], gap * (index), canvas.height - 30)
+            ctx.fillText(arr[index - 1], gap * (index), canvas.height - 30)
         }
 
     }
@@ -370,24 +370,24 @@ class Aside extends React.Component {
 
     handleCharts(arr, max, index) {
         const canvas = document.getElementById('myChart1')
-       
+
         this.drawChart({ ctx: ctx1, arr, max, canvas, index })
     }
 
     handleChartsArea(arr, max, index) {
         const canvas = document.getElementById('myChart2')
         this.drawChart({ ctx: ctx2, arr, max, canvas, index })
-       
+
     }
 
     handleChartsBody(arr, max, index) {
-        
+
         const canvas = document.getElementById('myChart3')
-        if(canvas){
+        if (canvas) {
             this.drawChart({ ctx: ctx3, arr, max, canvas, index })
         }
-       
-        
+
+
     }
 
     initCharts() {
@@ -417,7 +417,7 @@ class Aside extends React.Component {
             <div className='aside'>
                 <div className="asideContent firstAside">
                     {this.props.matrixName != 'foot' ? <><h2 className="asideTitle">Pressure Area</h2>
-                        <canvas id="myChart2" style={{ height: `${150*this.state.fontSize}px`, width: '100%' }}></canvas>
+                        <canvas id="myChart2" style={{ height: `${150 * this.state.fontSize}px`, width: '100%' }}></canvas>
                         <>
                             {
                                 dataArr.map((a, index) => {
@@ -430,9 +430,9 @@ class Aside extends React.Component {
                                             <div className='dataIteminfo'>
                                                 <div className='standardColor'>{a.eng}</div>
                                                 <div>
-                                                    { arrArea[index] === 'area' ? 
-                                                <div>{parseInt(this.state[arrArea[index]]*2.1)} <span style={{color:'#999'}}>cm²</span></div> 
-                                                :  <div>{this.state[arrArea[index]]} <span style={{color:'#999'}}>个</span></div>}  
+                                                    {arrArea[index] === 'area' ?
+                                                        <div>{parseInt(this.state[arrArea[index]] * 2.1)} <span style={{ color: '#999' }}>cm²</span></div>
+                                                        : <div>{this.state[arrArea[index]]} <span style={{ color: '#999' }}>个</span></div>}
                                                 </div>
                                             </div>
                                         </div>
@@ -450,7 +450,7 @@ class Aside extends React.Component {
 
                     {this.props.matrixName != 'foot' ? <>
                         <div className='pressTitle standardColor'>总体压力 Total Pres</div>
-                        <canvas id="myChart1" style={{ height: `${150*this.state.fontSize}px`, width: '100%' }}></canvas>
+                        <canvas id="myChart1" style={{ height: `${150 * this.state.fontSize}px`, width: '100%' }}></canvas>
                         {
                             dataArrCar.map((a, index) => {
                                 return (
@@ -466,7 +466,18 @@ class Aside extends React.Component {
                                     </div>
                                 )
                             })
+                            
                         }
+                        {this.props.matrixName == 'sitCol' ? <div className='dataItem'>
+                                        <div className='dataItemCircle'>
+                                            <div className='circleItem' style={{ backgroundColor: 'red' }}></div>
+                                            <div>坐姿</div>
+                                        </div>
+                                        <div className='dataIteminfo'>
+                                            <div className='standardColor'></div>
+                                            <div>{this.state.model}</div>
+                                        </div>
+                         </div> : null}
                     </> : <>
                         <div className='pressTitle standardColor'>总体面积 Total Area</div>
                         <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>
@@ -486,6 +497,7 @@ class Aside extends React.Component {
                                 )
                             })
                         }
+                        
                     </>}
                 </div>
                 {/* {this.props.matrixName === 'bigBed' ? <div className="asideContent" style={{padding : 0}}>
