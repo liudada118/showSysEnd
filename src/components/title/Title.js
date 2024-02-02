@@ -49,12 +49,14 @@ const sensorArr = [
   { label: '本地自适应', value: 'localCar' },
   { label: '席悦座椅', value: 'sit10' },
   { label: '小床监测', value: 'smallBed' },
+  { label: '小床128', value: 'smallBed1' },
   { label: '小矩阵1', value: 'smallM' },
   { label: '矩阵2', value: 'rect' },
   { label: 'T-short', value: 'short' },
   { label: '唐群座椅', value: 'CarTq' },
   { label: '座椅采集', value: 'sitCol' },
   { label: '小床褥采集', value: 'matCol' },
+  { label: '正常测试', value: 'normal' },
 ]
 
 

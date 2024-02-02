@@ -468,7 +468,7 @@ class Aside extends React.Component {
                             })
                             
                         }
-                        {this.props.matrixName == 'sitCol' ? <div className='dataItem'>
+                        {this.props.matrixName == 'sitCol' ?<> <div className='dataItem'>
                                         <div className='dataItemCircle'>
                                             <div className='circleItem' style={{ backgroundColor: 'red' }}></div>
                                             <div>坐姿</div>
@@ -477,7 +477,29 @@ class Aside extends React.Component {
                                             <div className='standardColor'></div>
                                             <div>{this.state.model}</div>
                                         </div>
-                         </div> : null}
+                         </div>
+                         <div className='dataItem'>
+                                        <div className='dataItemCircle'>
+                                            <div className='circleItem' style={{ backgroundColor: 'red' }}></div>
+                                            <div>最大索引</div>
+                                        </div>
+                                        <div className='dataIteminfo'>
+                                            <div className='standardColor'></div>
+                                            <div>{this.state.maxIndex}</div>
+                                        </div>
+                         </div>
+
+                         <div className='dataItem'>
+                                        <div className='dataItemCircle'>
+                                            <div className='circleItem' style={{ backgroundColor: 'red' }}></div>
+                                            <div>采集标签</div>
+                                        </div>
+                                        <div className='dataIteminfo'>
+                                            <div className='standardColor'></div>
+                                            <div>{this.state.sitCol}</div>
+                                        </div>
+                         </div>
+                         </>: null}
                     </> : <>
                         <div className='pressTitle standardColor'>总体面积 Total Area</div>
                         <canvas id="myChart2" style={{ height: '150px', width: '100%' }}></canvas>

@@ -221,7 +221,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "sitCol",
+      matrixName: "normal",
       length: 0,
       local: false,
       dataArr: [],
@@ -665,6 +665,7 @@ class Home extends React.Component {
       }
       wsPointDataSit = wsPointData;
       wsPointDataSit = wsPointDataSit.map((a) => Math.round(a));
+      // console.log(wsPointData ,this.state.matrixName,sitTypeEvent[this.state.matrixName] )
       sitTypeEvent[this.state.matrixName]({
         that: this,
         wsPointData,
@@ -672,6 +673,12 @@ class Home extends React.Component {
         local: this.state.local,
         press: this.state.press,
         // compen : this.state.compen
+      });
+    }
+
+    if(jsonObject.sitType != null){
+      this.data.current?.changeData({
+        sitCol : jsonObject.sitType
       });
     }
 
@@ -1240,6 +1247,16 @@ class Home extends React.Component {
                   }}
                 />
               </div>
+              <Input onChange={(e) => {
+                sitTypeEvent[this.state.matrixName]({
+                  that: this,
+                  wsPointData : JSON.parse(e.target.value),
+                  // backFlag,
+                  local: this.state.local,
+                  press: this.state.press,
+                  // compen : this.state.compen
+                });
+              }} />
             </div>
 
             <Popover placement="top" title={text} content={content}>
@@ -1540,6 +1557,8 @@ class Home extends React.Component {
           delPushData={this.delPushData.bind(this)}
         />
 
+      
+
         <CanvasCom matrixName={this.state.matrixName}>
           <Aside ref={this.data} matrixName={this.state.matrixName} />
         </CanvasCom>
@@ -1561,6 +1580,19 @@ class Home extends React.Component {
             <Canvas ref={this.com} changeSelect={this.changeSelect} />
           </CanvasCom>
         ) : this.state.matrixName == "hand" ? (
+          <CanvasCom matrixName={this.state.matrixName}   
+          local={this.state.local}
+          >
+            <CanvasHand
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeStateData={this.changeStateData}
+              changeSelect={this.changeSelect} />
+          </CanvasCom>
+        ) : this.state.matrixName == "normal" ? (
           <CanvasCom matrixName={this.state.matrixName}   
           local={this.state.local}
           >
@@ -1640,6 +1672,17 @@ class Home extends React.Component {
             />
           </CanvasCom>
         ) : this.state.matrixName == "smallBed" ? (
+          <CanvasCom matrixName={this.state.matrixName}>
+            <SmallBed
+              ref={this.com}
+              data={this.data}
+              local={this.state.local}
+              handleChartsBody={this.handleChartsBody.bind(this)}
+              handleChartsBody1={this.handleChartsBody1.bind(this)}
+              changeSelect={this.changeSelect}
+            />
+          </CanvasCom>
+        ): this.state.matrixName == "smallBed1" ? (
           <CanvasCom matrixName={this.state.matrixName}>
             <SmallBed
               ref={this.com}
