@@ -197,19 +197,32 @@ export function calculateY(arr) {
   return wsPointData;
 }
 
-export function calculatePressure(x) {
+export function  calculatePressure(x) {
   // if (x < 40) {
   //   return 0
   // }
-  const coefficient2 = -0.005051;
-  const coefficient1 = 1.198526;
-  const constant = -38.228519;
+  // 0.0000   -0.0002    0.1221   -9.9813
+
+  // const coefficient3 = 0
+  // const coefficient2 = 0.12830;
+  // const coefficient1 = -1.54107;
+  // const constant = 3.19471;
 
   // const y = coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant;
-  const value = (coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant).toFixed(
-    2
-  )
-  return value < 0 ? 0 : value;
+  // let y = (coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant).toFixed(
+  //   2
+  // )
+
+  // const coefficient1 = 1.030381665929742*Math.pow(10, -19)
+  // const coefficient2 = 0.052804812746562
+  // let y =  coefficient1 * Math.pow(Math.E, coefficient2*x)
+  // y = y > 0 ? y : 0
+
+  
+  let y = 1.314 *  Math.pow(10, -4) * Math.pow(x, 3.955)
+
+  
+  return y;
 }
 
 export function pressBed(arr, value) {

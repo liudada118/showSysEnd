@@ -221,7 +221,7 @@ class Home extends React.Component {
       port: [{ value: " ", label: " " }],
       portname: "",
       portnameBack: "",
-      matrixName: "normal",
+      matrixName: "localCar",
       length: 0,
       local: false,
       dataArr: [],
@@ -1805,6 +1805,7 @@ class Home extends React.Component {
                       ? "#0cf862"
                       : "#fff",
                     fontWeight: "bold",
+                    transition: 'color 0.5s ease'
                   }}
                 >
                   {a.name}

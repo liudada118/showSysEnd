@@ -1216,3 +1216,19 @@ export const initValue = {
     : 0,
   ymax1: localStorage.getItem('ymax') ? JSON.parse(localStorage.getItem('ymax')) : 251,
 }
+
+export function calculatePressure(x) {
+  // if (x < 40) {
+  //   return 0
+  // }
+  const coefficient3 = 0.0001
+  const coefficient2 = -0.0036;
+  const coefficient1 = 0.1492;
+  const constant = -0.6129;
+
+  // const y = coefficient5 * Math.pow(x, 5) + coefficient4 * Math.pow(x, 4) + coefficient3 * Math.pow(x, 3) + coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant;
+
+  return (coefficient3 * Math.pow(x, 3) +coefficient2 * Math.pow(x, 2) + coefficient1 * x + constant).toFixed(
+    2
+  );
+}

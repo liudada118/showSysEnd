@@ -23,7 +23,7 @@ import {
 } from "../../assets/util/util";
 
 import './index.scss'
-import { press, pressSmallBed } from "../../assets/util/line";
+import { calculatePressure, press, pressSmallBed } from "../../assets/util/line";
 
 const group = new THREE.Group();
 const sitInit = 0;
@@ -604,8 +604,10 @@ const Canvas = React.forwardRef((props, refs) => {
       dataArr = dataArr.filter((a) => a > valuej1 * 0.025)
       const max = findMax(dataArr)
       const point = dataArr.filter((a) => a > 0).length
-      const press = dataArr.reduce((a, b) => a + b, 0)
+      const press = Math.round(dataArr.reduce((a, b) => a + b, 0)/10)
       const mean = press / (point == 0 ? 1 : point)
+      const realPoint = ndata1.filter((a) => a > 0).length
+      
       props.data.current?.changeData({
         meanPres: mean.toFixed(2),
         maxPres: max,
@@ -613,6 +615,7 @@ const Canvas = React.forwardRef((props, refs) => {
         // area: areaSmooth.toFixed(0),
         totalPres: press,
         // pressure: pressureSmooth.toFixed(2),
+        pressure: calculatePressure(press/realPoint)
       });
 
       if (totalArr.length < 20) {

@@ -919,7 +919,7 @@ export const sitTypeEvent = {
     //     arr[i * 32 + j] = arr[i * 32 + j] * (1 + Math.floor(i / 8) * compen / 100)
     //   }
     // }
-    console.log(JSON.stringify(wsPointData))
+    // console.log(arr.reduce((a,b) => a + b , 0) , arr.filter((a) => a > 0).length)
     that.com.current?.sitData({
       wsPointData: arr,
     });
@@ -932,7 +932,7 @@ export const sitTypeEvent = {
     //     arr[i * 32 + j] = arr[i * 32 + j] * (1 + Math.floor(i / 8) * compen / 100)
     //   }
     // }
-    console.log(JSON.stringify(wsPointData))
+
     that.com.current?.sitData({
       wsPointData: arr,
     });
@@ -973,16 +973,16 @@ export const sitTypeEvent = {
     });
   },
   normal({that, wsPointData, press }){
-    // if (that.state.numMatrixFlag == "normal") {
-    //   // wsPointData = handLine(wsPointData);
-    //   that.com.current?.sitData({
-    //     wsPointData: wsPointData,
-    //     local : that.state.local
-    //   });
+    if (that.state.numMatrixFlag == "normal") {
+      // wsPointData = handLine(wsPointData);
+      that.com.current?.sitData({
+        wsPointData: wsPointData,
+        local : that.state.local
+      });
 
      
-    // }
-    console.log(that)
+    }
+    // console.log(that)
     
   }
 };
